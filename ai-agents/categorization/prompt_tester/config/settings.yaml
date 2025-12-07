@@ -1,0 +1,26 @@
+# Prompt Tester Configuration File
+
+# Ollama Configuration
+ollama:
+  endpoint: "http://localhost:11434"
+  model: "llama3.2:3b"
+  timeout: 30
+  max_retries: 3
+
+# Valid Email Categories
+categories:
+  - "contract_submission"
+  - "international_office_question"
+  - "internship_postponement"
+  - "uncategorized"
+
+# Output Configuration
+output:
+  format: "both"  # Options: json, csv, both
+  directory: "results"
+  timestamp_format: "%Y%m%d_%H%M%S"
+
+# Validation Settings
+validation:
+  include_confusion_matrix: true
+  per_category_metrics: true

@@ -1,0 +1,293 @@
+# Prompt Tester - Email Categorization Testing Framework
+
+A Python CLI tool for validating email categorization prompts against dummy test data using a custom Ollama endpoint.
+
+## Features
+
+- Test single prompts against a validation dataset
+- Compare multiple prompts side-by-side
+- Calculate accuracy metrics (precision, recall, F1-score, confusion matrix)
+- Export results to JSON and CSV
+- Custom Ollama endpoint configuration
+- Clean separation of CLI and core logic
+
+## Installation
+
+### Prerequisites
+
+- Python 3.10+
+- Ollama running locally or remotely
+
+### Install Dependencies
+
+```bash
+cd ai-agents/categorization
+pip install -r requirements.txt
+```
+
+### Install as CLI Tool
+
+```bash
+pip install -e .
+```
+
+This installs the package in editable mode. On Windows, the CLI is accessed via `python -m prompt_tester.cli` instead of a global `prompt-tester` command (due to Scripts folder not being on PATH by default).
+
+## Configuration
+
+Edit [prompt_tester/config/settings.yaml](prompt_tester/config/settings.yaml) to configure:
+
+- Ollama endpoint and model
+- Output format and directory
+- Valid email categories
+
+You can also override settings with environment variables:
+```bash
+export OLLAMA_ENDPOINT="http://localhost:11434"
+export OLLAMA_MODEL="llama3.2:3b"
+```
+
+## Usage
+
+### Test a Single Prompt
+
+Run validation on a single prompt:
+
+```bash
+python -m prompt_tester.cli test -p prompts/v1_baseline.txt -d test_data/dummy_emails.json
+```
+
+With system prompt:
+
+```bash
+python -m prompt_tester.cli test \
+  -p prompts/v1_baseline.txt \
+  -s prompts/system_prompt.txt \
+  -d test_data/dummy_emails.json \
+  --verbose
+```
+
+### Compare Multiple Prompts
+
+Compare two or more prompts side-by-side:
+
+```bash
+python -m prompt_tester.cli compare \
+  -p prompts/v1_baseline.txt \
+  -p prompts/v2_enhanced.txt \
+  -d test_data/dummy_emails.json \
+  --show-disagreements
+```
+
+### Generate Report from Results
+
+View saved test results:
+
+```bash
+python -m prompt_tester.cli report results/test_v1_baseline_20251207_143022.json
+```
+
+## Project Structure
+
+```
+ai-agents/categorization/
+├── prompt_tester/              # Main testing framework
+│   ├── cli.py                  # CLI entry point
+│   ├── core/
+│   │   ├── executor.py         # Ollama client & prompt execution
+│   │   ├── validator.py        # Validation metrics
+│   │   └── comparator.py       # Prompt comparison
+│   ├── config/
+│   │   ├── manager.py          # Config loading
+│   │   └── settings.yaml       # Default configuration
+│   ├── data/
+│   │   ├── loader.py           # Data loading utilities
+│   │   └── schemas.py          # Pydantic models
+│   └── output/
+│       ├── formatter.py        # Console output formatting
+│       └── exporter.py         # File export (JSON/CSV)
+├── prompts/                    # Version-controlled prompts
+│   ├── system_prompt.txt       # Shared system prompt
+│   ├── v1_baseline.txt         # Simple categorization prompt
+│   └── v2_enhanced.txt         # Enhanced prompt with reasoning
+├── test_data/                  # Test datasets
+│   ├── dummy_emails.json       # 20 test emails
+│   └── dummy_contract.html     # Sample contract
+├── results/                    # Test results output
+├── pyproject.toml              # Dependencies & CLI setup
+├── requirements.txt            # Python dependencies
+└── README.md                   # This file
+```
+
+## Test Data
+
+### Dummy Emails Dataset
+
+[test_data/dummy_emails.json](test_data/dummy_emails.json) contains 20 realistic German university internship office emails:
+
+- **8 emails**: Contract submissions (with attachments)
+- **5 emails**: International office questions
+- **4 emails**: Internship postponement requests
+- **3 emails**: Uncategorized/edge cases
+
+Edge cases include:
+- Very short emails
+- English language email
+- Multi-intent emails
+- Completely unrelated content
+
+### Dummy Contract
+
+[test_data/dummy_contract.html](test_data/dummy_contract.html) is a sample internship contract in HTML format (can be printed to PDF).
+
+## Writing Custom Prompts
+
+Prompts are plain text files with template variables:
+
+- `{subject}` - Email subject
+- `{sender}` - Sender email address
+- `{has_attachment}` - Boolean (True/False)
+- `{body}` - Email body text
+
+### Example Prompt
+
+```
+Categorize this email into one of these categories:
+- contract_submission
+- international_office_question
+- internship_postponement
+- uncategorized
+
+Email:
+Subject: {subject}
+From: {sender}
+Has Attachment: {has_attachment}
+Body: {body}
+
+Respond with ONLY the category name.
+```
+
+Save this to `prompts/my_prompt.txt` and test it:
+
+```bash
+python -m prompt_tester.cli test -p prompts/my_prompt.txt
+```
+
+## Output
+
+### Console Output
+
+The tool displays:
+- Overall accuracy
+- Per-category precision, recall, F1-score
+- Confusion matrix
+- Misclassifications with details
+
+### File Output
+
+Results are saved to the [results/](results/) directory:
+
+**JSON Format** - Complete validation report:
+```json
+{
+  "test_metadata": {
+    "timestamp": "2025-12-07T14:30:22",
+    "prompt_name": "v1_baseline",
+    "total_emails": 20
+  },
+  "metrics": {
+    "overall_accuracy": 0.85,
+    "correct_predictions": 17,
+    "incorrect_predictions": 3
+  },
+  "per_category_metrics": { ... },
+  "confusion_matrix": [ ... ],
+  "misclassifications": [ ... ]
+}
+```
+
+**CSV Format** - Individual results:
+```csv
+email_id,expected_category,predicted_category,correct,execution_time,raw_response
+email_001,contract_submission,contract_submission,True,1.234,"contract_submission"
+...
+```
+
+## Validation Metrics
+
+The tool calculates standard machine learning metrics:
+
+- **Overall Accuracy**: Percentage of correct predictions
+- **Precision**: True positives / (True positives + False positives)
+- **Recall**: True positives / (True positives + False negatives)
+- **F1-Score**: Harmonic mean of precision and recall
+- **Confusion Matrix**: NxN matrix showing prediction patterns
+- **Support**: Number of true instances per category
+
+## Troubleshooting
+
+### Cannot connect to Ollama
+
+Ensure Ollama is running:
+```bash
+# Check if Ollama is accessible
+curl http://localhost:11434/api/tags
+```
+
+If using a custom endpoint, update [prompt_tester/config/settings.yaml](prompt_tester/config/settings.yaml) or set environment variable:
+```bash
+export OLLAMA_ENDPOINT="http://your-ollama-server:11434"
+```
+
+### Import errors
+
+Make sure you installed the package:
+```bash
+pip install -e .
+```
+
+### Parse errors
+
+If the LLM response cannot be parsed, the category will be marked as `parse_error`. Check the raw response in the output file to debug.
+
+## Development
+
+### Running Tests
+
+```bash
+pytest
+```
+
+### Code Formatting
+
+```bash
+black prompt_tester/
+```
+
+### Type Checking
+
+```bash
+mypy prompt_tester/
+```
+
+## License
+
+This project is part of the Praktikantenamt AI-Assistant system.
+
+## Contributing
+
+When creating new prompts:
+1. Add the prompt file to [prompts/](prompts/)
+2. Test it on the dummy dataset
+3. Compare it with existing prompts
+4. Document any significant changes in accuracy
+
+## Roadmap
+
+Future enhancements:
+- [ ] Multi-model testing (test same prompts across different Ollama models)
+- [ ] A/B testing dashboard (web UI for comparing prompts)
+- [ ] Active learning (flag uncertain predictions for human review)
+- [ ] Automated prompt optimization
+- [ ] Integration with n8n workflows
+- [ ] Historical tracking (database of prompt performance over time)

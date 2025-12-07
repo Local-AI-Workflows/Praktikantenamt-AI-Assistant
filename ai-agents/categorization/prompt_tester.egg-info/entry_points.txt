@@ -1,0 +1,2 @@
+[console_scripts]
+prompt-tester = prompt_tester.cli:main

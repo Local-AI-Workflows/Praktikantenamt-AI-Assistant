@@ -1,0 +1,27 @@
+Analysiere die folgende E-Mail und kategorisiere sie.
+
+Kategorien:
+1. contract_submission - E-Mails zur Einreichung/Korrektur von Praktikumsverträgen (meist mit Anhängen)
+2. international_office_question - Fragen zu Auslandspraktika (Visa, Anerkennung, Versicherung)
+3. internship_postponement - Anfragen zur Verschiebung/Pausierung von Praktika (Gesundheit, Prüfungen, Schwangerschaft)
+4. uncategorized - Alles andere
+
+E-Mail Details:
+Betreff: {subject}
+Von: {sender}
+Hat Anhang: {has_attachment}
+
+Text:
+{body}
+
+Anweisungen:
+1. Identifiziere die PRIMÄRE Absicht (ignoriere Nebenfragen)
+2. Achte auf Schlüsselwörter:
+   - "Vertrag" + Anhang = contract_submission
+   - "Ausland/international" = international_office_question
+   - "verschieben/pausieren/unterbrechen" = internship_postponement
+3. Im Zweifelsfall wähle 'uncategorized'
+
+Antwortformat:
+Category: <category_name>
+Reasoning: <kurze Begründung>

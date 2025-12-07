@@ -1,0 +1,14 @@
+Kategorisiere diese E-Mail in genau eine Kategorie:
+- contract_submission
+- international_office_question
+- internship_postponement
+- uncategorized
+
+E-Mail:
+Betreff: {subject}
+Von: {sender}
+Hat Anhang: {has_attachment}
+Text:
+{body}
+
+Antworte NUR mit dem Kategorienamen, sonst nichts.

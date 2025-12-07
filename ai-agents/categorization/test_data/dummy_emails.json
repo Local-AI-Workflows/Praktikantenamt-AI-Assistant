@@ -1,0 +1,394 @@
+{
+  "metadata": {
+    "version": "1.1",
+    "created": "2025-12-07",
+    "description": "Test dataset for email categorization validation - 30 realistic German university internship office emails with edge cases",
+    "total_emails": 30,
+    "categories": {
+      "contract_submission": 10,
+      "international_office_question": 7,
+      "internship_postponement": 5,
+      "uncategorized": 8
+    }
+  },
+  "emails": [
+    {
+      "id": "email_001",
+      "subject": "Praktikumsvertrag zur Unterschrift eingereicht",
+      "body": "Sehr geehrtes Praktikantenamt,\n\nich habe meinen Praktikumsvertrag mit der Firma XYZ GmbH abgeschlossen und reiche diesen hiermit zur Genehmigung ein. Der Vertrag ist von beiden Parteien unterzeichnet und alle erforderlichen Dokumente sind beigefügt. Mein Praktikum beginnt am 01. März 2024 und dauert 12 Wochen. Bitte teilen Sie mir mit, wenn noch weitere Unterlagen benötigt werden.\n\nFreundliche Grüße,\nMax Müller",
+      "sender": "max.mueller@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Praktikumsvertrag", "eingereicht", "Genehmigung", "unterzeichnet", "Dokumente"]
+      }
+    },
+    {
+      "id": "email_002",
+      "subject": "Praktikumsvertrag - Konsultation Maschinenbau",
+      "body": "Hallo,\n\nichmöchte meinen Praktikumsvertrag für ein Praktikum in der Abteilung Konstruktion bei der Technik AG einreichen. Der Betrieb hat bereits alle Dokumente unterzeichnet. Anbei finden Sie den vollständig ausgefüllten Vertrag, eine Bescheinigung des Praktikumsortes sowie meine Versicherungsbestätigung. Ich hoffe, alles ist in Ordnung und ich kann wie geplant am 15. April beginnen.\n\nBeste Grüße,\nSarah Schmidt",
+      "sender": "sarah.schmidt@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Praktikumsvertrag", "einreichen", "Betrieb", "unterzeichnet", "Praktikumsortes"]
+      }
+    },
+    {
+      "id": "email_003",
+      "subject": "Frage zu Praktikum in Spanien - Anerkennung?",
+      "body": "Guten Tag,\n\nical bin derzeit bei der Planung eines Praktikums in Barcelona bei einem deutschen Unternehmen. Ich möchte gerne wissen, welche speziellen Anforderungen das Praktikantenamt für Auslandspraktika hat. Muss ich besondere Versicherungen abschließen und werden ausländische Praktikumszertifikate anerkannt? Zudem interessiert mich, ob ich mich vor Antritt des Praktikums anmelden muss oder ob eine nachträgliche Registrierung möglich ist.\n\nVielen Dank für Ihre Hilfe!\nJohn Fischer",
+      "sender": "john.fischer@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Auslandspraktikum", "international", "Anerkennung", "Versicherung", "Barcelona"]
+      }
+    },
+    {
+      "id": "email_004",
+      "subject": "Verschiebung Praktikum - dringende Anfrage",
+      "body": "Sehr geehrtes Praktikantenamt,\n\naufgrund unerwarteter persönlicher Umstände muss ich mein geplantes Praktikum verschieben. Ursprünglich sollte ich am 01. Mai 2024 bei der Softwareentwicklung AG beginnen, möchte dies aber gerne auf September 2024 verschieben. Der Praktikumsbetrieb hat diesem Termin bereits zugestimmt. Kann ich den bestehenden Vertrag einfach aktualisieren oder muss ich einen neuen einreichen? Bitte teilen Sie mir die nächsten Schritte mit.\n\nMit freundlichen Grüßen,\nAnna Weber",
+      "sender": "anna.weber@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "internship_postponement",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Verschiebung", "Praktikum", "Termin", "September", "Betrieb"]
+      }
+    },
+    {
+      "id": "email_005",
+      "subject": "Einreichung Praktikumsvertrag Büro-Management",
+      "body": "Lieber Praktikantenamt,\n\nanbei sende ich meinen unterzeichneten Praktikumsvertrag für ein fünfwöchiges Praktikum im Marketing-Bereich der Premium Solutions GmbH. Der Vertrag wurde von der Praktikumsstelle bereits genehmigt und unterzeichnet. Zusätzlich füge ich eine aktuelle Krankenversicherungsbescheinigung sowie einen Nachweis der Haftpflichtversicherung bei. Mein Praktikum läuft vom 12. Juni bis 21. Juli 2024. Bitte bestätigen Sie den Erhalt.\n\nViele Grüße,\nMiriam Hoffmann",
+      "sender": "miriam.hoffmann@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Praktikumsvertrag", "unterzeichnet", "Genehmigung", "Versicherung", "Praktikumsstelle"]
+      }
+    },
+    {
+      "id": "email_006",
+      "subject": "Praktikum in den USA - Visum und Anerkennung",
+      "body": "Sehr geehrtes Praktikantenamt,\n\nFolgendermaßen plane ich ein mehrmonatiges Praktikum in den USA bei einem Technologieunternehmen. Könnten Sie mir bitte Informationen geben, welche Visumsart für ein Praktikum in den USA erforderlich ist? Zusätzlich interessiert mich, ob das Praktikum automatisch anerkannt wird oder ob ich vorher eine Genehmigung einholen muss. Benötige ich auch eine zusätzliche Auslandskrankenversicherung oder reicht meine reguläre Versicherung aus?\n\nVielen Dank im Voraus,\nThomas Jung",
+      "sender": "thomas.jung@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["USA", "Visum", "international", "Anerkennung", "Auslandskrankenversicherung"]
+      }
+    },
+    {
+      "id": "email_007",
+      "subject": "Praktikum muss auf 2025 verschoben werden",
+      "body": "Guten Tag,\n\nleider muss ich mein geplantes Praktikum vom Januar 2024 auf März 2025 verschieben. Der Grund dafür ist, dass ich noch wichtige Kurse in diesem Semester abschließen muss, bevor ich das Praktikum antreten kann. Das Unternehmen hat bereits der Verschiebung zugestimmt und würde mir den Platz für März 2025 reservieren. Welche Schritte muss ich als nächstes unternehmen und gibt es Formulare, die ich ausfüllen muss?\n\nBeste Grüße,\nLena Hartmann",
+      "sender": "lena.hartmann@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "internship_postponement",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["verschieben", "Praktikum", "2025", "Kurse", "Unternehmen"]
+      }
+    },
+    {
+      "id": "email_008",
+      "subject": "Semester-Gebühren und Rückerstattung",
+      "body": "Hallo,\n\nich habe eine Frage zu meiner Semesterrechnung. In meinem Gebührenbescheid für das Wintersemester wurde mir ein Betrag von 350 EUR berechnet, obwohl ich nur für ein halbes Semester eingeschrieben bin. Kann ich eine teilweise Rückerstattung beantragen? An wen muss ich mich dafür wenden und welche Unterlagen sind erforderlich?\n\nViele Grüße,\nChristoph Bauer",
+      "sender": "christoph.bauer@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Gebühren", "Rechnung", "Rückerstattung", "Semester"],
+        "note": "Completely unrelated to internship office - about semester fees"
+      }
+    },
+    {
+      "id": "email_009",
+      "subject": "Praktikumsvertrag Digital Marketing-Agentur - zur Genehmigung",
+      "body": "Sehr geehrtes Praktikantenamt,\n\nanbei übermittle ich meinen Praktikumsvertrag mit der Digital Marketing Agentur Hamburg für ein dreimonatiges Praktikum. Alle erforderlichen Dokumente wie der unterschriebene Vertrag, eine Bestätigung des Betriebs sowie meine Versicherungsunterlagen sind beigefügt. Das Praktikum beginnt am 01. Oktober 2024 und endet am 31. Dezember 2024. Ich freue mich auf Ihre Rückmeldung und stehe bei Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüßen,\nJulia Bergmann",
+      "sender": "julia.bergmann@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Praktikumsvertrag", "Digital Marketing", "unterschrieben", "Betrieb", "Versicherung"]
+      }
+    },
+    {
+      "id": "email_010",
+      "subject": "Praktikum in Frankreich - Erasmus+ und Anrechnung",
+      "body": "Guten Tag,\n\nein komplexes Anliegen: Ich habe ein Praktikumsangebot in Frankreich über das Erasmus+ Programm erhalten. Erstens: Werden solche Praktika automatisch vom Praktikantenamt anerkannt oder muss ich vorher eine Genehmigung einholen? Zweitens: Wie funktioniert die Anrechnung ausländischer Praktikumszertifikate, wenn diese in französischer Sprache ausgestellt sind - muss ich diese übersetzen lassen? Drittens: Wie lange dauert es in der Regel, bis die Dokumente bearbeitet sind? Ich muss innerhalb der nächsten zwei Wochen eine Rückmeldung an das französische Unternehmen geben.\n\nVielen Dank,\nDavid Richter",
+      "sender": "david.richter@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Frankreich", "Erasmus+", "international", "Anerkennung", "Zertifikat", "Übersetzung"],
+        "note": "Complex multi-part international question"
+      }
+    },
+    {
+      "id": "email_011",
+      "subject": "Verschiebung meines Praktikums - Persönliche Gründe",
+      "body": "Guten Tag,\n\nich schreibe Ihnen, da ich mein geplantes Praktikum vom 15. Januar bis 15. März 2025 leider um vier Wochen verschieben muss. Aufgrund einer notwendigen Operation muss ich meinen Starttermin auf den 12. Februar 2025 verschieben. Ich habe bereits mit meinem Praktikumsbetrieb kommuniziert, und dieser hat der Verschiebung zugestimmt. Können Sie mich bitte bezüglich der Anmeldung und der erforderlichen Formalitäten beraten?",
+      "sender": "maya.mueller@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "internship_postponement",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Verschiebung", "Praktikum", "Termin", "verschieben", "später"]
+      }
+    },
+    {
+      "id": "email_012",
+      "subject": "Frage zur Berechnung der Praktikumsstunden",
+      "body": "Liebe Damen und Herren,\n\neine Frage zu den Richtlinien: Zählen Pausen von 30 Minuten zu den wöchentlichen Arbeitsstunden meines Praktikums? In meinem Betrieb gibt es eine tägliche Mittagspause, und ich bin unsicher, wie diese in die Gesamtstundenzahl einzurechnen ist. Laut meinem Praktikumsvertrag soll ich 40 Stunden pro Woche arbeiten. Können Sie mich über die genaue Berechnungsmethode aufklären?",
+      "sender": "tim.weber@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Stunden", "Berechnung", "Pausen", "Anfrage", "administrativ"],
+        "note": "Administrative question about hours calculation - doesn't fit main categories"
+      }
+    },
+    {
+      "id": "email_013",
+      "subject": "Submission of Internship Contract and Certificates",
+      "body": "Dear Internship Office,\n\nI am writing to submit my completed internship contract and the required certificates for my 12-week internship at TechCorp GmbH, which started on November 1st, 2024. All documents have been signed by my supervisor and are attached to this email in PDF format. Additionally, I have included a confirmation letter from the company stating the internship requirements and my responsibilities. Please confirm receipt of these documents and let me know if anything else is required.\n\nBest regards",
+      "sender": "julia.schmidt@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["contract", "submission", "documents", "attachment", "certificates"],
+        "note": "Email in English - tests language robustness"
+      }
+    },
+    {
+      "id": "email_014",
+      "subject": "Anerkennung von Praktikumserfahrung aus dem Ausland",
+      "body": "Guten Tag,\n\nfalls Sie nicht die richtige Stelle sind, leiten Sie mich bitte weiter: Ich habe ein dreimonatiges Praktikum in Barcelona absolviert, das von meiner Erasmus+ Förderung unterstützt wurde. Ich bin mir nicht sicher, ob das Praktikantenamt oder das International Office für die Anerkennung dieser Erfahrung zuständig ist. Die Praktikumsbescheinigung ist auf Spanisch ausgestellt. Wer kann mir bei der Eintragung in meinen Studienplan helfen, und werden Sprachkurse, die ich dort belegte, anerkannt?",
+      "sender": "sophie.hoffmann@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Ausland", "international", "Erasmus", "Barcelona", "Anerkennung", "Sprachkurs"]
+      }
+    },
+    {
+      "id": "email_015",
+      "subject": "Praktikumsbescheinigung und Frage zur Anrechnung",
+      "body": "Hallo,\n\nerstens möchte ich meine unterzeichnete Praktikumsbescheinigung einreichen, aber gleichzeitig bin ich unsicher, ob mein fünfwöchiges Praktikum überhaupt als vollwertiges Praktikum anerkannt wird, da es kürzlich gekürzt werden musste. Zweitens: Kann ich parallel dazu noch ein freiwilliges Zusatzpraktikum absolvieren, um die Anforderungen zu erfüllen? Und drittens: Falls die fünf Wochen nicht ausreichen, könnte ich noch im Sommersemester ein kürzeres Praktikum machen. Bitte beraten Sie mich, was die beste Option ist.",
+      "sender": "david.klein@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Bescheinigung", "Anrechnung", "Anforderungen", "gekürzt", "mehrdeutig", "mehrere Fragen"],
+        "note": "Ambiguous multi-intent email with multiple questions - difficult to categorize"
+      }
+    },
+    {
+      "id": "email_016",
+      "subject": "Praktikumsvertrag - Korrektur eingereicht",
+      "body": "Sehr geehrtes Praktikantenamt,\n\nin meiner vorherigen Einreichung gab es einen Fehler im Startdatum. Ich reiche hiermit den korrigierten Praktikumsvertrag mit der Firma DataTech Solutions erneut ein. Das Praktikum beginnt nun am 15. März 2024 statt wie ursprünglich angegeben am 10. März. Der Betrieb und ich haben beide Versionen unterzeichnet. Bitte verwerfen Sie die alte Version und berücksichtigen Sie nur diese korrigierte Fassung.\n\nMit freundlichen Grüßen,\nDavid Richter",
+      "sender": "david.richter@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Korrektur", "Praktikumsvertrag", "erneut eingereicht", "Fehler", "korrigierte Fassung"],
+        "note": "Resubmission of contract with correction"
+      }
+    },
+    {
+      "id": "email_017",
+      "subject": "Frage zu Auslandspraktikum in den Niederlanden",
+      "body": "Guten Tag,\n\nplanes planen ein Praktikum bei einem niederländischen Unternehmen in Amsterdam und hätte gerne Informationen zu den spezifischen Anforderungen. Benötige ich eine Genehmigung des Praktikantamts vor Antritt des Praktikums oder kann ich mich erst nachher registrieren? Zudem würde ich gerne wissen, welche Versicherungen für Auslandspraktika notwendig sind und ob das Zeugnis der ausländischen Betriebsstätte anerkannt wird. Können Sie mich auch an die zuständige Stelle für internationale Praktika weiterleiten?\n\nVielen Dank für Ihre Unterstützung!\nLena Zimmermann",
+      "sender": "lena.zimmermann@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Auslandspraktikum", "Niederlande", "international", "Genehmigung", "Versicherung", "Zeugnis"]
+      }
+    },
+    {
+      "id": "email_018",
+      "subject": "Praktikum verschieben - neue Genehmigung benötigt",
+      "body": "Sehr geehrtes Praktikantenamt,\n\nleider muss ich aufgrund von gesundheitlichen Gründen mein geplantes Praktikum verschieben. Das Praktikum bei der EngineerWorks AG sollte ursprünglich am 01. April 2024 für acht Wochen beginnen. Ich möchte diesen Termin auf September 2024 verschieben. Der Betrieb hat der Verschiebung schriftlich zugestimmt und stellt mir gerne einen neuen Praktikumsplatz zur Verfügung. Wie müssen wir in diesem Fall vorgehen und welche Formulare benötigen Sie von uns?\n\nMit freundlichen Grüßen,\nFelicia Köster",
+      "sender": "felicia.koester@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "internship_postponement",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["verschieben", "Praktikum", "Termin", "September", "Betrieb", "Genehmigung"]
+      }
+    },
+    {
+      "id": "email_019",
+      "subject": "Test",
+      "body": "Test",
+      "sender": "spam@example.com",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["minimal", "edge case", "test"],
+        "note": "Extreme edge case: very short, minimal content. No clear intent, not from student email"
+      }
+    },
+    {
+      "id": "email_020",
+      "subject": "Praktikumsvertrag Multimedia GmbH + Frage zur Genehmigung",
+      "body": "Hallo Praktikantenamt,\n\nanbei reiche ich meinen Praktikumsvertrag für das Praktikum bei der Multimedia GmbH ein. Das Praktikum beginnt am 20. Mai 2024 und dauert 10 Wochen. Alle erforderlichen Unterlagen sind beigefügt und vom Betrieb unterzeichnet. Zusätzlich hätte ich gerne eine kurze Frage: Kann ich nach dem Praktikum direkt ein Anschluss-Praktikum machen, ohne zwischen den beiden ein vollständiges Genehmigungsverfahren durchlaufen zu müssen? Dies würde mir sehr bei meiner Planung helfen.\n\nBesten Dank und viele Grüße,\nThomas Voigt",
+      "sender": "thomas.voigt@student.haw.de",
+      "has_attachment": true,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Praktikumsvertrag", "eingereicht", "Frage", "Genehmigung", "Anschluss-Praktikum", "multi-intent"],
+        "note": "Multi-intent email: submitting contract (primary) + asking a question (secondary). Primary category is contract_submission."
+      }
+    },
+    {
+      "id": "email_021",
+      "subject": "Kurze Rückfrage wegen nächster Woche",
+      "body": "Hallo,\n\nmein Chef meinte ich soll mich bei Ihnen melden. Wir haben da eine Situation mit dem Termin nächste Woche - das klappt bei mir leider nicht mehr so wie besprochen. Privat ist gerade einiges los und ich bräuchte etwa zwei bis drei Wochen später. Geht das überhaupt noch oder ist das jetzt zu kurzfristig? Der Betrieb wäre flexibel.\n\nLG\nPaul",
+      "sender": "p.schneider@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "internship_postponement",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Termin", "später", "flexibel", "nicht mehr", "privat"],
+        "note": "Very informal, vague language. No explicit mention of 'Praktikum' or 'verschieben'. Tests ability to infer context."
+      }
+    },
+    {
+      "id": "email_022",
+      "subject": "Unterlagen für Genehmigungsprozess",
+      "body": "Sehr geehrte Damen und Herren,\n\nich bin mir nicht ganz sicher, ob ich hier richtig bin. Ich würde gerne wissen, welche Dokumente ich zusammenstellen muss, bevor ich meinen Vertrag einreichen kann. Die Firma hat mir bereits alles unterschrieben zurückgeschickt, aber ich möchte sichergehen, dass nichts fehlt. Brauche ich eine Versicherungsbestätigung? Und muss die Firma noch weitere Formulare ausfüllen? Könnten Sie mir vielleicht eine Checkliste schicken?\n\nDanke vorab,\nStefanie Krüger",
+      "sender": "stefanie.krueger@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Vertrag", "einreichen", "Dokumente", "Firma", "unterschrieben"],
+        "note": "Asks about submission process but hasn't submitted yet. Mentions signed contract but main intent is asking questions. Should still be contract_submission as it's about preparing the submission."
+      }
+    },
+    {
+      "id": "email_023",
+      "subject": "Betreff: Internationale Firma in Hamburg",
+      "body": "Guten Tag,\n\nich habe eine Zusage von einem amerikanischen Tech-Konzern bekommen, allerdings ist die Stelle hier in Hamburg am deutschen Standort. Jetzt bin ich unsicher: Gilt das als Auslandspraktikum, weil die Firma aus den USA kommt? Oder ist das ein normales inländisches Praktikum? Die HR-Abteilung sitzt in San Francisco und mein Vertrag läuft auch über die US-Zentrale, aber ich arbeite physisch in Hamburg.\n\nWürde mich über Klarstellung freuen,\nJan Becker",
+      "sender": "jan.becker@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["internationale Firma", "Hamburg", "USA", "Standort", "HR"],
+        "note": "Tricky edge case: mentions USA and international aspects, but it's actually a domestic internship question. Should be uncategorized as it's neither a clear international question nor fits other categories."
+      }
+    },
+    {
+      "id": "email_024",
+      "subject": "Formular lässt sich nicht öffnen",
+      "body": "Hallo,\n\nich versuche seit gestern, das Praktikumsformular von Ihrer Webseite herunterzuladen, aber die PDF-Datei lässt sich nicht öffnen. Ich habe es mit verschiedenen Browsern probiert (Chrome, Firefox, Edge) und auch auf einem anderen Computer. Die Datei scheint beschädigt zu sein. Könnten Sie mir bitte eine funktionierende Version per E-Mail zusenden oder das Problem auf der Webseite beheben?\n\nVielen Dank,\nLisa Vogel",
+      "sender": "lisa.vogel@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Formular", "PDF", "Webseite", "technisches Problem", "Browser"],
+        "note": "Technical support request, not related to any of the three main categories"
+      }
+    },
+    {
+      "id": "email_025",
+      "subject": "Unterlagen komplett - jetzt absenden?",
+      "body": "Liebes Team,\n\nich habe jetzt alle Unterschriften beisammen und auch die Bestätigungen von meinem Betrieb. Insgesamt sind es vier PDFs geworden: der Hauptvertrag, die Tätigkeitsbeschreibung, die Betriebsbestätigung und meine Versicherungspolice. Soll ich die jetzt alle in einer Mail schicken oder gibt es ein Upload-Portal? Und brauchen Sie die Originale auch noch per Post?\n\nViele Grüße,\nMarkus Wagner",
+      "sender": "markus.wagner@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "contract_submission",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Unterlagen", "Unterschriften", "Betrieb", "Vertrag", "absenden"],
+        "note": "Subtle: mentions having everything ready but asks about HOW to submit rather than actually submitting. Still contract_submission intent."
+      }
+    },
+    {
+      "id": "email_026",
+      "subject": "Re: Re: Fwd: Praktikum eventuell im Ausland?",
+      "body": "Hallo,\n\nentschuldigung für die Nachfrage, aber ich überlege noch, ob ich vielleicht doch im Ausland machen sollte oder nicht. Also es ist noch nichts fix, ich wollte nur mal grundsätzlich wissen: Falls ich mich für ein Praktikum außerhalb von Deutschland entscheide, was müsste ich dann beachten? Ich meine jetzt nicht konkret ein Land, sondern einfach generell. Oder ist es besser, ich melde mich nochmal, wenn ich mich entschieden habe?\n\nDanke,\nNina",
+      "sender": "nina.mayer@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Ausland", "außerhalb Deutschland", "überlege", "eventuell", "generell"],
+        "note": "Very vague and hypothetical. Multiple uncertainties ('eventuell', 'vielleicht', 'überlege noch'). Still international question despite vagueness."
+      }
+    },
+    {
+      "id": "email_027",
+      "subject": "Dankeschön!",
+      "body": "Sehr geehrte Frau Friedrich,\n\nvielen herzlichen Dank für Ihre schnelle und unkomplizierte Hilfe letzte Woche! Dank Ihrer Unterstützung konnte ich alle Unterlagen rechtzeitig zusammenstellen und mein Praktikum kann wie geplant starten. Ich wollte mich einfach nochmal bedanken für Ihre Geduld und die ausführlichen Erklärungen am Telefon.\n\nMit freundlichen Grüßen,\nSarah Lehmann",
+      "sender": "sarah.lehmann@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "easy",
+        "keywords": ["Danke", "Dankeschön", "Hilfe", "Unterstützung"],
+        "note": "Pure thank-you email with no action item or question. Uncategorized."
+      }
+    },
+    {
+      "id": "email_028",
+      "subject": "Verlängerung meines laufenden Praktikums",
+      "body": "Guten Tag,\n\nmein Praktikum bei der AutoTech GmbH läuft noch bis Ende Februar. Jetzt hat mir die Firma angeboten, das Praktikum um weitere vier Wochen zu verlängern, weil mein Projekt noch nicht ganz abgeschlossen ist. Muss ich dafür einen neuen Antrag stellen oder reicht eine Ergänzung zum bestehenden Vertrag? Der Betrieb würde mir gerne ein aktualisiertes Vertragsangebot schicken.\n\nBeste Grüße,\nFelix Hoffmann",
+      "sender": "felix.hoffmann@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "hard",
+        "keywords": ["Verlängerung", "laufend", "verlängern", "Vertrag", "Praktikum"],
+        "note": "Tricky: mentions 'Verlängerung' which sounds like postponement, but it's actually about extending an ongoing internship, not postponing a start date. Doesn't fit postponement category."
+      }
+    },
+    {
+      "id": "email_029",
+      "subject": "Anfrage Praktikumsamt - Weitervermittlung",
+      "body": "Sehr geehrtes Praktikumsamt,\n\nich bin Student der Sozialen Arbeit an der HAW und suche momentan nach Praktikumsplätzen im Bereich Jugendarbeit. Auf Ihrer Webseite habe ich gesehen, dass Sie verschiedene Betriebe listen. Könnten Sie mir vielleicht Kontakte zu geeigneten Einrichtungen vermitteln oder haben Sie eine Liste mit freien Praktikumsplätzen? Ich bin zeitlich flexibel und könnte ab sofort beginnen.\n\nMit freundlichen Grüßen,\nMichael Stein",
+      "sender": "michael.stein@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "uncategorized",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Praktikumsplatz", "suchen", "Vermittlung", "Kontakte", "freie Plätze"],
+        "note": "Misunderstanding of office purpose. Asking for internship placement help, not about contract submission, international questions, or postponement."
+      }
+    },
+    {
+      "id": "email_030",
+      "subject": "Wegen dem Auslandsthema neulich",
+      "body": "Hi,\n\nSie hatten mir letztens am Telefon gesagt, ich soll nochmal schreiben wegen den Details. Also: Das Praktikum in Kopenhagen würde bei dieser dänischen Designagentur stattfinden, drei Monate ab Juli. Ich bräuchte von Ihnen eine Bestätigung für die Firma, dass das von der Hochschule aus anerkannt wird. Und dann noch die Info, ob ich da extra Versicherungen brauche für Dänemark oder ob meine normale reicht. Die Agentur will auch wissen, ob es irgendwelche speziellen Formvorschriften gibt.\n\nGruß,\nTim",
+      "sender": "t.fischer@student.haw.de",
+      "has_attachment": false,
+      "expected_category": "international_office_question",
+      "metadata": {
+        "difficulty": "medium",
+        "keywords": ["Kopenhagen", "dänisch", "Ausland", "Versicherung", "Anerkennung", "Dänemark"],
+        "note": "Very informal, references previous phone conversation. Clear international internship question despite casual tone."
+      }
+    }
+  ]
+}

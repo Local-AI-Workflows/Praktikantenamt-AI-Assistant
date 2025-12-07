@@ -1,0 +1,216 @@
+{
+  "test_metadata": {
+    "timestamp": "2025-12-07T15:31:35.982867",
+    "prompts_compared": [
+      "v1_baseline",
+      "v2_enhanced"
+    ],
+    "winner": "v2_enhanced"
+  },
+  "accuracy_comparison": {
+    "v1_baseline": 0.23333333333333334,
+    "v2_enhanced": 0.7
+  },
+  "disagreements": [
+    {
+      "email_id": "email_002",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_003",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_006",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_007",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "internship_postponement",
+      "prompt_a_correct": true,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_008",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "uncategorized",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_009",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_010",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_012",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "uncategorized",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_013",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_014",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_015",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_016",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_017",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_019",
+      "prompt_a_prediction": "uncategorized",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": true,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_020",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_021",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "uncategorized",
+      "expected_category": "internship_postponement",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_022",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_023",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_024",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_025",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "contract_submission",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_026",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_027",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_028",
+      "prompt_a_prediction": "internship_postponement",
+      "prompt_b_prediction": "contract_submission",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": false
+    },
+    {
+      "email_id": "email_029",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "uncategorized",
+      "expected_category": "uncategorized",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    },
+    {
+      "email_id": "email_030",
+      "prompt_a_prediction": "parse_error",
+      "prompt_b_prediction": "international_office_question",
+      "expected_category": "international_office_question",
+      "prompt_a_correct": false,
+      "prompt_b_correct": true
+    }
+  ]
+}

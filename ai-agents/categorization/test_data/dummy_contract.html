@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktikumsvertrag</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 0;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background-color: white;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .content {
+            margin-top: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #333;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item {
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .info-item label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .info-item span {
+            display: block;
+            padding-left: 10px;
+            border-left: 1px solid #ccc;
+        }
+
+        .paragraph {
+            font-size: 11px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .paragraph-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+
+        .numbered-list {
+            font-size: 11px;
+            line-height: 1.8;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .numbered-list li {
+            margin-bottom: 8px;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            page-break-inside: avoid;
+        }
+
+        .signature-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 50px;
+            padding-top: 5px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .signature-place {
+            margin-top: 15px;
+        }
+
+        .signature-place span {
+            font-size: 11px;
+            margin-right: 40px;
+        }
+
+        .date-line {
+            border-bottom: 1px dotted #999;
+            display: inline-block;
+            width: 80px;
+            margin-left: 10px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+
+        table td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+        }
+
+        table td.label {
+            font-weight: bold;
+            background-color: #f9f9f9;
+            width: 40%;
+        }
+
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Praktikumsvertrag</h1>
+            <p>gemäß Praktikumsordnung der Hochschule für Angewandte Wissenschaften Hamburg</p>
+        </header>
+
+        <div class="content">
+            <!-- Section 1: Parties -->
+            <div class="section">
+                <div class="section-title">1. Vertragliche Parteien</div>
+
+                <div class="info-grid full">
+                    <div class="info-item">
+                        <label>Praktikant/in:</label>
+                        <span>Max Mustermann</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Matrikelnummer:</label>
+                        <span>12345678</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Studiengang:</label>
+                        <span>Informatik</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Hochschule:</label>
+                        <span>Hochschule für Angewandte Wissenschaften Hamburg</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Fachbereich:</label>
+                        <span>Informatik</span>
+                    </div>
+                </div>
+
+                <div class="info-grid full">
+                    <div class="info-item">
+                        <label>Praktikumsbetrieb:</label>
+                        <span>ABC GmbH</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Adresse:</label>
+                        <span>Beispielstraße 123, 20095 Hamburg</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ansprechpartner:</label>
+                        <span>Dr. Anna Schmidt</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Terms of Internship -->
+            <div class="section">
+                <div class="section-title">2. Praktikumsdauer und Arbeitszeit</div>
+
+                <table>
+                    <tr>
+                        <td class="label">Beginn des Praktikums:</td>
+                        <td>01.03.2025</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Ende des Praktikums:</td>
+                        <td>31.08.2025</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Gesamtdauer:</td>
+                        <td>6 Monate</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Arbeitstage pro Woche:</td>
+                        <td>5 Tage</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Wöchentliche Arbeitszeit:</td>
+                        <td>40 Stunden</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Gesamtzahl Arbeitstage:</td>
+                        <td><span class="highlight">110 Tage</span> (entspricht 550 Arbeitsstunden)</td>
+                    </tr>
+                </table>
+
+                <p class="paragraph" style="font-size: 10px; color: #666;">
+                    Hinweis: Die Gesamtzahl von 110 Arbeitstagen erfüllt die Mindestanforderung von 95 Arbeitstagen gemäß Praktikumsordnung. Urlaubstage und Feiertage werden in diesem Umfang berücksichtigt.
+                </p>
+            </div>
+
+            <!-- Section 3: Department and Tasks -->
+            <div class="section">
+                <div class="section-title">3. Abteilung und Aufgabenbereich</div>
+
+                <div class="info-grid full">
+                    <div class="info-item">
+                        <label>Abteilung:</label>
+                        <span>Softwareentwicklung</span>
+                    </div>
+                </div>
+
+                <p class="paragraph">
+                    Der/Die Praktikant/in wird in der Abteilung Softwareentwicklung tätig und erhält die Gelegenheit,
+                    theoretische Kenntnisse aus dem Studium in der Praxis anzuwenden. Die Aufgaben umfassen die Mitarbeit
+                    bei der Softwareentwicklung, Programmierung, Testing und Wartung von Softwarelösungen nach Anleitung
+                    der zuständigen Betreuer/in des Unternehmens.
+                </p>
+            </div>
+
+            <!-- Section 4: Compensation -->
+            <div class="section">
+                <div class="section-title">4. Vergütung und Leistungen</div>
+
+                <table>
+                    <tr>
+                        <td class="label">Monatliche Vergütung:</td>
+                        <td>800,00 EUR</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Zahlungsweise:</td>
+                        <td>Monatlich zum Ende eines jeden Kalendermonats</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Gesamtvergütung:</td>
+                        <td>4.800,00 EUR (6 Monate)</td>
+                    </tr>
+                </table>
+
+                <p class="paragraph">
+                    Die Vergütung wird monatlich überwiesen. Sozialversicherungsbeiträge werden nach den geltenden
+                    gesetzlichen Bestimmungen erhoben und abgeführt. Der/Die Praktikant/in ist verpflichtet, alle erforderlichen
+                    Steuererklärungen eigenverantwortlich abzugeben.
+                </p>
+            </div>
+
+            <!-- Section 5: Rights and Duties -->
+            <div class="section">
+                <div class="section-title">5. Pflichten des Praktikanten/der Praktikantin</div>
+
+                <ol class="numbered-list">
+                    <li>Einhaltung der Arbeitszeit und Betriebsordnung des Unternehmens</li>
+                    <li>Gewissenhafte und verantwortungsvolle Ausführung der zugewiesenen Aufgaben</li>
+                    <li>Beachten von Datenschutz- und Geheimhaltungsbestimmungen</li>
+                    <li>Einhaltung der Sicherheits- und Gesundheitsvorschriften</li>
+                    <li>Regelmäßige Kommunikation mit dem/der Betreuer/in bei Problemen oder Fragen</li>
+                    <li>Erstellung eines Praktikumsberichts gemäß Anforderungen der Hochschule</li>
+                </ol>
+            </div>
+
+            <!-- Section 6: Rights and Duties of Company -->
+            <div class="section">
+                <div class="section-title">6. Pflichten des Praktikumsbetriebs</div>
+
+                <ol class="numbered-list">
+                    <li>Bereitstellung einer Betreuungsperson für die Dauer des Praktikums</li>
+                    <li>Angemessene Einführung in die Aufgabenbereiche und Abläufe</li>
+                    <li>Regelmäßiges Feedback und Bewertung der Leistungen</li>
+                    <li>Einhaltung der geltenden Arbeitsschutzgesetze</li>
+                    <li>Ausstellung eines Praktikumszeugnisses am Ende des Praktikums</li>
+                    <li>Pünktliche und vollständige Zahlung der vereinbarten Vergütung</li>
+                </ol>
+            </div>
+
+            <!-- Section 7: Insurance -->
+            <div class="section">
+                <div class="section-title">7. Versicherungen und Haftung</div>
+
+                <p class="paragraph">
+                    Der Praktikumsbetrieb versichert, dass für den/die Praktikant/in eine Betriebs-Unfallversicherung besteht.
+                    Die Hochschule für Angewandte Wissenschaften Hamburg versichert den/die Praktikant/in im Rahmen ihrer
+                    Schüler-Unfallversicherung. Der Praktikumsbetrieb haftet gemäß den geltenden Bestimmungen des BGB.
+                </p>
+            </div>
+
+            <!-- Section 8: Confidentiality -->
+            <div class="section">
+                <div class="section-title">8. Vertraulichkeit und Geheimhaltung</div>
+
+                <p class="paragraph">
+                    Der/Die Praktikant/in verpflichtet sich, alle während des Praktikums erlangten Kenntnisse über
+                    Geschäfts- und Betriebsgeheimnisse, Kundendaten und andere vertrauliche Informationen des
+                    Praktikumsbetriebs sowie der Hochschule streng vertraulich zu behandeln und nicht an Dritte
+                    weiterzugeben. Diese Verpflichtung bleibt auch nach Beendigung des Praktikums bestehen.
+                </p>
+            </div>
+
+            <!-- Section 9: Termination -->
+            <div class="section">
+                <div class="section-title">9. Beendigung des Praktikums</div>
+
+                <p class="paragraph">
+                    Das Praktikum endet zum vereinbarten Enddatum oder kann von beiden Parteien mit einer Frist von
+                    zwei Wochen zum Ende eines Kalendermonats gekündigt werden. Eine fristlose Kündigung ist möglich,
+                    wenn ein wichtiger Grund vorliegt. Eine Rückkehr zur Hochschule ist gewährleistet, falls das
+                    Praktikum vorzeitig beendet wird.
+                </p>
+            </div>
+
+            <!-- Section 10: Final Provisions -->
+            <div class="section">
+                <div class="section-title">10. Schlussbestimmungen</div>
+
+                <p class="paragraph">
+                    Sollten einzelne Bestimmungen dieses Vertrages unwirksam sein, wird die Gültigkeit des übrigen
+                    Vertrages nicht beeinträchtigt. Die Änderung oder Ergänzung dieses Vertrages bedarf der Schriftform.
+                    Das deutsches Recht findet Anwendung. Gerichtsstand ist Hamburg.
+                </p>
+
+                <p class="paragraph">
+                    Der Vertrag wurde in drei Ausfertigungen ausgefertigt, von denen jede Partei eine Auslegung erhält.
+                    Eine Ausfertigung verbleibt bei der Hochschule.
+                </p>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div class="section-title">11. Unterschriften</div>
+
+                <p class="paragraph" style="margin-bottom: 25px;">
+                    Hiermit wird bestätigt, dass die Parteien diesen Praktikumsvertrag akzeptieren und allen
+                    Bedingungen zustimmen.
+                </p>
+
+                <div class="signature-area">
+                    <div class="signature-block">
+                        <div style="margin-bottom: 50px; text-align: left;">
+                            <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px;">Praktikant/in:</span>
+                            <span style="font-size: 10px; color: #666;">Max Mustermann</span>
+                        </div>
+                        <div class="signature-line">Unterschrift</div>
+                        <div class="signature-place">
+                            <span>Hamburg,</span><span class="date-line"></span>
+                        </div>
+                    </div>
+
+                    <div class="signature-block">
+                        <div style="margin-bottom: 50px; text-align: left;">
+                            <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px;">Praktikumsbetrieb:</span>
+                            <span style="font-size: 10px; color: #666;">ABC GmbH, vertreten durch Dr. Anna Schmidt</span>
+                        </div>
+                        <div class="signature-line">Unterschrift und Stempel</div>
+                        <div class="signature-place">
+                            <span>Hamburg,</span><span class="date-line"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 50px; text-align: center;">
+                    <div style="font-size: 10px; color: #999; border-top: 1px solid #ccc; padding-top: 10px;">
+                        <span style="font-weight: bold;">Hochschule für Angewandte Wissenschaften Hamburg</span><br>
+                        <span style="font-size: 9px;">Bestätigung durch Fachbereichsleitung/Praktikantenamt</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <div class="signature-block" style="grid-column: 1;">
+                        <div style="margin-bottom: 50px; text-align: left;">
+                            <span style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px;">Hochschule:</span>
+                            <span style="font-size: 10px; color: #666;">Hochschule für Angewandte Wissenschaften Hamburg</span>
+                        </div>
+                        <div class="signature-line">Unterschrift und Stempel</div>
+                        <div class="signature-place">
+                            <span>Hamburg,</span><span class="date-line"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Dieses Dokument wurde automatisch generiert und ist gültig ohne elektronische Signatur.</p>
+            <p style="margin-top: 5px;">Ausfertigungen: 3 (Praktikant/in, Praktikumsbetrieb, Hochschule)</p>
+        </div>
+    </div>
+</body>
+</html>
