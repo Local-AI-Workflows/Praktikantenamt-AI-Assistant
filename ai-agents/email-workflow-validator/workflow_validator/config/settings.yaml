@@ -1,0 +1,65 @@
+# SMTP Configuration (SENDER - your Gmail account)
+# Sends the 100 test emails
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "spammer1966@gmail.com"
+  password: "${GMAIL_APP_PASSWORD}"  # From .env file
+  use_tls: true
+  from_address: "spammer1966@gmail.com"
+
+# IMAP Configuration (RECEIVER - where emails are validated)
+# Using SAME Gmail for testing - emails sent to yourself
+# Later: Replace with separate test inbox credentials
+imap:
+  host: "imap.gmail.com"
+  port: 993
+  username: "spammer1966@gmail.com"  # Same as SMTP for now
+  password: "${GMAIL_APP_PASSWORD}"  # Same App Password
+  use_ssl: true
+  mailbox: "INBOX"
+
+# IMPORTANT: Gmail requires App Password, not your regular password!
+# Generate at: https://myaccount.google.com/apppasswords
+# Enable 2-Step Verification first
+#
+# NOTE: Currently using same Gmail for send + receive (testing mode)
+#       Emails will send to yourself
+#       Later: Update imap section with separate test inbox credentials
+
+# Folder Mapping (n8n folder names -> categories)
+# Gmail uses labels as folders
+# Note: Create these labels in Gmail first, or adjust to match your n8n setup
+folder_mappings:
+  - folder_name: "Contract_Submission"  # Gmail label (no INBOX prefix)
+    category: "contract_submission"
+  - folder_name: "International_Questions"
+    category: "international_office_question"
+  - folder_name: "Postponement_Requests"
+    category: "internship_postponement"
+  - folder_name: "Uncategorized"
+    category: "uncategorized"
+
+# Alternative formats depending on your IMAP server:
+# Gmail: "Label_Name" (no prefix)
+# Standard IMAP: "INBOX.Subfolder"
+# Some servers: "INBOX/Subfolder"
+
+# Validation Settings
+validation:
+  wait_time_seconds: 60  # Wait for n8n to process
+  cleanup_after_test: true  # Delete test emails
+  uuid_storage_path: "results/uuid_mapping.json"
+
+# Email Categories (reuse from categorization)
+categories:
+  - "contract_submission"
+  - "international_office_question"
+  - "internship_postponement"
+  - "uncategorized"
+
+# Output Configuration
+output:
+  format: "both"  # json, csv, or both
+  directory: "results"
+  timestamp_format: "%Y%m%d_%H%M%S"

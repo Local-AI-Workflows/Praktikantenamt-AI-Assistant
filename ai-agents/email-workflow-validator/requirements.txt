@@ -1,0 +1,11 @@
+# Core dependencies (reused from categorization)
+click>=8.1.0
+pydantic>=2.5.0
+rich>=13.7.0
+pyyaml>=6.0
+scikit-learn>=1.3.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Note: imaplib and smtplib are Python standard library

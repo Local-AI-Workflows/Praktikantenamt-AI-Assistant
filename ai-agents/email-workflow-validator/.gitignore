@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Results (keep structure, ignore output)
+results/*.json
+results/*.csv
+!results/.gitkeep
+
+# Sensitive config and secrets
+*_local.yaml
+*_secret.yaml
+.env
+# Template is committed, but actual .env with secrets is not
+!.env.template
+
+# OS
+.DS_Store
+Thumbs.db
