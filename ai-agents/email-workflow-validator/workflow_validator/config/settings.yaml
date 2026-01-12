@@ -7,6 +7,11 @@ smtp:
   password: "${GMAIL_APP_PASSWORD}"  # From .env file
   use_tls: true
   from_address: "spammer1966@gmail.com"
+  # Tuning: small delay between sends helps avoid provider rate limits
+  send_delay_seconds: 0.2
+  max_retries: 2
+  timeout_seconds: 10
+  reuse_connection: true
 
 # IMAP Configuration (RECEIVER - where emails are validated)
 # Using SAME Gmail for testing - emails sent to yourself

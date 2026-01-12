@@ -68,7 +68,14 @@ class EmailSender:
                 if verbose:
                     print(f"  ✗ Failed {email.id} ({i}/{len(emails)})")
 
-        # Save UUID mappings
-        self.uuid_tracker.save_mappings()
+        # Close SMTP connection if persistent
+        try:
+            self.uuid_tracker.save_mappings()
+        finally:
+            try:
+                self.smtp_client.close()
+            except Exception:
+                # ignore close errors
+                pass
 
         return sent_emails

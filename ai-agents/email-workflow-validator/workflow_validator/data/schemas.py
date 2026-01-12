@@ -71,6 +71,14 @@ class SMTPConfig(BaseModel):
     use_tls: bool = Field(default=True, description="Use STARTTLS")
     from_address: str = Field(..., description="From email address")
 
+    # Optional tuning
+    send_delay_seconds: float = Field(
+        default=0.0, description="Delay between sends to avoid rate limits"
+    )
+    max_retries: int = Field(default=2, description="Retries on transient errors")
+    timeout_seconds: int = Field(default=10, description="SMTP connect timeout")
+    reuse_connection: bool = Field(default=True, description="Reuse SMTP connection across multiple sends")
+
 
 class WorkflowValidationConfig(BaseModel):
     """Complete configuration for workflow validation."""

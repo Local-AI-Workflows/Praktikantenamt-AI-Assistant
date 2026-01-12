@@ -1,14 +1,18 @@
 """
-SMTP client for sending test emails.
+SMTP client for sending test emails with optional connection reuse, retries, and delays.
 """
 
 import smtplib
+import time
+import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 from uuid import UUID
 
 from workflow_validator.data.schemas import SMTPConfig
+
+logger = logging.getLogger(__name__)
 
 
 class SMTPClient:
@@ -22,6 +26,29 @@ class SMTPClient:
             config: SMTP configuration
         """
         self.config = config
+        self.server: Optional[smtplib.SMTP] = None
+
+    def _connect(self) -> None:
+        """Establish SMTP connection and login."""
+        logger.debug("Connecting to SMTP %s:%s", self.config.host, self.config.port)
+        server = smtplib.SMTP(self.config.host, self.config.port, timeout=self.config.timeout_seconds)
+        server.ehlo()
+        if self.config.use_tls:
+            server.starttls()
+            server.ehlo()
+        server.login(self.config.username, self.config.password)
+        self.server = server
+
+    def _disconnect(self) -> None:
+        """Gracefully close SMTP connection if open."""
+        if self.server:
+            try:
+                self.server.quit()
+            except Exception:
+                # Some servers close connection abruptly; ignore
+                pass
+            finally:
+                self.server = None
 
     def send_test_email(
         self,
@@ -34,45 +61,57 @@ class SMTPClient:
         """
         Send a test email with embedded UUID.
 
-        UUID Embedding Strategy:
-        1. Custom header: X-Test-UUID: <uuid>
-        2. Body footer: [TEST-ID: <uuid>]
-        3. Both allow retrieval during validation
-
-        Args:
-            subject: Email subject line
-            body: Email body content
-            sender: Original sender address (from test data)
-            uuid: UUID for tracking
-            to_address: Recipient address (defaults to config.from_address)
-
-        Returns:
-            True if sent successfully, False otherwise
+        This implementation attempts to reuse the SMTP connection when configured to do so,
+        and will retry on transient errors such as SMTPServerDisconnected.
         """
-        try:
-            # Create message
-            msg = MIMEMultipart()
-            msg["From"] = sender  # Use original sender from test data
-            msg["To"] = to_address or self.config.from_address
-            msg["Subject"] = subject
-            msg["X-Test-UUID"] = str(uuid)  # Custom header for tracking
+        # Prepare message
+        msg = MIMEMultipart()
+        msg["From"] = sender
+        msg["To"] = to_address or self.config.from_address
+        msg["Subject"] = subject
+        msg["X-Test-UUID"] = str(uuid)
+        body_with_uuid = f"{body}\n\n[TEST-ID: {uuid}]"
+        msg.attach(MIMEText(body_with_uuid, "plain", "utf-8"))
 
-            # Embed UUID in body for redundancy
-            body_with_uuid = f"{body}\n\n[TEST-ID: {uuid}]"
-            msg.attach(MIMEText(body_with_uuid, "plain", "utf-8"))
+        attempts = 0
+        while attempts <= self.config.max_retries:
+            try:
+                if not self.config.reuse_connection or self.server is None:
+                    # connect per-send or if no connection exists
+                    self._connect()
 
-            # Connect and send
-            with smtplib.SMTP(self.config.host, self.config.port) as server:
-                if self.config.use_tls:
-                    server.starttls()
-                server.login(self.config.username, self.config.password)
-                server.send_message(msg)
+                # send
+                assert self.server is not None
+                self.server.send_message(msg)
 
-            return True
+                # optional small delay to reduce rate-limiting
+                if self.config.send_delay_seconds and self.config.send_delay_seconds > 0:
+                    time.sleep(self.config.send_delay_seconds)
 
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-            return False
+                return True
+
+            except smtplib.SMTPServerDisconnected as e:
+                logger.warning("SMTP server disconnected unexpectedly: %s; attempt %s", e, attempts)
+                # force reconnect and retry
+                self._disconnect()
+                attempts += 1
+                time.sleep(1 * attempts)
+                continue
+
+            except (smtplib.SMTPException, OSError) as e:
+                logger.error("SMTP send failed: %s", e)
+                # Do not retry for other persistent errors
+                self._disconnect()
+                return False
+
+            except Exception as e:
+                logger.exception("Unexpected error while sending email: %s", e)
+                self._disconnect()
+                return False
+
+        # If we exhausted retries
+        logger.error("Exhausted SMTP retries for email %s", uuid)
+        return False
 
     def health_check(self) -> bool:
         """
@@ -82,10 +121,17 @@ class SMTPClient:
             True if accessible, False otherwise
         """
         try:
-            with smtplib.SMTP(self.config.host, self.config.port, timeout=5) as server:
-                if self.config.use_tls:
-                    server.starttls()
-                server.login(self.config.username, self.config.password)
+            server = smtplib.SMTP(self.config.host, self.config.port, timeout=5)
+            server.ehlo()
+            if self.config.use_tls:
+                server.starttls()
+                server.ehlo()
+            server.login(self.config.username, self.config.password)
+            server.quit()
             return True
         except Exception:
             return False
+
+    def close(self) -> None:
+        """Public method to close persistent SMTP connection."""
+        self._disconnect()
