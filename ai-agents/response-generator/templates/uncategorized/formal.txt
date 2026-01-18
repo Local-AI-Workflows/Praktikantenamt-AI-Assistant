@@ -1,0 +1,13 @@
+SUBJECT: Re: {original_subject}
+
+{greeting} {sender_name},
+
+vielen Dank fuer Ihre Nachricht.
+
+{personalized_content}
+
+Wir werden Ihr Anliegen pruefen und uns zeitnah bei Ihnen melden.
+
+{closing}
+
+{signature}

@@ -1,0 +1,12 @@
+SUBJECT: Re: {original_subject}
+
+Hallo {sender_name},
+
+danke fuer deinen Praktikumsvertrag!
+
+{personalized_content}
+
+Wir schauen uns alles an und melden uns bald bei dir.
+
+Viele Gruesse
+Praktikantenamt HAW Hamburg

@@ -1,0 +1,24 @@
+# Contract Validator Configuration
+# Override these settings via environment variables (see below)
+
+ollama:
+  endpoint: "http://localhost:11434"
+  model: "llama3.2:3b"
+  timeout: 60
+  max_retries: 3
+
+validation:
+  min_working_days: 95
+
+output:
+  format: "json"
+  directory: "results"
+  timestamp_format: "%Y%m%d_%H%M%S"
+
+# Environment variable mappings:
+# OLLAMA_ENDPOINT -> ollama.endpoint
+# OLLAMA_MODEL -> ollama.model
+# OLLAMA_TIMEOUT -> ollama.timeout
+# OUTPUT_FORMAT -> output.format
+# OUTPUT_DIRECTORY -> output.directory
+# MIN_WORKING_DAYS -> validation.min_working_days

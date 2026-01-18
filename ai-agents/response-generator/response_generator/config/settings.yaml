@@ -1,0 +1,34 @@
+# Response Generator Configuration File
+
+# Ollama Configuration
+ollama:
+  endpoint: "http://localhost:11434"
+  model: "llama3.2:3b"
+  timeout: 30
+  max_retries: 3
+
+# Valid Email Categories
+categories:
+  - "contract_submission"
+  - "international_office_question"
+  - "internship_postponement"
+  - "uncategorized"
+
+# Response Generation Settings
+response:
+  default_tone: "formal"
+  generate_both_tones: true
+  personalization_enabled: true
+  confidence_threshold: 0.7
+  quality_threshold: 0.6
+
+# Output Configuration
+output:
+  format: "json"  # Options: json, csv, both
+  directory: "results"
+  timestamp_format: "%Y%m%d_%H%M%S"
+
+# Template and Prompt Directories
+paths:
+  templates_directory: "templates"
+  prompts_directory: "prompts"

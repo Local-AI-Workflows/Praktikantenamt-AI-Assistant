@@ -1,0 +1,12 @@
+SUBJECT: Re: {original_subject}
+
+Hallo {sender_name},
+
+alles klar, kein Problem mit der Verschiebung!
+
+{personalized_content}
+
+Schick uns einfach den neuen Vertrag, wenn du die neuen Daten hast.
+
+Viele Gruesse
+Praktikantenamt

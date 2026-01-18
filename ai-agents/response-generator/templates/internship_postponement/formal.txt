@@ -1,0 +1,13 @@
+SUBJECT: Re: {original_subject} - Praktikumsverschiebung
+
+{greeting} {sender_name},
+
+vielen Dank fuer Ihre Mitteilung bezueglich der Verschiebung Ihres Praktikums.
+
+{personalized_content}
+
+Bitte reichen Sie einen aktualisierten Praktikumsvertrag mit den neuen Daten ein, sobald diese feststehen.
+
+{closing}
+
+{signature}

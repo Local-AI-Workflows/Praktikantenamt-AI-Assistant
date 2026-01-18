@@ -1,0 +1,13 @@
+SUBJECT: Re: {original_subject} - Auslandspraktikum
+
+{greeting} {sender_name},
+
+vielen Dank fuer Ihre Anfrage bezueglich Ihres Auslandspraktikums.
+
+{personalized_content}
+
+Fuer detaillierte Informationen zu Auslandspraktika, Visa-Fragen und Anerkennung wenden Sie sich bitte an Herrn Mevius vom International Office.
+
+{closing}
+
+{signature}

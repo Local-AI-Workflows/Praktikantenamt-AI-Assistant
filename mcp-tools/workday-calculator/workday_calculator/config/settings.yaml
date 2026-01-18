@@ -1,0 +1,31 @@
+# Workday Calculator Configuration
+# Override via environment variables: WORKDAY_<SETTING_NAME>
+
+location:
+  # Default Bundesland if not specified (optional)
+  # Valid values: BB, BE, BW, BY, HB, HE, HH, MV, NI, NW, RP, SH, SL, SN, ST, TH
+  default_bundesland: null
+
+  # Enable geocoding for address resolution
+  geocoding_enabled: true
+
+  # Geocoding timeout in seconds
+  geocoding_timeout: 10
+
+holidays:
+  # Language for holiday names: 'de' (German) or 'en' (English)
+  language: de
+
+output:
+  # Default output format: 'json' or 'csv'
+  format: json
+
+  # Output directory for exported files
+  directory: results
+
+api:
+  # FastAPI server host
+  host: "0.0.0.0"
+
+  # FastAPI server port
+  port: 8000

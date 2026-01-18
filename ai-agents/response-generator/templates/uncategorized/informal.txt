@@ -1,0 +1,12 @@
+SUBJECT: Re: {original_subject}
+
+Hallo {sender_name},
+
+danke fuer deine Nachricht!
+
+{personalized_content}
+
+Wir melden uns bald bei dir.
+
+Viele Gruesse
+Praktikantenamt

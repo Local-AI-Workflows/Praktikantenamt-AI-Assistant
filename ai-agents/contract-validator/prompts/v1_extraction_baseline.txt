@@ -1,0 +1,13 @@
+Extrahiere die Praktikumsdaten aus diesem Vertrag:
+
+{contract_text}
+
+Antworte im JSON-Format:
+{{
+  "student_name": "...",
+  "matrikelnummer": "...",
+  "company_name": "...",
+  "company_address": "...",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD"
+}}

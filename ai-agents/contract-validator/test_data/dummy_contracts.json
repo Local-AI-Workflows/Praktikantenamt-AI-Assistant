@@ -1,0 +1,1071 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "total_contracts": 50,
+    "seed": 42,
+    "format_distribution": {
+      "tabular": 12,
+      "structured": 15,
+      "flowing_text": 10,
+      "form_style": 13
+    },
+    "status_distribution": {
+      "blacklisted_company": 5,
+      "valid": 30,
+      "invalid_duration": 10,
+      "missing_data": 5
+    }
+  },
+  "contracts": [
+    {
+      "id": "contract_001",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Felix Maier             |\n| Matrikel-Nr.     | 2988712                 |\n| Unternehmen      | Nicht Existiert AG      |\n| Adresse          | Fantasieweg 0, 00000 Ni |\n| Praktikumsbeginn | 07.06.2026              |\n| Praktikumsende   | 25.11.2026              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Felix Maier",
+        "matrikelnummer": "2988712",
+        "company_name": "Nicht Existiert AG",
+        "company_address": "Fantasieweg 0, 00000 Nirgendwo",
+        "start_date": "2026-06-07",
+        "end_date": "2026-11-25",
+        "working_days": 123,
+        "expected_status": "blacklisted_company"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "blacklisted_company",
+        "working_days": 123
+      }
+    },
+    {
+      "id": "contract_002",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Paul Schmitz            |\n| Matrikel-Nr.     | 2958972                 |\n| Unternehmen      | Nicht Existiert AG      |\n| Adresse          | Fantasieweg 0, 00000 Ni |\n| Praktikumsbeginn | 09.03.2025              |\n| Praktikumsende   | 04.08.2025              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Paul Schmitz",
+        "matrikelnummer": "2958972",
+        "company_name": "Nicht Existiert AG",
+        "company_address": "Fantasieweg 0, 00000 Nirgendwo",
+        "start_date": "2025-03-09",
+        "end_date": "2025-08-04",
+        "working_days": 106,
+        "expected_status": "blacklisted_company"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "blacklisted_company",
+        "working_days": 106
+      }
+    },
+    {
+      "id": "contract_003",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Sophie Schmitt          |\n| Matrikel-Nr.     | 2588637                 |\n| Unternehmen      | BASF SE                 |\n| Adresse          | Carl-Bosch-Str. 38, 670 |\n| Praktikumsbeginn | 19.12.2025              |\n| Praktikumsende   | 14.06.2026              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Sophie Schmitt",
+        "matrikelnummer": "2588637",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2025-12-19",
+        "end_date": "2026-06-14",
+        "working_days": 126,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 126
+      }
+    },
+    {
+      "id": "contract_004",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Paul Bauer\nMatrikelnummer: 2229974\nFirma: Airbus SE\nAdresse: Airbus-Allee 1, 28199 Bremen\nBeginn: 03.08.2026\nEnde: 14.02.2027",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Paul Bauer",
+        "matrikelnummer": "2229974",
+        "company_name": "Airbus SE",
+        "company_address": "Airbus-Allee 1, 28199 Bremen",
+        "start_date": "2026-08-03",
+        "end_date": "2027-02-14",
+        "working_days": 140,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 140
+      }
+    },
+    {
+      "id": "contract_005",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Lisa Weber\nMatrikelnummer: 2657924\nFirma: Airbus SE\nAdresse: Airbus-Allee 1, 28199 Bremen\nBeginn: 20.07.2026\nEnde: 30.11.2026",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Lisa Weber",
+        "matrikelnummer": "2657924",
+        "company_name": "Airbus SE",
+        "company_address": "Airbus-Allee 1, 28199 Bremen",
+        "start_date": "2026-07-20",
+        "end_date": "2026-11-30",
+        "working_days": 96,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "edge_case",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 96
+      }
+    },
+    {
+      "id": "contract_006",
+      "text": "Hiermit wird bestaetigt, dass Herr Paul Braun (Matrikelnummer 2490785) sein Pflichtpraktikum bei der BASF SE in 67056 Ludwigshafen vom 28.09.2025 bis zum 30.03.2026 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Paul Braun",
+        "matrikelnummer": "2490785",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2025-09-28",
+        "end_date": "2026-03-30",
+        "working_days": 131,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "valid",
+        "working_days": 131
+      }
+    },
+    {
+      "id": "contract_007",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Clara Fischer           |\n| Matrikel-Nr.     | 2714825                 |\n| Unternehmen      | BASF SE                 |\n| Adresse          | Carl-Bosch-Str. 38, 670 |\n| Praktikumsbeginn | 11.11.2025              |\n| Praktikumsende   | 24.03.2026              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Clara Fischer",
+        "matrikelnummer": "2714825",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2025-11-11",
+        "end_date": "2026-03-24",
+        "working_days": 96,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "edge_case",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 96
+      }
+    },
+    {
+      "id": "contract_008",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Sarah Meyer\nMatrikelnummer: 2475763\nFirma: Siemens AG\nAdresse: Werner-von-Siemens-Str. 1, 80333 Muenchen\nBeginn: 09.12.2026\nEnde: 15.06.2027",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Sarah Meyer",
+        "matrikelnummer": "2475763",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2026-12-09",
+        "end_date": "2027-06-15",
+        "working_days": 135,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 135
+      }
+    },
+    {
+      "id": "contract_009",
+      "text": "Name des Praktikanten: _Laura Neumann__________________\nMatrikelnummer: ____2956959____________________\nPraktikumsbetrieb: __BMW Group_________________\nAdresse: __Petuelring 130, 80809 Muenchen_\nvon: __27.05.2026__ bis: __21.11.2026__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Laura Neumann",
+        "matrikelnummer": "2956959",
+        "company_name": "BMW Group",
+        "company_address": "Petuelring 130, 80809 Muenchen",
+        "start_date": "2026-05-27",
+        "end_date": "2026-11-21",
+        "working_days": 128,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 128
+      }
+    },
+    {
+      "id": "contract_010",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Felix Weber             |\n| Matrikel-Nr.     | 2392077                 |\n| Unternehmen      | Airbus SE               |\n| Adresse          | Airbus-Allee 1, 28199 B |\n| Praktikumsbeginn | 01.09.2026              |\n| Praktikumsende   | 19.02.2027              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Felix Weber",
+        "matrikelnummer": "2392077",
+        "company_name": "Airbus SE",
+        "company_address": "Airbus-Allee 1, 28199 Bremen",
+        "start_date": "2026-09-01",
+        "end_date": "2027-02-19",
+        "working_days": 124,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 124
+      }
+    },
+    {
+      "id": "contract_011",
+      "text": "Name des Praktikanten: _Max Fischer____________________\nMatrikelnummer: ____2974230____________________\nPraktikumsbetrieb: __Bosch GmbH________________\nAdresse: __Robert-Bosch-Platz 1, 70839 Gerlingen_\nvon: __02.04.2025__ bis: __25.09.2025__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Max Fischer",
+        "matrikelnummer": "2974230",
+        "company_name": "Bosch GmbH",
+        "company_address": "Robert-Bosch-Platz 1, 70839 Gerlingen",
+        "start_date": "2025-04-02",
+        "end_date": "2025-09-25",
+        "working_days": 127,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 127
+      }
+    },
+    {
+      "id": "contract_012",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Jonas Schneider         |\n| Matrikel-Nr.     | 2767460                 |\n| Unternehmen      | Mercedes-Benz AG        |\n| Adresse          | Mercedesstr. 120, 70372 |\n| Praktikumsbeginn | 25.09.2024              |\n| Praktikumsende   | 05.02.2025              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Jonas Schneider",
+        "matrikelnummer": "2767460",
+        "company_name": "Mercedes-Benz AG",
+        "company_address": "Mercedesstr. 120, 70372 Stuttgart",
+        "start_date": "2024-09-25",
+        "end_date": "2025-02-05",
+        "working_days": 96,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "edge_case",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 96
+      }
+    },
+    {
+      "id": "contract_013",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Mia Schroeder\nMatrikelnummer: 2992842\nFirma: BASF SE\nAdresse: Carl-Bosch-Str. 38, 67056 Ludwigshafen\nBeginn: 17.05.2024\nEnde: 13.07.2024",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Mia Schroeder",
+        "matrikelnummer": "2992842",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2024-05-17",
+        "end_date": "2024-07-13",
+        "working_days": 41,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "invalid_duration",
+        "working_days": 41
+      }
+    },
+    {
+      "id": "contract_014",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Lena Klein\nMatrikelnummer: 2222086\nFirma: BASF SE\nAdresse: Carl-Bosch-Str. 38, 67056 Ludwigshafen\nBeginn: 07.12.2026\nEnde: 21.05.2027",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Lena Klein",
+        "matrikelnummer": "2222086",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2026-12-07",
+        "end_date": "2027-05-21",
+        "working_days": 120,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 120
+      }
+    },
+    {
+      "id": "contract_015",
+      "text": "Name des Praktikanten: _Mia Krueger____________________\nMatrikelnummer: ____2391559____________________\nPraktikumsbetrieb: __Mercedes-Benz AG__________\nAdresse: __Mercedesstr. 120, 70372 Stuttgart_\nvon: __04.08.2026__ bis: __26.12.2026__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Mia Krueger",
+        "matrikelnummer": "2391559",
+        "company_name": "Mercedes-Benz AG",
+        "company_address": "Mercedesstr. 120, 70372 Stuttgart",
+        "start_date": "2026-08-04",
+        "end_date": "2026-12-26",
+        "working_days": 104,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 104
+      }
+    },
+    {
+      "id": "contract_016",
+      "text": "Name des Praktikanten: _Leon Mueller___________________\nPraktikumsbetrieb: __BASF SE___________________\nAdresse: __Carl-Bosch-Str. 38, 67056 Ludwigshafen_\nvon: __08.10.2024__ bis: __25.02.2025__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Leon Mueller",
+        "matrikelnummer": "2616886",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2024-10-08",
+        "end_date": "2025-02-25",
+        "working_days": 101,
+        "expected_status": "missing_data"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "format": "form_style",
+        "status": "missing_data",
+        "working_days": 101
+      }
+    },
+    {
+      "id": "contract_017",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Sophie Schneider\nFirma: Siemens AG\nAdresse: Werner-von-Siemens-Str. 1, 80333 Muenchen\nBeginn: 17.02.2025",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Sophie Schneider",
+        "matrikelnummer": "2949401",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2025-02-17",
+        "end_date": "2025-07-22",
+        "working_days": 112,
+        "expected_status": "missing_data"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "format": "structured",
+        "status": "missing_data",
+        "working_days": 112
+      }
+    },
+    {
+      "id": "contract_018",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Hannah Weber            |\n| Matrikel-Nr.     | 2758490                 |\n| Unternehmen      | Allianz SE              |\n| Adresse          | Koeniginstr. 28, 80802  |\n| Praktikumsbeginn | 08.08.2026              |\n| Praktikumsende   | 15.02.2027              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Hannah Weber",
+        "matrikelnummer": "2758490",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2026-08-08",
+        "end_date": "2027-02-15",
+        "working_days": 136,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 136
+      }
+    },
+    {
+      "id": "contract_019",
+      "text": "Name des Praktikanten: _Sarah Wagner___________________\nMatrikelnummer: ____2098907____________________\nPraktikumsbetrieb: __BMW Group_________________\nAdresse: __Petuelring 130, 80809 Muenchen_\nvon: __12.07.2026__ bis: __28.12.2026__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Sarah Wagner",
+        "matrikelnummer": "2098907",
+        "company_name": "BMW Group",
+        "company_address": "Petuelring 130, 80809 Muenchen",
+        "start_date": "2026-07-12",
+        "end_date": "2026-12-28",
+        "working_days": 121,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 121
+      }
+    },
+    {
+      "id": "contract_020",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Nina Schmitt\nMatrikelnummer: 2056802\nFirma: BMW Group\nAdresse: Petuelring 130, 80809 Muenchen\nBeginn: 24.07.2024\nEnde: 02.09.2024",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Nina Schmitt",
+        "matrikelnummer": "2056802",
+        "company_name": "BMW Group",
+        "company_address": "Petuelring 130, 80809 Muenchen",
+        "start_date": "2024-07-24",
+        "end_date": "2024-09-02",
+        "working_days": 29,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "invalid_duration",
+        "working_days": 29
+      }
+    },
+    {
+      "id": "contract_021",
+      "text": "Hiermit wird bestaetigt, dass Frau Lea Lehmann (Matrikelnummer 2114576) sein Pflichtpraktikum bei der Deutsche Bank AG in 60325 Frankfurt am Main vom 18.04.2024 bis zum 01.06.2024 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Lea Lehmann",
+        "matrikelnummer": "2114576",
+        "company_name": "Deutsche Bank AG",
+        "company_address": "Taunusanlage 12, 60325 Frankfurt am Main",
+        "start_date": "2024-04-18",
+        "end_date": "2024-06-01",
+        "working_days": 32,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "invalid_duration",
+        "working_days": 32
+      }
+    },
+    {
+      "id": "contract_022",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Lukas Klein             |\n| Matrikel-Nr.     | 2192401                 |\n| Unternehmen      | SAP SE                  |\n| Adresse          | Dietmar-Hopp-Allee 16,  |\n| Praktikumsbeginn | 28.04.2025              |\n| Praktikumsende   | 13.10.2025              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Lukas Klein",
+        "matrikelnummer": "2192401",
+        "company_name": "SAP SE",
+        "company_address": "Dietmar-Hopp-Allee 16, 69190 Walldorf",
+        "start_date": "2025-04-28",
+        "end_date": "2025-10-13",
+        "working_days": 121,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 121
+      }
+    },
+    {
+      "id": "contract_023",
+      "text": "Name des Praktikanten: _Lea Lehmann____________________\nMatrikelnummer: ____2897546____________________\nPraktikumsbetrieb: __BASF SE___________________\nAdresse: __Carl-Bosch-Str. 38, 67056 Ludwigshafen_\nvon: __21.01.2024__ bis: __08.03.2024__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Lea Lehmann",
+        "matrikelnummer": "2897546",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2024-01-21",
+        "end_date": "2024-03-08",
+        "working_days": 35,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "invalid_duration",
+        "working_days": 35
+      }
+    },
+    {
+      "id": "contract_024",
+      "text": "Hiermit wird bestaetigt, dass Herr Simon Mueller (Matrikelnummer 2097793) sein Pflichtpraktikum bei der Deutsche Bank AG in 60325 Frankfurt am Main vom 16.07.2024 bis zum 30.08.2024 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Simon Mueller",
+        "matrikelnummer": "2097793",
+        "company_name": "Deutsche Bank AG",
+        "company_address": "Taunusanlage 12, 60325 Frankfurt am Main",
+        "start_date": "2024-07-16",
+        "end_date": "2024-08-30",
+        "working_days": 34,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "invalid_duration",
+        "working_days": 34
+      }
+    },
+    {
+      "id": "contract_025",
+      "text": "Hiermit wird bestaetigt, dass Herr Felix Lehmann (Matrikelnummer 2420521) sein Pflichtpraktikum bei der Siemens AG in 80333 Muenchen vom 01.07.2024 bis zum 04.12.2024 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Felix Lehmann",
+        "matrikelnummer": "2420521",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2024-07-01",
+        "end_date": "2024-12-04",
+        "working_days": 113,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "valid",
+        "working_days": 113
+      }
+    },
+    {
+      "id": "contract_026",
+      "text": "Name des Praktikanten: _Katharina Hartmann_____________\nPraktikumsbetrieb: __Mercedes-Benz AG__________\nvon: __23.07.2025__ bis: __14.01.2026__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Katharina Hartmann",
+        "matrikelnummer": "2823267",
+        "company_name": "Mercedes-Benz AG",
+        "company_address": "Mercedesstr. 120, 70372 Stuttgart",
+        "start_date": "2025-07-23",
+        "end_date": "2026-01-14",
+        "working_days": 126,
+        "expected_status": "missing_data"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "format": "form_style",
+        "status": "missing_data",
+        "working_days": 126
+      }
+    },
+    {
+      "id": "contract_027",
+      "text": "Name des Praktikanten: _Julia Wagner___________________\nMatrikelnummer: ____2061324____________________\nPraktikumsbetrieb: __Allianz SE________________\nAdresse: __Koeniginstr. 28, 80802 Muenchen_\nvon: __02.09.2026__ bis: __23.01.2027__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Julia Wagner",
+        "matrikelnummer": "2061324",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2026-09-02",
+        "end_date": "2027-01-23",
+        "working_days": 103,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 103
+      }
+    },
+    {
+      "id": "contract_028",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Anna Zimmermann         |\n| Matrikel-Nr.     | 2499948                 |\n| Unternehmen      | BASF SE                 |\n| Adresse          | Carl-Bosch-Str. 38, 670 |\n| Praktikumsbeginn | 02.03.2026              |\n| Praktikumsende   | 25.07.2026              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Anna Zimmermann",
+        "matrikelnummer": "2499948",
+        "company_name": "BASF SE",
+        "company_address": "Carl-Bosch-Str. 38, 67056 Ludwigshafen",
+        "start_date": "2026-03-02",
+        "end_date": "2026-07-25",
+        "working_days": 105,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 105
+      }
+    },
+    {
+      "id": "contract_029",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Nina Meyer              |\n| Matrikel-Nr.     | 2071849                 |\n| Unternehmen      | Allianz SE              |\n| Adresse          | Koeniginstr. 28, 80802  |\n| Praktikumsbeginn | 28.11.2024              |\n| Praktikumsende   | 24.04.2025              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Nina Meyer",
+        "matrikelnummer": "2071849",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2024-11-28",
+        "end_date": "2025-04-24",
+        "working_days": 106,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 106
+      }
+    },
+    {
+      "id": "contract_030",
+      "text": "Hiermit wird bestaetigt, dass Herr Philipp Zimmermann (Matrikelnummer 2258175) sein Pflichtpraktikum bei der Allianz SE in 80802 Muenchen vom 20.01.2026 bis zum 21.02.2026 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Philipp Zimmermann",
+        "matrikelnummer": "2258175",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2026-01-20",
+        "end_date": "2026-02-21",
+        "working_days": 24,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "invalid_duration",
+        "working_days": 24
+      }
+    },
+    {
+      "id": "contract_031",
+      "text": "Hiermit wird bestaetigt, dass Herr Sarah Hofmann (Matrikelnummer 2612024) sein Pflichtpraktikum bei der Allianz SE in 80802 Muenchen vom 09.06.2026 bis zum 11.12.2026 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Sarah Hofmann",
+        "matrikelnummer": "2612024",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2026-06-09",
+        "end_date": "2026-12-11",
+        "working_days": 134,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "valid",
+        "working_days": 134
+      }
+    },
+    {
+      "id": "contract_032",
+      "text": "Name des Praktikanten: _Leon Becker____________________\nPraktikumsbetrieb: __Volkswagen AG_____________\nAdresse: __Berliner Ring 2, 38440 Wolfsburg_\nvon: ______________ bis: __29.04.2025__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Leon Becker",
+        "matrikelnummer": "2278517",
+        "company_name": "Volkswagen AG",
+        "company_address": "Berliner Ring 2, 38440 Wolfsburg",
+        "start_date": "2024-11-21",
+        "end_date": "2025-04-29",
+        "working_days": 114,
+        "expected_status": "missing_data"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "format": "form_style",
+        "status": "missing_data",
+        "working_days": 114
+      }
+    },
+    {
+      "id": "contract_033",
+      "text": "Name des Praktikanten: _Max Wolf_______________________\nMatrikelnummer: ____2651332____________________\nPraktikumsbetrieb: __Allianz SE________________\nAdresse: __Koeniginstr. 28, 80802 Muenchen_\nvon: __18.02.2024__ bis: __23.07.2024__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Max Wolf",
+        "matrikelnummer": "2651332",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2024-02-18",
+        "end_date": "2024-07-23",
+        "working_days": 112,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 112
+      }
+    },
+    {
+      "id": "contract_034",
+      "text": "Hiermit wird bestaetigt, dass Herr Lukas Maier (Matrikelnummer 2365962) sein Pflichtpraktikum bei der Fake Company GmbH in 12345 Nowhere vom 10.06.2024 bis zum 07.11.2024 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Lukas Maier",
+        "matrikelnummer": "2365962",
+        "company_name": "Fake Company GmbH",
+        "company_address": "Fake Str. 1, 12345 Nowhere",
+        "start_date": "2024-06-10",
+        "end_date": "2024-11-07",
+        "working_days": 109,
+        "expected_status": "blacklisted_company"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "blacklisted_company",
+        "working_days": 109
+      }
+    },
+    {
+      "id": "contract_035",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: David Krause\nFirma: SAP SE\nAdresse: Dietmar-Hopp-Allee 16, 69190 Walldorf\nBeginn: 17.11.2026",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "David Krause",
+        "matrikelnummer": "2569605",
+        "company_name": "SAP SE",
+        "company_address": "Dietmar-Hopp-Allee 16, 69190 Walldorf",
+        "start_date": "2026-11-17",
+        "end_date": "2027-04-06",
+        "working_days": 101,
+        "expected_status": "missing_data"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "format": "structured",
+        "status": "missing_data",
+        "working_days": 101
+      }
+    },
+    {
+      "id": "contract_036",
+      "text": "Hiermit wird bestaetigt, dass Herr Tim Fischer (Matrikelnummer 2932931) sein Pflichtpraktikum bei der Fake Company GmbH in 12345 Nowhere vom 05.09.2026 bis zum 09.02.2027 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Tim Fischer",
+        "matrikelnummer": "2932931",
+        "company_name": "Fake Company GmbH",
+        "company_address": "Fake Str. 1, 12345 Nowhere",
+        "start_date": "2026-09-05",
+        "end_date": "2027-02-09",
+        "working_days": 112,
+        "expected_status": "blacklisted_company"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "blacklisted_company",
+        "working_days": 112
+      }
+    },
+    {
+      "id": "contract_037",
+      "text": "Hiermit wird bestaetigt, dass Frau Julia Braun (Matrikelnummer 2220861) sein Pflichtpraktikum bei der Bosch GmbH in 70839 Gerlingen vom 21.11.2024 bis zum 12.05.2025 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Julia Braun",
+        "matrikelnummer": "2220861",
+        "company_name": "Bosch GmbH",
+        "company_address": "Robert-Bosch-Platz 1, 70839 Gerlingen",
+        "start_date": "2024-11-21",
+        "end_date": "2025-05-12",
+        "working_days": 123,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "valid",
+        "working_days": 123
+      }
+    },
+    {
+      "id": "contract_038",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Emma Schulz\nMatrikelnummer: 2949314\nFirma: Siemens AG\nAdresse: Werner-von-Siemens-Str. 1, 80333 Muenchen\nBeginn: 14.11.2024\nEnde: 05.04.2025",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Emma Schulz",
+        "matrikelnummer": "2949314",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2024-11-14",
+        "end_date": "2025-04-05",
+        "working_days": 102,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 102
+      }
+    },
+    {
+      "id": "contract_039",
+      "text": "Name des Praktikanten: _Max Koch_______________________\nMatrikelnummer: ____2808577____________________\nPraktikumsbetrieb: __Airbus SE_________________\nAdresse: __Airbus-Allee 1, 28199 Bremen_\nvon: __06.05.2026__ bis: __28.10.2026__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Max Koch",
+        "matrikelnummer": "2808577",
+        "company_name": "Airbus SE",
+        "company_address": "Airbus-Allee 1, 28199 Bremen",
+        "start_date": "2026-05-06",
+        "end_date": "2026-10-28",
+        "working_days": 126,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 126
+      }
+    },
+    {
+      "id": "contract_040",
+      "text": "Name des Praktikanten: _Jan Klein______________________\nMatrikelnummer: ____2588153____________________\nPraktikumsbetrieb: __Siemens AG________________\nAdresse: __Werner-von-Siemens-Str. 1, 80333 Muenchen_\nvon: __23.02.2024__ bis: __15.08.2024__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Jan Klein",
+        "matrikelnummer": "2588153",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2024-02-23",
+        "end_date": "2024-08-15",
+        "working_days": 125,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 125
+      }
+    },
+    {
+      "id": "contract_041",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Anna Krause\nMatrikelnummer: 2387151\nFirma: Allianz SE\nAdresse: Koeniginstr. 28, 80802 Muenchen\nBeginn: 14.03.2026\nEnde: 17.04.2026",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Anna Krause",
+        "matrikelnummer": "2387151",
+        "company_name": "Allianz SE",
+        "company_address": "Koeniginstr. 28, 80802 Muenchen",
+        "start_date": "2026-03-14",
+        "end_date": "2026-04-17",
+        "working_days": 25,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "invalid_duration",
+        "working_days": 25
+      }
+    },
+    {
+      "id": "contract_042",
+      "text": "Name des Praktikanten: _Anna Hoffmann__________________\nMatrikelnummer: ____2382364____________________\nPraktikumsbetrieb: __Siemens AG________________\nAdresse: __Werner-von-Siemens-Str. 1, 80333 Muenchen_\nvon: __22.04.2025__ bis: __15.09.2025__",
+      "format": "form_style",
+      "ground_truth": {
+        "student_name": "Anna Hoffmann",
+        "matrikelnummer": "2382364",
+        "company_name": "Siemens AG",
+        "company_address": "Werner-von-Siemens-Str. 1, 80333 Muenchen",
+        "start_date": "2025-04-22",
+        "end_date": "2025-09-15",
+        "working_days": 105,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "form_style",
+        "status": "valid",
+        "working_days": 105
+      }
+    },
+    {
+      "id": "contract_043",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Marie Werner\nMatrikelnummer: 2587080\nFirma: Volkswagen AG\nAdresse: Berliner Ring 2, 38440 Wolfsburg\nBeginn: 05.12.2026\nEnde: 02.02.2027",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Marie Werner",
+        "matrikelnummer": "2587080",
+        "company_name": "Volkswagen AG",
+        "company_address": "Berliner Ring 2, 38440 Wolfsburg",
+        "start_date": "2026-12-05",
+        "end_date": "2027-02-02",
+        "working_days": 42,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "invalid_duration",
+        "working_days": 42
+      }
+    },
+    {
+      "id": "contract_044",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Katharina Becker\nMatrikelnummer: 2906604\nFirma: Fake Company GmbH\nAdresse: Fake Str. 1, 12345 Nowhere\nBeginn: 01.07.2024\nEnde: 29.11.2024",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Katharina Becker",
+        "matrikelnummer": "2906604",
+        "company_name": "Fake Company GmbH",
+        "company_address": "Fake Str. 1, 12345 Nowhere",
+        "start_date": "2024-07-01",
+        "end_date": "2024-11-29",
+        "working_days": 110,
+        "expected_status": "blacklisted_company"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "blacklisted_company",
+        "working_days": 110
+      }
+    },
+    {
+      "id": "contract_045",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Clara Maier\nMatrikelnummer: 2348321\nFirma: Volkswagen AG\nAdresse: Berliner Ring 2, 38440 Wolfsburg\nBeginn: 26.12.2026\nEnde: 25.05.2027",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Clara Maier",
+        "matrikelnummer": "2348321",
+        "company_name": "Volkswagen AG",
+        "company_address": "Berliner Ring 2, 38440 Wolfsburg",
+        "start_date": "2026-12-26",
+        "end_date": "2027-05-25",
+        "working_days": 107,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 107
+      }
+    },
+    {
+      "id": "contract_046",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Lea Lange               |\n| Matrikel-Nr.     | 2113346                 |\n| Unternehmen      | Volkswagen AG           |\n| Adresse          | Berliner Ring 2, 38440  |\n| Praktikumsbeginn | 08.08.2024              |\n| Praktikumsende   | 13.09.2024              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Lea Lange",
+        "matrikelnummer": "2113346",
+        "company_name": "Volkswagen AG",
+        "company_address": "Berliner Ring 2, 38440 Wolfsburg",
+        "start_date": "2024-08-08",
+        "end_date": "2024-09-13",
+        "working_days": 27,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "tabular",
+        "status": "invalid_duration",
+        "working_days": 27
+      }
+    },
+    {
+      "id": "contract_047",
+      "text": "| Feld             | Wert                    |\n|------------------|-------------------------|\n| Name             | Simon Maier             |\n| Matrikel-Nr.     | 2482662                 |\n| Unternehmen      | Bosch GmbH              |\n| Adresse          | Robert-Bosch-Platz 1, 7 |\n| Praktikumsbeginn | 08.04.2025              |\n| Praktikumsende   | 19.08.2025              |",
+      "format": "tabular",
+      "ground_truth": {
+        "student_name": "Simon Maier",
+        "matrikelnummer": "2482662",
+        "company_name": "Bosch GmbH",
+        "company_address": "Robert-Bosch-Platz 1, 70839 Gerlingen",
+        "start_date": "2025-04-08",
+        "end_date": "2025-08-19",
+        "working_days": 96,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "edge_case",
+        "format": "tabular",
+        "status": "valid",
+        "working_days": 96
+      }
+    },
+    {
+      "id": "contract_048",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Felix Richter\nMatrikelnummer: 2344207\nFirma: SAP SE\nAdresse: Dietmar-Hopp-Allee 16, 69190 Walldorf\nBeginn: 12.05.2024\nEnde: 24.10.2024",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Felix Richter",
+        "matrikelnummer": "2344207",
+        "company_name": "SAP SE",
+        "company_address": "Dietmar-Hopp-Allee 16, 69190 Walldorf",
+        "start_date": "2024-05-12",
+        "end_date": "2024-10-24",
+        "working_days": 119,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 119
+      }
+    },
+    {
+      "id": "contract_049",
+      "text": "PRAKTIKUMSVERTRAG\n\nStudent: Mia Krause\nMatrikelnummer: 2562262\nFirma: Bosch GmbH\nAdresse: Robert-Bosch-Platz 1, 70839 Gerlingen\nBeginn: 09.02.2024\nEnde: 14.07.2024",
+      "format": "structured",
+      "ground_truth": {
+        "student_name": "Mia Krause",
+        "matrikelnummer": "2562262",
+        "company_name": "Bosch GmbH",
+        "company_address": "Robert-Bosch-Platz 1, 70839 Gerlingen",
+        "start_date": "2024-02-09",
+        "end_date": "2024-07-14",
+        "working_days": 111,
+        "expected_status": "valid"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "format": "structured",
+        "status": "valid",
+        "working_days": 111
+      }
+    },
+    {
+      "id": "contract_050",
+      "text": "Hiermit wird bestaetigt, dass Frau Anna Fischer (Matrikelnummer 2625550) sein Pflichtpraktikum bei der Volkswagen AG in 38440 Wolfsburg vom 26.12.2025 bis zum 04.02.2026 absolvieren wird.",
+      "format": "flowing_text",
+      "ground_truth": {
+        "student_name": "Anna Fischer",
+        "matrikelnummer": "2625550",
+        "company_name": "Volkswagen AG",
+        "company_address": "Berliner Ring 2, 38440 Wolfsburg",
+        "start_date": "2025-12-26",
+        "end_date": "2026-02-04",
+        "working_days": 29,
+        "expected_status": "invalid_duration"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "format": "flowing_text",
+        "status": "invalid_duration",
+        "working_days": 29
+      }
+    }
+  ]
+}

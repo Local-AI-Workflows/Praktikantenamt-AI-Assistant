@@ -1,0 +1,17 @@
+Erstelle einen personalisierten Absatz (2-4 Saetze) fuer diese E-Mail-Antwort.
+
+Original-E-Mail:
+Betreff: {subject}
+Von: {sender}
+Kategorie: {category}
+Inhalt:
+{body}
+
+Antwort-Ton: {tone}
+
+Der Absatz soll:
+- Auf den spezifischen Inhalt der E-Mail eingehen
+- Den gewuenschten Ton ({tone}) beibehalten
+- Keine Grussformel oder Signatur enthalten
+
+Antworte NUR mit dem personalisierten Absatz, ohne zusaetzlichen Text.

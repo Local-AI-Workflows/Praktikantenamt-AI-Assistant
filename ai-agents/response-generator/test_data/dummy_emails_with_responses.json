@@ -1,0 +1,207 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "description": "Test emails for response generation evaluation",
+    "total_emails": 15
+  },
+  "emails": [
+    {
+      "id": "resp_email_001",
+      "subject": "Praktikumsvertrag zur Prüfung",
+      "body": "Sehr geehrte Damen und Herren,\n\nanbei sende ich Ihnen meinen Praktikumsvertrag zur Prüfung.\nDas Praktikum beginnt am 01.03.2026 bei der Firma TechStart GmbH in Hamburg.\n\nMit freundlichen Grüßen\nAnna Schmidt",
+      "sender": "anna.schmidt@haw-hamburg.de",
+      "has_attachment": true,
+      "category": "contract_submission",
+      "categorization_confidence": 0.95,
+      "metadata": {
+        "difficulty": "easy",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_002",
+      "subject": "Vertrag eingereicht",
+      "body": "Hi,\n\nhabe den Vertrag angehängt. Hoffe das passt so!\n\nLG Max",
+      "sender": "max.mueller@haw-hamburg.de",
+      "has_attachment": true,
+      "category": "contract_submission",
+      "categorization_confidence": 0.88,
+      "metadata": {
+        "difficulty": "easy",
+        "expected_tone": "informal"
+      }
+    },
+    {
+      "id": "resp_email_003",
+      "subject": "Korrigierter Praktikumsvertrag",
+      "body": "Guten Tag,\n\nwie telefonisch besprochen, hier der korrigierte Vertrag mit den richtigen Daten.\nDie Firma heißt korrekt DataVision AG, nicht DataVision GmbH.\n\nVielen Dank für Ihre Geduld.\n\nMit freundlichen Grüßen\nLisa Weber",
+      "sender": "lisa.weber@haw-hamburg.de",
+      "has_attachment": true,
+      "category": "contract_submission",
+      "categorization_confidence": 0.92,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_004",
+      "subject": "Frage zu Auslandspraktikum in den USA",
+      "body": "Sehr geehrte Damen und Herren,\n\nich plane ein Praktikum in San Francisco bei einem Tech-Startup.\nKönnen Sie mir Informationen geben, welche Unterlagen ich für das Visum benötige?\nWird das Praktikum von der HAW anerkannt?\n\nMit freundlichen Grüßen\nTobias Richter",
+      "sender": "tobias.richter@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "international_office_question",
+      "categorization_confidence": 0.94,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_005",
+      "subject": "Praktikum in Japan",
+      "body": "Hallo,\n\nich habe ein Praktikumsangebot aus Tokyo bekommen. Wie läuft das mit der Versicherung?\nBrauche ich eine spezielle Auslandsversicherung?\n\nDanke!\nSophie",
+      "sender": "sophie.braun@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "international_office_question",
+      "categorization_confidence": 0.89,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "informal"
+      }
+    },
+    {
+      "id": "resp_email_006",
+      "subject": "Praktikum in Dänemark - Fragen",
+      "body": "Guten Tag,\n\nich habe eine Zusage für ein Praktikum in Kopenhagen erhalten.\nIst es richtig, dass ich als EU-Bürger kein spezielles Visum brauche?\nWie sieht es mit der Krankenversicherung aus?\n\nMfG\nJonas Becker",
+      "sender": "jonas.becker@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "international_office_question",
+      "categorization_confidence": 0.91,
+      "metadata": {
+        "difficulty": "easy",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_007",
+      "subject": "Verschiebung Praktikum wegen Krankheit",
+      "body": "Sehr geehrte Damen und Herren,\n\nleider muss ich mein Praktikum verschieben. Ich bin krankgeschrieben und kann den ursprünglichen Starttermin nicht einhalten.\n\nDas Praktikum sollte am 15.02.2026 beginnen, der neue Starttermin ist voraussichtlich der 01.04.2026.\n\nEin Attest kann ich nachreichen.\n\nMit freundlichen Grüßen\nMaria Hoffmann",
+      "sender": "maria.hoffmann@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "internship_postponement",
+      "categorization_confidence": 0.96,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_008",
+      "subject": "Praktikum muss leider verschoben werden",
+      "body": "Hallo,\n\nich muss mein Praktikum verschieben, weil ich eine wichtige Prüfung nachholen muss.\nDer neue Starttermin ist noch nicht ganz klar, aber wahrscheinlich Mai oder Juni.\n\nSorry für die Umstände!\nLukas",
+      "sender": "lukas.schneider@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "internship_postponement",
+      "categorization_confidence": 0.87,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "informal"
+      }
+    },
+    {
+      "id": "resp_email_009",
+      "subject": "Praktikum pausieren wegen Schwangerschaft",
+      "body": "Sehr geehrte Damen und Herren,\n\nich möchte Sie informieren, dass ich aufgrund meiner Schwangerschaft das Praktikum unterbrechen muss.\n\nIch werde nach dem Mutterschutz das Praktikum fortsetzen. Können Sie mir mitteilen, welche Formalitäten ich beachten muss?\n\nMit freundlichen Grüßen\nEmma Fischer",
+      "sender": "emma.fischer@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "internship_postponement",
+      "categorization_confidence": 0.93,
+      "metadata": {
+        "difficulty": "hard",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_010",
+      "subject": "Allgemeine Frage zum Praktikum",
+      "body": "Hallo,\n\nkönnen Sie mir sagen, wie viele ECTS-Punkte ich für das Praktikum bekomme?\nUnd wo finde ich die Prüfungsordnung?\n\nDanke!\nTom",
+      "sender": "tom.wagner@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "uncategorized",
+      "categorization_confidence": 0.72,
+      "metadata": {
+        "difficulty": "easy",
+        "expected_tone": "informal"
+      }
+    },
+    {
+      "id": "resp_email_011",
+      "subject": "Bescheinigung für Praktikum",
+      "body": "Sehr geehrte Damen und Herren,\n\nkönnen Sie mir eine Bescheinigung ausstellen, dass ich mein Praktikum absolviert habe?\nIch benötige diese für meinen neuen Arbeitgeber.\n\nMit freundlichen Grüßen\nLaura Klein",
+      "sender": "laura.klein@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "uncategorized",
+      "categorization_confidence": 0.65,
+      "metadata": {
+        "difficulty": "medium",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_012",
+      "subject": "Wo ist mein Büro?",
+      "body": "Hi,\n\nich finde das Praktikantenamt nicht. In welchem Gebäude seid ihr?\n\nDanke!",
+      "sender": "anonym@web.de",
+      "has_attachment": false,
+      "category": "uncategorized",
+      "categorization_confidence": 0.55,
+      "metadata": {
+        "difficulty": "easy",
+        "expected_tone": "informal"
+      }
+    },
+    {
+      "id": "resp_email_013",
+      "subject": "Vertrag ohne Anhang",
+      "body": "Guten Tag,\n\nhiermit reiche ich meinen Praktikumsvertrag ein.\n\nMit freundlichen Grüßen\nPeter Schulz",
+      "sender": "peter.schulz@haw-hamburg.de",
+      "has_attachment": false,
+      "category": "contract_submission",
+      "categorization_confidence": 0.78,
+      "metadata": {
+        "difficulty": "hard",
+        "edge_case": "missing_attachment",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_014",
+      "subject": "Internship contract submission",
+      "body": "Dear Sir or Madam,\n\nPlease find attached my internship contract for review.\nThe internship will be at BMW in Munich starting April 2026.\n\nBest regards,\nJames Miller",
+      "sender": "james.miller@haw-hamburg.de",
+      "has_attachment": true,
+      "category": "contract_submission",
+      "categorization_confidence": 0.85,
+      "metadata": {
+        "difficulty": "medium",
+        "edge_case": "english_email",
+        "expected_tone": "formal"
+      }
+    },
+    {
+      "id": "resp_email_015",
+      "subject": "Praktikum Fragen + Vertrag",
+      "body": "Hallo,\n\nich habe den Vertrag angehängt. Außerdem wollte ich fragen, ob ich das Praktikum auch im Ausland machen kann? Meine Firma hat auch einen Standort in Wien.\n\nVG Sarah",
+      "sender": "sarah.huber@haw-hamburg.de",
+      "has_attachment": true,
+      "category": "contract_submission",
+      "categorization_confidence": 0.75,
+      "metadata": {
+        "difficulty": "hard",
+        "edge_case": "multi_intent",
+        "expected_tone": "informal"
+      }
+    }
+  ]
+}

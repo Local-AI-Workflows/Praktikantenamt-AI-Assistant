@@ -1,0 +1,13 @@
+SUBJECT: Re: {original_subject} - Eingangsbestaetigung Praktikumsvertrag
+
+{greeting} {sender_name},
+
+vielen Dank fuer die Zusendung Ihres Praktikumsvertrags.
+
+{personalized_content}
+
+Wir werden Ihre Unterlagen pruefen und uns innerhalb von 5 Werktagen bei Ihnen melden. Bei Rueckfragen wenden Sie sich bitte an Frau Friedrich (BFF).
+
+{closing}
+
+{signature}

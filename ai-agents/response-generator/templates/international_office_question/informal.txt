@@ -1,0 +1,12 @@
+SUBJECT: Re: {original_subject}
+
+Hallo {sender_name},
+
+danke fuer deine Frage zum Auslandspraktikum!
+
+{personalized_content}
+
+Am besten wendest du dich an Herrn Mevius vom International Office - der kann dir bei allem rund ums Ausland helfen.
+
+Viele Gruesse
+Praktikantenamt

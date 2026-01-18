@@ -1,0 +1,20 @@
+# Company lists for contract validation
+# Companies on the whitelist are approved for internships
+# Companies on the blacklist are not allowed
+
+whitelist:
+  - Siemens AG
+  - BMW Group
+  - Airbus SE
+  - Deutsche Bank AG
+  - SAP SE
+  - Bosch GmbH
+  - Volkswagen AG
+  - Mercedes-Benz AG
+  - BASF SE
+  - Allianz SE
+
+blacklist:
+  - Fake Company GmbH
+  - Scam Industries Ltd
+  - Nicht Existiert AG

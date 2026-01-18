@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "workday-calculator"
+version = "0.1.0"
+description = "MCP Tool for calculating working days considering German federal state holidays"
+authors = [{name = "Praktikantenamt AI Team"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "holidays>=0.40",
+    "click>=8.1.0",
+    "pydantic>=2.5.0",
+    "rich>=13.7.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "geopy>=2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.12.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.0",
+    "httpx>=0.26.0",
+]
+
+[project.scripts]
+workday-calc = "workday_calculator.cli:main"
+
+[tool.setuptools]
+packages = ["workday_calculator"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
