@@ -2,10 +2,14 @@
 CLI for n8n email workflow validation.
 """
 
+import os
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+
+# Enable UTF-8 on Windows
+os.environ['PYTHONIOENCODING'] = 'utf-8'
 
 import click
 from rich.console import Console
@@ -51,12 +55,20 @@ def main():
 @click.option("--no-cleanup", is_flag=True, help="Skip cleanup of test emails")
 @click.option("--test-inbox", required=True, help="Target test inbox email address")
 @click.option("--verbose", "-v", is_flag=True, help="Detailed output")
-def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose):
+@click.option(
+    "--validate-only",
+    is_flag=True,
+    help="Only validate existing emails (skip send phase, use stored UUIDs)",
+)
+def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, validate_only):
     """
     Run full workflow validation: send emails, wait, validate routing.
+    
+    With --validate-only: Skip sending and use previously sent emails from uuid_mapping.json
 
     Example:
         workflow-validator validate --test-inbox test@example.com
+        workflow-validator validate --test-inbox test@example.com --validate-only
     """
     console = Console()
 
@@ -78,13 +90,14 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose):
         smtp_client = SMTPClient(cfg.smtp)
         imap_client = IMAPClient(cfg.imap)
 
-        if not smtp_client.health_check():
-            console.print("[red]✗ SMTP server not accessible[/red]")
-            console.print(
-                f"  Host: {cfg.smtp.host}:{cfg.smtp.port}, User: {cfg.smtp.username}"
-            )
-            return
-        console.print(f"[green]✓ SMTP server accessible[/green] ({cfg.smtp.host})")
+        if not validate_only:
+            if not smtp_client.health_check():
+                console.print("[red]✗ SMTP server not accessible[/red]")
+                console.print(
+                    f"  Host: {cfg.smtp.host}:{cfg.smtp.port}, User: {cfg.smtp.username}"
+                )
+                return
+            console.print(f"[green]✓ SMTP server accessible[/green] ({cfg.smtp.host})")
 
         if not imap_client.health_check():
             console.print("[red]✗ IMAP server not accessible[/red]")
@@ -95,37 +108,51 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose):
         console.print(f"[green]✓ IMAP server accessible[/green] ({cfg.imap.host})")
         console.print()
 
-        # 3. Load test emails
-        console.print(f"[dim]Loading dataset from {dataset}...[/dim]")
-        emails = DataLoader.load_emails(dataset)
-        console.print(f"Loaded [cyan]{len(emails)}[/cyan] test emails\n")
-
-        # 4. Send test emails
-        console.print("[bold cyan]Phase 1: Sending test emails[/bold cyan]")
+        # Load UUID tracker
         uuid_tracker = UUIDTracker(cfg.uuid_storage_path)
-        sender = EmailSender(smtp_client, uuid_tracker)
 
-        with console.status("[bold green]Sending emails..."):
-            sent_emails = sender.send_batch(emails, test_inbox, verbose=verbose)
+        if validate_only:
+            # Skip sending - load previously sent emails from storage
+            console.print("[bold cyan]Loading previously sent emails from storage...[/bold cyan]")
+            sent_emails = uuid_tracker.load_all()
+            
+            if not sent_emails:
+                console.print("[red]No previously sent emails found in storage.[/red]")
+                console.print(f"[yellow]Check: {cfg.uuid_storage_path}[/yellow]")
+                return
+            
+            console.print(f"[green]✓ Loaded {len(sent_emails)} emails[/green]\n")
+        else:
+            # 3. Load test emails
+            console.print(f"[dim]Loading dataset from {dataset}...[/dim]")
+            emails = DataLoader.load_emails(dataset)
+            console.print(f"Loaded [cyan]{len(emails)}[/cyan] test emails\n")
 
-        console.print(
-            f"[green]✓ Sent {len(sent_emails)}/{len(emails)} emails[/green]\n"
-        )
+            # 4. Send test emails
+            console.print("[bold cyan]Phase 1: Sending test emails[/bold cyan]")
+            sender = EmailSender(smtp_client, uuid_tracker)
 
-        if len(sent_emails) == 0:
-            console.print("[red]No emails sent successfully. Aborting.[/red]")
-            return
+            with console.status("[bold green]Sending emails..."):
+                sent_emails = sender.send_batch(emails, test_inbox, verbose=verbose)
 
-        # 5. Wait for n8n processing
-        console.print(
-            f"[bold cyan]Phase 2: Waiting {cfg.wait_time_seconds}s for n8n processing[/bold cyan]"
-        )
-        for i in range(cfg.wait_time_seconds):
             console.print(
-                f"  Waiting... {i+1}/{cfg.wait_time_seconds}s", end="\r"
+                f"[green]✓ Sent {len(sent_emails)}/{len(emails)} emails[/green]\n"
             )
-            time.sleep(1)
-        console.print(f"  [green]✓ Wait complete{' ' * 30}[/green]\n")
+
+            if len(sent_emails) == 0:
+                console.print("[red]No emails sent successfully. Aborting.[/red]")
+                return
+
+            # 5. Wait for n8n processing
+            console.print(
+                f"[bold cyan]Phase 2: Waiting {cfg.wait_time_seconds}s for n8n processing[/bold cyan]"
+            )
+            for i in range(cfg.wait_time_seconds):
+                console.print(
+                    f"  Waiting... {i+1}/{cfg.wait_time_seconds}s", end="\r"
+                )
+                time.sleep(1)
+            console.print(f"  [green]✓ Wait complete{' ' * 30}[/green]\n")
 
         # 6. Validate email routing
         console.print("[bold cyan]Phase 3: Validating email routing[/bold cyan]")
@@ -228,7 +255,7 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose):
         console.print()
 
         # 10. Cleanup (optional)
-        if cfg.cleanup_after_test:
+        if cfg.cleanup_after_test and not validate_only:
             console.print("[bold cyan]Phase 4: Cleaning up test emails[/bold cyan]")
             imap_client.connect()
 
@@ -258,6 +285,50 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose):
             import traceback
 
             traceback.print_exc()
+        sys.exit(1)
+
+
+@main.command()
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Path to config file (optional)"
+)
+def list_folders_cmd(config):
+    """List IMAP folders with debug information."""
+    console = Console()
+
+    try:
+        console.print("[bold]Listing IMAP folders...[/bold]\n")
+
+        # Load config
+        config_manager = ConfigManager(config)
+        cfg = config_manager.load_config()
+
+        # Connect to IMAP
+        imap_client = IMAPClient(cfg.imap)
+        imap_client.connect()
+
+        # Get raw response
+        status, folders_raw = imap_client.connection.list()
+        
+        console.print(f"[bold cyan]Raw IMAP LIST response ({len(folders_raw)} folders):[/bold cyan]")
+        for i, folder_bytes in enumerate(folders_raw, 1):
+            folder_str = folder_bytes.decode('utf-8', errors='ignore')
+            console.print(f"  {i}. [yellow]{repr(folder_str)}[/yellow]")
+        
+        console.print()
+        
+        # Get parsed folders
+        folders = imap_client.list_folders()
+        console.print(f"[bold cyan]Parsed folder names ({len(folders)}):[/bold cyan]")
+        for folder in folders:
+            console.print(f"  • {folder}")
+
+        imap_client.disconnect()
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

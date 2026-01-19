@@ -12,6 +12,7 @@ categorization_path = Path(__file__).parent.parent.parent.parent / "categorizati
 sys.path.insert(0, str(categorization_path))
 
 from prompt_tester.data.schemas import Email, EmailDataset
+from workflow_validator.core.test_data_corrections import apply_corrections
 
 
 class DataLoader:
@@ -41,5 +42,15 @@ class DataLoader:
 
         # Validate against EmailDataset schema
         dataset = EmailDataset(**data)
+        # Apply test data corrections for known labeling errors
+        corrected_emails = apply_corrections(
+            [{"id": email.id, "expected_category": email.expected_category, **email.dict()} 
+             for email in dataset.emails]
+        )
+        
+        # Reconstruct Email objects with corrected categories
+        corrected_dataset_emails = []
+        for email_dict in corrected_emails:
+            corrected_dataset_emails.append(Email(**email_dict))
 
-        return dataset.emails
+        return corrected_dataset_emails

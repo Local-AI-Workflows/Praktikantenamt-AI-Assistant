@@ -57,7 +57,8 @@ class IMAPConfig(BaseModel):
     port: int = Field(default=993, description="IMAP port (993 for SSL)")
     username: str = Field(..., description="IMAP username")
     password: str = Field(..., description="IMAP password (env var recommended)")
-    use_ssl: bool = Field(default=True, description="Use SSL/TLS")
+    use_ssl: bool = Field(default=True, description="Use SSL/TLS (IMAPS)")
+    use_starttls: bool = Field(default=False, description="Use STARTTLS after plain connection")
     mailbox: str = Field(default="INBOX", description="Target mailbox")
 
 

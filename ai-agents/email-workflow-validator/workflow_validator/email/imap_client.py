@@ -23,7 +23,7 @@ class IMAPClient:
             config: IMAP configuration
         """
         self.config = config
-        self.connection: Optional[imaplib.IMAP4_SSL] = None
+        self.connection: Optional[imaplib.IMAP4] = None
 
     def connect(self) -> None:
         """
@@ -34,11 +34,15 @@ class IMAPClient:
         """
         try:
             if self.config.use_ssl:
+                # IMAPS direct SSL connection
                 self.connection = imaplib.IMAP4_SSL(
                     self.config.host, self.config.port
                 )
             else:
+                # Plain connection with optional STARTTLS upgrade
                 self.connection = imaplib.IMAP4(self.config.host, self.config.port)
+                if self.config.use_starttls:
+                    self.connection.starttls()
 
             self.connection.login(self.config.username, self.config.password)
         except Exception as e:
@@ -87,12 +91,23 @@ class IMAPClient:
                 return []
 
             folder_names = []
-            for folder in folders:
+            for folder_bytes in folders:
                 # Parse folder list response
-                # Format: (\\HasNoChildren) "." "INBOX.Subfolder"
-                parts = folder.decode().split('"')
+                # Format: (\\HasNoChildren) "." INBOX.folder_name
+                # The folder name is the part AFTER the last quoted string (delimiter)
+                folder_str = folder_bytes.decode('utf-8', errors='ignore')
+                
+                # Split by quotes to extract the delimiter and folder name
+                parts = folder_str.split('"')
+                # parts[0] = "(\\HasNoChildren) "
+                # parts[1] = "." (the delimiter, quoted)
+                # parts[2] = " INBOX.folder_name" (folder name without quotes, with leading space)
+                
                 if len(parts) >= 3:
-                    folder_names.append(parts[-2])
+                    # The folder name is after the delimiter
+                    folder_name = parts[-1].strip()  # Last part after the last quote, stripped
+                    if folder_name:  # Only add non-empty folder names
+                        folder_names.append(folder_name)
 
             return folder_names
         except Exception as e:

@@ -88,6 +88,40 @@ class UUIDTracker:
             # Store as dict for now (can't reconstruct full Email object without dataset)
             self.mappings[uuid_str] = metadata
 
+    def load_all(self) -> list:
+        """
+        Load all stored emails and convert them to EmailWithUUID objects.
+        
+        Returns:
+            List of EmailWithUUID objects reconstructed from storage
+        """
+        if not self.storage_path.exists():
+            return []
+        
+        self.load_mappings()
+        
+        result = []
+        for uuid_str, metadata in self.mappings.items():
+            # Reconstruct EmailWithUUID from metadata
+            from prompt_tester.data.schemas import Email
+            
+            email = Email(
+                id=metadata["email_id"],
+                subject=metadata.get("subject", ""),
+                sender=metadata.get("sender", ""),
+                body="",  # Body not stored
+                expected_category=metadata["expected_category"]
+            )
+            
+            ewu = EmailWithUUID(
+                uuid=UUID(uuid_str),
+                original_email=email,
+                sent_timestamp=datetime.fromisoformat(metadata["sent_timestamp"])
+            )
+            result.append(ewu)
+        
+        return result
+
     def get_expected_category(self, uuid: UUID) -> Optional[str]:
         """
         Get expected category for a given UUID.
