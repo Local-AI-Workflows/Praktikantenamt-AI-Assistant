@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # MCP SSE mode (default) - for Claude Desktop remote integration
+  # This is the recommended mode for Docker deployments
+  workday-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workday-calculator-mcp
+    ports:
+      - "8080:8080"
+    environment:
+      - GEOCODING_ENABLED=true
+      - GEOCODING_TIMEOUT=5
+      - HOLIDAY_LANGUAGE=de
+      - MCP_TRANSPORT=sse
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # REST API mode - for n8n and generic HTTP clients
+  workday-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workday-calculator-api
+    command: ["uvicorn", "workday_calculator.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      - GEOCODING_ENABLED=true
+      - GEOCODING_TIMEOUT=5
+      - HOLIDAY_LANGUAGE=de
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    profiles:
+      - api  # Only start when explicitly requested with --profile api
+
+  # MCP stdio mode - for local Claude Desktop (spawn container per request)
+  workday-mcp-stdio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workday-calculator-mcp-stdio
+    command: ["workday-calc-mcp", "--transport", "stdio"]
+    environment:
+      - GEOCODING_ENABLED=true
+      - GEOCODING_TIMEOUT=5
+      - HOLIDAY_LANGUAGE=de
+    stdin_open: true
+    tty: true
+    profiles:
+      - stdio  # Only start when explicitly requested with --profile stdio

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "workday-calculator": {
+      "command": "python",
+      "args": ["-m", "workday_calculator.mcp_server"],
+      "cwd": "C:\\Users\\iLux1\\entwicklung\\Praktikantenamt-AI-Assistant\\mcp-tools\\workday-calculator"
+    }
+  }
+}

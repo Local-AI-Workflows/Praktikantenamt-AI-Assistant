@@ -1,0 +1,3 @@
+[console_scripts]
+workday-calc = workday_calculator.cli:main
+workday-calc-mcp = workday_calculator.mcp_server:main

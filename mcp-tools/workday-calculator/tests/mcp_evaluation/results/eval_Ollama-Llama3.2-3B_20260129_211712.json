@@ -1,0 +1,522 @@
+{
+  "llm_name": "Ollama-Llama3.2-3B",
+  "model": "llama3.2:3b",
+  "timestamp": "20260129_211712",
+  "metrics": {
+    "total_tests": 20,
+    "successful_tool_calls": 12,
+    "correct_parameters": 11,
+    "correct_results": 11,
+    "average_response_time": 1.8379404544830322,
+    "tool_call_rate": 0.6,
+    "parameter_accuracy": 0.55,
+    "result_accuracy": 0.55
+  },
+  "results": [
+    {
+      "prompt_id": "prompt_001",
+      "prompt": "How many working days are there between March 1st 2026 and August 31st 2026 in Hamburg?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "HH"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 15.664860010147095,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_002",
+      "prompt": "Berechne die Arbeitstage vom 01.03.2026 bis 31.08.2026 in Hamburg (PLZ 20095).",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "postal_code": "20095",
+          "bundesland": "HH"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 1.0584120750427246,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_003",
+      "prompt": "I need to know the number of workdays for an internship starting 2026-03-01 and ending 2026-08-31 in postal code area 20095.",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "postal_code": "20095"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.8856625556945801,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_004",
+      "prompt": "Wie viele Werktage hat ein Praktikum in Bayern (Muenchen, 80331) von Maerz bis August 2026?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "BY"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "BY",
+        "working_days_range": [
+          120,
+          132
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 2.0910303592681885,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_005",
+      "prompt": "Calculate working days from 1 March to 31 August 2026 for someone doing their internship in NW (Nordrhein-Westfalen).",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "NW"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "NW",
+        "working_days_range": [
+          122,
+          134
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.6920449733734131,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_006",
+      "prompt": "My internship is from March 2026 to end of August 2026 in Berlin. How many actual work days is that?",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "BE",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.1720752716064453,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_007",
+      "prompt": "Arbeitstage berechnen: Zeitraum 01.03.2026-31.08.2026, Ort: Stuttgart (BW)",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "BW"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "BW",
+        "working_days_range": [
+          120,
+          132
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 1.8400888442993164,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_008",
+      "prompt": "For a 6-month internship starting March 1st 2026 in Saxony, what's the workday count?",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "SN",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.14510178565979,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_009",
+      "prompt": "PLZ 60311 (Frankfurt), working days between 2026-03-01 and 2026-08-31 please.",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "postal_code": "60311"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HE",
+        "working_days_range": [
+          122,
+          134
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.6886677742004395,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_010",
+      "prompt": "Ich brauche die Anzahl der Arbeitstage fuer mein Pflichtpraktikum. Start: 1. Maerz 2026, Ende: 31. August 2026, Standort: Hannover, Niedersachsen.",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "NI",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.3948431015014648,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_011",
+      "prompt": "Workdays from first of March twenty twenty-six to last day of August twenty twenty-six in Bavaria?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "BY"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "BY",
+        "working_days_range": [
+          120,
+          132
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.8026485443115234,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_012",
+      "prompt": "How many business days excluding weekends and holidays for HH from 03/01/2026 to 08/31/2026?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "HH"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.9611892700195312,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_013",
+      "prompt": "Praktikumszeitraum: Fruehling bis Sommer 2026 (1.3. - 31.8.), Firma in Bremen. Arbeitstage?",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "HB",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.5362942218780518,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_014",
+      "prompt": "I'm planning an internship at a company located in 04109 Leipzig. The duration is from March 1 to August 31, 2026. Can you tell me the working days?",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "SN",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.101442813873291,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_015",
+      "prompt": "Werktage Maerz-August 2026 Saarland",
+      "success": false,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "SA"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "SL",
+        "working_days_range": [
+          120,
+          134
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.3271756172180176,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_016",
+      "prompt": "What is the total number of working days (Monday through Friday, excluding German public holidays) from March 1st, 2026 until August 31st, 2026 for the state of Schleswig-Holstein?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "SH"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "SH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.6666903495788574,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_017",
+      "prompt": "Bitte berechne: Arbeitstage vom Ersten Maerz bis Einunddreissigsten August Zweitausendsechsundzwanzig in Thueringen.",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "TH",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.1114952564239502,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_018",
+      "prompt": "internship working days 2026-03-01 to 2026-08-31 mecklenburg-vorpommern",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "MV",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 1.052044153213501,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_019",
+      "prompt": "Can you use the workday calculator tool to find out how many working days there are between 2026-03-01 and 2026-08-31 in Rheinland-Pfalz (RP)?",
+      "success": true,
+      "tool_called": true,
+      "parameters_extracted": {
+        "tool": "calculate_workdays",
+        "parameters": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-08-31",
+          "bundesland": "RP"
+        }
+      },
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "RP",
+        "working_days_range": [
+          120,
+          134
+        ]
+      },
+      "dates_correct": true,
+      "bundesland_correct": true,
+      "working_days_correct": true,
+      "response_time": 0.6768438816070557,
+      "error": null
+    },
+    {
+      "prompt_id": "prompt_020",
+      "prompt": "Sachsen-Anhalt, 01.03.26 - 31.08.26, wie viele Tage muss ich arbeiten?",
+      "success": false,
+      "tool_called": false,
+      "parameters_extracted": {},
+      "expected": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-08-31",
+        "bundesland": "ST",
+        "working_days_range": [
+          125,
+          135
+        ]
+      },
+      "dates_correct": false,
+      "bundesland_correct": false,
+      "working_days_correct": false,
+      "response_time": 0.8901982307434082,
+      "error": null
+    }
+  ]
+}

@@ -1,4 +1,6 @@
-# Praktikantenamt AI-Assistant - Projektanforderungen
+# Praktikantenamt AI-Assistant
+
+An AI-powered email management system for a German university internship office (Praktikantenamt). Automates email categorization, contract validation, and response generation using n8n workflows and LLM-based agents.
 
 ## Projektübersicht
 
@@ -13,7 +15,10 @@ Aufbau eines automatisierten Workflows mit KI-Unterstützung zur intelligenten B
 - **Workflow-Orchestrierung**: n8n
 - **E-Mail-Trigger**: n8n Email-Integration
 - **KI**: Prompt Engineering, Context Engineering, Agent-basierte Systeme
-- **Datenverwaltung**: Simpel -> MCP Tools für File Storage / DB
+- **LLM Inference**: Ollama (configurable endpoint)
+- **MCP**: Model Context Protocol
+- **Datenverwaltung**: MCP Tools für File Storage / DB
+- **Containerisierung**: Docker mit SSE Transport
 - **Benachrichtigungen**: Mattermost (optional)
 - **OCR**: Für Vertragsdatenextraktion
 
@@ -172,12 +177,12 @@ Zentrale Verwaltung aller Praktikantendaten und System-Administration.
 
 ### Infrastruktur
 - [x] Repository anlegen ✅ 2025-12-04
-- [ ] Dummy-Postfach einrichten
-- [ ] n8n-Umgebung aufsetzen
+- [x] Dummy-Postfach einrichten
+- [x] n8n-Umgebung aufsetzen
 
 ### Daten
 - [ ] Beispielverträge sammeln/erstellen
-- [ ] Kategorien für E-Mails definieren
+- [x] Kategorien für E-Mails definieren
 
 ### Entwicklung
 - [ ] Use Cases detailliert ausformulieren
@@ -194,35 +199,146 @@ Zentrale Verwaltung aller Praktikantendaten und System-Administration.
 ## Projektstruktur
 
 ```
-praktikatenamt-ai-assistant/
-├── docs/
-│   ├── requirements.md (dieses Dokument)
-│   ├── use-cases/
-│   └── architecture/
-├── n8n-workflows/
+praktikantenamt-ai-assistant/
+├── ai-agents/
+│   ├── categorization/              # ✅ Email-Kategorisierung Prompt Testing
+│   │   ├── prompt_tester/           # CLI Tool (prompt-tester)
+│   │   ├── prompts/                 # Prompt Templates (v1-v4)
+│   │   ├── test_data/               # 20 Dummy-Emails mit Ground Truth
+│   │   └── results/                 # Vergleichsergebnisse
+│   │
+│   ├── contract-validator/          # ✅ Vertragsdaten-Extraktion Testing
+│   │   ├── contract_validator/      # CLI Tool (contract-tester)
+│   │   ├── prompts/                 # Extraktions-Prompts
+│   │   └── test_data/               # 50 Dummy-Verträge, Firmenlisten
+│   │
+│   ├── response-generator/          # ✅ Antwort-Generierung
+│   │   ├── response_generator/      # CLI Tool (response-gen)
+│   │   └── templates/               # 8 Templates (4 Kategorien × 2 Töne)
+│   │
+│   └── email-workflow-validator/    # ✅ End-to-End Workflow Testing
+│       ├── workflow_validator/      # CLI Tool
+│       └── results/                 # Validierungsergebnisse
+│
+├── mcp-tools/
+│   └── workday-calculator/          # ✅ Arbeitstage-Berechnung (MCP Tool)
+│       ├── workday_calculator/      # Package
+│       │   ├── api.py               # FastAPI REST Endpoints
+│       │   ├── cli.py               # CLI Tool (workday-calc)
+│       │   └── mcp_server.py        # MCP Server (stdio/SSE)
+│       ├── Dockerfile               # Container Support
+│       ├── docker-compose.yml       # MCP SSE + REST API Services
+│       └── tests/                   # Unit Tests + MCP Evaluation
+│
+├── n8n-workflows/                   # Workflow Definitionen (Placeholder)
 │   ├── email-categorization.json
 │   ├── contract-validation.json
 │   └── response-generation.json
-├── ai-agents/
-│   ├── categorization/
-│   ├── contract-analysis/
-│   └── response-generator/
-├── mcp-tools/
-│   └── file-storage/
-└── data/
-    ├── company-list/
-    ├── templates/
-    └── test-data/
+│
+├── docs/
+│   ├── requirements.md
+│   └── PHASE2_IMPLEMENTATION.md     # Phase 2 Planungsdokument
+│
+└── CLAUDE.md                        # Claude Code Instruktionen
 ```
 
 ---
 
-## Nächste Schritte
+## Implementierungs-Status
 
-1. **Phase 1 - Setup**: Repository und Infrastruktur einrichten
-2. **Phase 2 - Kategorisierung**: Use Case 1 implementieren (höchste Priorität)
-3. **Phase 3 - Vertragsprüfung**: Use Case 2 implementieren
-4. **Phase 4 - Antwortgenerierung**: Use Case 3 implementieren
-5. **Phase 5 - Administration**: Use Case 4 und Dashboard entwickeln
+### Phase 1 - Setup ✅
+
+- [x] Repository angelegt
+- [x] Dummy-Postfach eingerichtet
+- [x] n8n-Umgebung aufgesetzt
+- [x] Kategorien für E-Mails definiert
+
+### Phase 2 - AI Agents & MCP Tools (aktuell)
+
+**Fertiggestellt:**
+
+- [x] Categorization Prompt Tester - CLI Tool für Prompt-Testing
+- [x] Contract Validator - Vertragsdaten-Extraktion Testing
+- [x] Response Generator - Template-basierte Antworten
+- [x] Workday Calculator MCP Tool - Arbeitstage-Berechnung
+- [x] Email Workflow Validator - End-to-End Testing
+
+**Offene Issues ([GitHub](../../issues)):**
+
+- [ ] #8 MCP: Workday Calculator mit Quantifizierung
+- [ ] #9 MCP: Company Lookup mit Quantifizierung
+- [ ] #10 Workflow: Vertragsprüfung mit OCR und MCPs
+- [ ] #11 Workflow: Automatische Weiterleitung Mevius
+- [ ] #12 Workflow: Allgemeine Antwortvorschläge in Drafts
+- [ ] #13 Prompt: Automatische Antwortvorschläge & RAG
+
+### Phase 3-5 (geplant)
+
+3. **Vertragsprüfung**: n8n Workflow mit OCR Integration
+4. **Antwortgenerierung**: Human-in-the-Loop Prozess
+5. **Administration**: Dashboard und MCP File Storage
+
+---
+
+## MCP Tool Setup
+
+### Workday Calculator
+
+Das MCP Tool berechnet Arbeitstage unter Berücksichtigung bundeslandspezifischer Feiertage.
+
+#### CLI Usage
+
+```bash
+cd mcp-tools/workday-calculator
+pip install -e .
+
+# Arbeitstage berechnen
+workday-calc calculate -s 2026-03-01 -e 2026-08-31 --plz 20095
+
+# Feiertage auflisten
+workday-calc holidays --year 2026 --bundesland BY
+```
+
+#### Docker Deployment (SSE Transport)
+
+```bash
+cd mcp-tools/workday-calculator
+
+# MCP SSE Server starten (für Remote-Zugriff)
+docker-compose up -d workday-mcp
+
+# REST API starten (für n8n)
+docker-compose --profile api up -d
+```
+
+#### Claude Desktop Integration
+
+Für **lokale Installation** (stdio):
+
+```json
+{
+  "mcpServers": {
+    "workday-calculator": {
+      "command": "python",
+      "args": ["-m", "workday_calculator.mcp_server"],
+      "cwd": "C:\\path\\to\\mcp-tools\\workday-calculator"
+    }
+  }
+}
+```
+
+Für **Docker/Remote** (SSE):
+
+```json
+{
+  "mcpServers": {
+    "workday-calculator": {
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+Siehe [Workday Calculator README](mcp-tools/workday-calculator/README.md) für Details.
 
 ---

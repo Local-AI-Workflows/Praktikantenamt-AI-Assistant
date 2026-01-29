@@ -49,7 +49,7 @@ class WorkdayCalculator:
         holidays = self.holiday_provider.get_holidays_for_range(
             request.start_date, request.end_date, location.bundesland
         )
-        holiday_dates: Set[date] = {h.date for h in holidays}
+        holiday_dates: Set[date] = {h.holiday_date for h in holidays}
 
         # Calculate calendar days
         calendar_days = (request.end_date - request.start_date).days + 1
