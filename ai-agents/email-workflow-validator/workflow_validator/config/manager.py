@@ -80,7 +80,7 @@ class ConfigManager:
                 smtp=smtp_config,
                 folder_mappings=folder_mappings or None,  # Use defaults if empty
                 wait_time_seconds=data.get("validation", {}).get(
-                    "wait_time_seconds", 60
+                    "wait_time_seconds", 120
                 ),
                 cleanup_after_test=data.get("validation", {}).get(
                     "cleanup_after_test", True

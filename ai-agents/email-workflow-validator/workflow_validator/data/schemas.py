@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 categorization_path = Path(__file__).parent.parent.parent.parent / "categorization"
 sys.path.insert(0, str(categorization_path))
 
-from prompt_tester.data.schemas import Email, Metrics, ValidationReport
+from prompt_tester.data.schemas import Email, Metrics
 
 
 class EmailWithUUID(BaseModel):
@@ -41,6 +41,15 @@ class EmailLocation(BaseModel):
     validation_timestamp: datetime = Field(
         ..., description="When validation occurred"
     )
+
+
+class WorkflowMisclassification(BaseModel):
+    """A misrouted email in workflow validation (simplified from Result)."""
+
+    email_id: str = Field(..., description="Email identifier (email_001, etc)")
+    predicted_category: str = Field(..., description="Category inferred from folder")
+    expected_category: str = Field(..., description="Ground truth category")
+    found_in_folder: str = Field(..., description="IMAP folder where email was found")
 
 
 class FolderMapping(BaseModel):
@@ -105,7 +114,7 @@ class WorkflowValidationConfig(BaseModel):
         description="IMAP folder to category mappings",
     )
     wait_time_seconds: int = Field(
-        default=60, description="Wait time for n8n processing"
+        default=120, description="Wait time for n8n processing"
     )
     cleanup_after_test: bool = Field(
         default=True, description="Delete test emails after validation"
@@ -131,9 +140,32 @@ class WorkflowValidationConfig(BaseModel):
     )
 
 
-class WorkflowValidationReport(ValidationReport):
-    """Extended validation report for workflow testing."""
+class WorkflowValidationReport(BaseModel):
+    """Validation report for workflow testing (standalone, not inheriting from ValidationReport)."""
 
+    # Core metrics (same as ValidationReport)
+    overall_accuracy: float = Field(..., description="Overall accuracy")
+    total_emails: int = Field(..., description="Total number of emails tested")
+    correct_predictions: int = Field(..., description="Number of correct predictions")
+    incorrect_predictions: int = Field(..., description="Number of incorrect predictions")
+    per_category_metrics: Dict[str, Metrics] = Field(
+        ..., description="Metrics for each category"
+    )
+    confusion_matrix: List[List[int]] = Field(..., description="Confusion matrix")
+
+    # Workflow-specific misclassifications (simplified)
+    misclassifications: List[WorkflowMisclassification] = Field(
+        ..., description="List of misrouted emails"
+    )
+
+    # Prompt info
+    prompt_name: Optional[str] = Field(default=None, description="Name of workflow tested")
+    prompt_version: Optional[str] = Field(default=None, description="Version of workflow tested")
+    test_timestamp: datetime = Field(
+        default_factory=datetime.now, description="When test was run"
+    )
+
+    # Workflow-specific fields
     email_locations: List[EmailLocation] = Field(
         ..., description="Where each email was found"
     )

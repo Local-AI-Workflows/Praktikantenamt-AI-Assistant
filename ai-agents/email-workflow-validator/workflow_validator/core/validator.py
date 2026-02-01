@@ -15,10 +15,10 @@ sys.path.insert(0, str(categorization_path))
 
 from prompt_tester.core.validator import Validator as BaseValidator
 
-from workflow_validator.core.uuid_tracker import UUIDTracker
 from workflow_validator.data.schemas import (
     EmailLocation,
     FolderMapping,
+    WorkflowMisclassification,
     WorkflowValidationReport,
 )
 
@@ -90,22 +90,16 @@ class WorkflowValidator(BaseValidator):
         # Generate confusion matrix (reuse parent method)
         confusion_matrix = self.generate_confusion_matrix(y_true, y_pred)
 
-        # Find misrouted emails
-        misrouted = [el for el in email_locations if not el.is_correct]
-
-        # Convert EmailLocation to Result for compatibility with base report
-        from prompt_tester.data.schemas import Result
-
+        # Find misrouted emails and create simplified misclassification records
         misclassifications = [
-            Result(
+            WorkflowMisclassification(
                 email_id=el.email_id,
                 predicted_category=el.predicted_category or "uncategorized",
                 expected_category=el.expected_category,
-                raw_response=f"Found in folder: {el.found_in_folder}",
-                execution_time=0.0,
-                timestamp=el.validation_timestamp,
+                found_in_folder=el.found_in_folder or "NOT_FOUND",
             )
-            for el in misrouted
+            for el in email_locations
+            if not el.is_correct
         ]
 
         # Emails not found

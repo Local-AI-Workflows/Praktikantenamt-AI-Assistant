@@ -67,7 +67,7 @@ class ConsoleFormatter:
                 self.console.print(
                     f"  • {result.email_id}: "
                     f"{result.expected_category} → {result.predicted_category} "
-                    f"({result.raw_response})"
+                    f"(folder: {result.found_in_folder})"
                 )
             if len(report.misclassifications) > 10:
                 self.console.print(

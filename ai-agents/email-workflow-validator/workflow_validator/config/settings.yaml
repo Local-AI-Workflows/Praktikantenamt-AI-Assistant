@@ -47,7 +47,7 @@ folder_mappings:
 
 # Validation Settings
 validation:
-  wait_time_seconds: 60  # Wait for n8n to process
+  wait_time_seconds: 120  # Wait for n8n to process
   cleanup_after_test: true  # Delete test emails
   uuid_storage_path: "results/uuid_mapping.json"
 
