@@ -221,7 +221,8 @@ praktikantenamt-ai-assistant/
 │       └── results/                 # Validierungsergebnisse
 │
 ├── mcp-tools/
-│   └── workday-calculator/          # ✅ Arbeitstage-Berechnung (MCP Tool)
+│   ├── workday-calculator/          # ✅ Arbeitstage-Berechnung (MCP Tool)
+│   └── company-lookup/              # ✅ Firmen-Whitelist/Blacklist (MCP Tool)
 │       ├── workday_calculator/      # Package
 │       │   ├── api.py               # FastAPI REST Endpoints
 │       │   ├── cli.py               # CLI Tool (workday-calc)
@@ -261,6 +262,7 @@ praktikantenamt-ai-assistant/
 - [x] Contract Validator - Vertragsdaten-Extraktion Testing
 - [x] Response Generator - Template-basierte Antworten
 - [x] Workday Calculator MCP Tool - Arbeitstage-Berechnung
+- [x] Company Lookup MCP Tool - Firmen-Whitelist/Blacklist mit Fuzzy Matching
 - [x] Email Workflow Validator - End-to-End Testing
 
 **Offene Issues ([GitHub](../../issues)):**
@@ -340,5 +342,46 @@ Für **Docker/Remote** (SSE):
 ```
 
 Siehe [Workday Calculator README](mcp-tools/workday-calculator/README.md) für Details.
+
+### Company Lookup
+
+Das MCP Tool prüft Firmennamen gegen Whitelist/Blacklist mit Fuzzy Matching (Tippfehler-tolerant).
+
+#### CLI Usage
+
+```bash
+cd mcp-tools/company-lookup
+pip install -e .
+python create_sample_data.py  # Erstellt data/companies.xlsx
+
+# Firma nachschlagen
+company-lookup lookup -e data/companies.xlsx -q "Siemens AG"
+company-lookup lookup -e data/companies.xlsx -q "Seimens" -t 70  # Fuzzy
+```
+
+#### Docker Deployment (SSE Transport)
+
+```bash
+cd mcp-tools/company-lookup
+docker-compose up -d company-mcp      # MCP SSE auf Port 8080
+docker-compose --profile api up -d    # REST API auf Port 8000
+```
+
+#### Claude Desktop Integration
+
+Claude Desktop unterstützt SSE nicht nativ. Verwende `mcp-remote` als Bridge:
+
+```json
+{
+  "mcpServers": {
+    "company-lookup": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:8080/sse", "--transport", "sse-only"]
+    }
+  }
+}
+```
+
+Siehe [Company Lookup README](mcp-tools/company-lookup/README.md) für Details.
 
 ---

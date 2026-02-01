@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "company-lookup"
+version = "0.1.0"
+description = "MCP tool for company whitelist/blacklist lookup with fuzzy matching"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Praktikantenamt AI Assistant", email = "praktikantenamt@haw-hamburg.de"}
+]
+keywords = ["mcp", "company-lookup", "whitelist", "blacklist", "fuzzy-matching"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pydantic>=2.5.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "openpyxl>=3.1.0",
+    "rapidfuzz>=3.6.0",
+    "mcp>=1.0.0",
+    "pyyaml>=6.0.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "black>=24.1.0",
+    "mypy>=1.8.0",
+    "ruff>=0.1.0",
+    "httpx>=0.26.0",
+]
+
+[project.scripts]
+company-lookup = "company_lookup.cli:cli"
+company-lookup-mcp = "company_lookup.mcp_server:main"
+mcp-eval = "tests.mcp_evaluation.evaluate_mcp:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["company_lookup*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

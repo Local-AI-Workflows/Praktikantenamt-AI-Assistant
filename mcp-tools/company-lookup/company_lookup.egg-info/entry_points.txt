@@ -1,0 +1,4 @@
+[console_scripts]
+company-lookup = company_lookup.cli:cli
+company-lookup-mcp = company_lookup.mcp_server:main
+mcp-eval = tests.mcp_evaluation.evaluate_mcp:main

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "company-lookup": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:8081/sse",
+        "--transport",
+        "sse-only"
+      ]
+    }
+  }
+}

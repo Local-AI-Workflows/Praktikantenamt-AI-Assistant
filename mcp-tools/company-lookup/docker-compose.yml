@@ -1,0 +1,85 @@
+# Company Lookup Docker Compose Configuration
+#
+# Usage:
+#   # Start MCP server with SSE transport (default)
+#   docker-compose up company-mcp
+#
+#   # Start REST API server
+#   docker-compose --profile api up
+#
+#   # Start MCP server with stdio transport
+#   docker-compose --profile stdio up
+#
+#   # Build and start
+#   docker-compose up --build
+
+services:
+  # MCP SSE mode (default) - for Claude Desktop remote integration
+  # This is the recommended mode for Docker deployments
+  # Port 8081 to avoid conflict with workday-calculator on 8080
+  company-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: company-lookup-mcp
+    ports:
+      - "8081:8081"
+    environment:
+      - COMPANY_LOOKUP_EXCEL_FILE=/app/data/companies.xlsx
+      - MCP_TRANSPORT=sse
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8081
+    volumes:
+      - ./data:/app/data:ro
+      - ./results:/app/results
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/sse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # REST API mode - for n8n and generic HTTP clients
+  # Port 8001 to avoid conflict with workday-calculator on 8000
+  company-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: company-lookup-api
+    command: ["uvicorn", "company_lookup.api:app", "--host", "0.0.0.0", "--port", "8001"]
+    ports:
+      - "8001:8001"
+    environment:
+      - COMPANY_LOOKUP_EXCEL_FILE=/app/data/companies.xlsx
+      - COMPANY_LOOKUP_API_HOST=0.0.0.0
+      - COMPANY_LOOKUP_API_PORT=8001
+    volumes:
+      - ./data:/app/data:ro
+      - ./results:/app/results
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    profiles:
+      - api  # Only start when explicitly requested with --profile api
+
+  # MCP stdio mode - for local Claude Desktop (spawn container per request)
+  company-mcp-stdio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: company-lookup-mcp-stdio
+    command: ["company-lookup-mcp", "--transport", "stdio"]
+    environment:
+      - COMPANY_LOOKUP_EXCEL_FILE=/app/data/companies.xlsx
+    volumes:
+      - ./data:/app/data:ro
+      - ./results:/app/results
+    stdin_open: true
+    tty: true
+    profiles:
+      - stdio  # Only start when explicitly requested with --profile stdio

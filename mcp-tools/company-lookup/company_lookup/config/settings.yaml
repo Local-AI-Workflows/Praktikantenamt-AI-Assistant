@@ -1,0 +1,36 @@
+# Company Lookup Configuration
+# Firmensuche-Konfiguration
+
+# Language settings / Spracheinstellungen
+# Supported: "en" (English), "de" (German/Deutsch)
+# Can be overridden via COMPANY_LOOKUP_LANGUAGE environment variable
+language: "en"
+
+# Excel file settings / Excel-Datei-Einstellungen
+excel:
+  # Path to the Excel file (can be overridden via CLI or env var)
+  file_path: null
+  # Sheet names
+  whitelist_sheet: "Whitelist"
+  blacklist_sheet: "Blacklist"
+  # Column headers
+  company_name_column: "Company Name"
+  notes_column: "Notes"
+  category_column: "Category"
+
+# Matching settings
+matching:
+  # Default fuzzy matching threshold (0-100)
+  default_threshold: 80.0
+  # Case-sensitive matching
+  case_sensitive: false
+
+# Output settings
+output:
+  format: json
+  directory: results
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8000

@@ -1,0 +1,436 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "description": "Test prompts for MCP company lookup evaluation with LLMs",
+    "total_prompts": 30,
+    "categories": [
+      "exact_match",
+      "fuzzy_match",
+      "blacklist",
+      "unknown",
+      "edge_case",
+      "batch",
+      "stats",
+      "german"
+    ]
+  },
+  "test_cases": [
+    {
+      "id": "exact_001",
+      "category": "exact_match",
+      "prompt": "Check if Siemens AG is approved for internships",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Siemens AG",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "whitelist", "standard_query"]
+    },
+    {
+      "id": "exact_002",
+      "category": "exact_match",
+      "prompt": "Is BMW Group on the whitelist?",
+      "expected_tool": "check_company_approved",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "BMW Group",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "whitelist", "direct_question"]
+    },
+    {
+      "id": "exact_003",
+      "category": "exact_match",
+      "prompt": "Can I do my internship at SAP SE?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "SAP SE",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "whitelist", "casual"]
+    },
+    {
+      "id": "exact_004",
+      "category": "exact_match",
+      "prompt": "Verify if Deutsche Bank AG is an approved internship partner",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Deutsche Bank AG",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "whitelist", "formal"]
+    },
+    {
+      "id": "fuzzy_001",
+      "category": "fuzzy_match",
+      "prompt": "Can students do internships at Seimens?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Seimens",
+      "notes": "Typo: transposed letters e/i",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["typo", "whitelist", "fuzzy"]
+    },
+    {
+      "id": "fuzzy_002",
+      "category": "fuzzy_match",
+      "prompt": "Is Volkswagon allowed for internships?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Volkswagon",
+      "notes": "Common misspelling: missing 'e'",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["typo", "whitelist", "fuzzy"]
+    },
+    {
+      "id": "fuzzy_003",
+      "category": "fuzzy_match",
+      "prompt": "Check SAP Software company",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "SAP Software",
+      "notes": "Partial name with extra word",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["partial", "whitelist", "fuzzy"]
+    },
+    {
+      "id": "fuzzy_004",
+      "category": "fuzzy_match",
+      "prompt": "Is Bosh approved?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Bosh",
+      "notes": "Missing 'c' in Bosch",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["typo", "whitelist", "fuzzy"]
+    },
+    {
+      "id": "fuzzy_005",
+      "category": "fuzzy_match",
+      "prompt": "Can I intern at Mercedes Benz?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Mercedes Benz",
+      "notes": "Missing hyphen and Group AG",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["partial", "whitelist", "fuzzy"]
+    },
+    {
+      "id": "blacklist_001",
+      "category": "blacklist",
+      "prompt": "Is Fake Company GmbH blocked?",
+      "expected_tool": "check_company_blocked",
+      "expected_result": {
+        "status": "blacklisted",
+        "is_blocked": true
+      },
+      "company_name": "Fake Company GmbH",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "blacklist", "direct_question"]
+    },
+    {
+      "id": "blacklist_002",
+      "category": "blacklist",
+      "prompt": "Can I intern at Scam Industries?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "blacklisted",
+        "is_blocked": true
+      },
+      "company_name": "Scam Industries",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["partial", "blacklist"]
+    },
+    {
+      "id": "blacklist_003",
+      "category": "blacklist",
+      "prompt": "Check if Betrug Partner is on the blacklist",
+      "expected_tool": "check_company_blocked",
+      "expected_result": {
+        "status": "blacklisted",
+        "is_blocked": true
+      },
+      "company_name": "Betrug Partner",
+      "notes": "Missing & and KG suffix",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["partial", "blacklist", "fuzzy"]
+    },
+    {
+      "id": "blacklist_004",
+      "category": "blacklist",
+      "prompt": "Is Dubious Consulting on the list?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "blacklisted",
+        "is_blocked": true
+      },
+      "company_name": "Dubious Consulting",
+      "notes": "Checking if LLM can identify blacklist query from context",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["partial", "blacklist", "ambiguous"]
+    },
+    {
+      "id": "unknown_001",
+      "category": "unknown",
+      "prompt": "Is Random Startup XYZ approved?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "unknown"
+      },
+      "company_name": "Random Startup XYZ",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["unknown", "new_company"]
+    },
+    {
+      "id": "unknown_002",
+      "category": "unknown",
+      "prompt": "Check if my uncle's company 'Garage Repairs' is whitelisted",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "unknown"
+      },
+      "company_name": "Garage Repairs",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["unknown", "informal", "quoted"]
+    },
+    {
+      "id": "unknown_003",
+      "category": "unknown",
+      "prompt": "Can I do an internship at TechStartup2024 GmbH?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "unknown"
+      },
+      "company_name": "TechStartup2024 GmbH",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["unknown", "new_company"]
+    },
+    {
+      "id": "batch_001",
+      "category": "batch",
+      "prompt": "Check these companies for internship approval: Siemens, BMW, Fake Company, Unknown Corp",
+      "expected_tool": "batch_lookup",
+      "expected_result": {
+        "summary": {
+          "whitelisted": 2,
+          "blacklisted": 1,
+          "unknown": 1
+        }
+      },
+      "difficulty": "hard",
+      "language": "en",
+      "tags": ["batch", "multiple"]
+    },
+    {
+      "id": "batch_002",
+      "category": "batch",
+      "prompt": "I need to verify the following companies: SAP, Volkswagen, and Scam Industries",
+      "expected_tool": "batch_lookup",
+      "expected_result": {
+        "summary": {
+          "whitelisted": 2,
+          "blacklisted": 1
+        }
+      },
+      "difficulty": "hard",
+      "language": "en",
+      "tags": ["batch", "multiple"]
+    },
+    {
+      "id": "stats_001",
+      "category": "stats",
+      "prompt": "How many companies are in the database?",
+      "expected_tool": "get_company_stats",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["stats", "count"]
+    },
+    {
+      "id": "stats_002",
+      "category": "stats",
+      "prompt": "What's the total count of whitelisted and blacklisted companies?",
+      "expected_tool": "get_company_stats",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["stats", "count"]
+    },
+    {
+      "id": "list_001",
+      "category": "list",
+      "prompt": "List all approved companies",
+      "expected_tool": "list_companies",
+      "expected_params": {
+        "status": "whitelist"
+      },
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["list", "whitelist"]
+    },
+    {
+      "id": "list_002",
+      "category": "list",
+      "prompt": "Show me the blacklisted companies",
+      "expected_tool": "list_companies",
+      "expected_params": {
+        "status": "blacklist"
+      },
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["list", "blacklist"]
+    },
+    {
+      "id": "edge_001",
+      "category": "edge_case",
+      "prompt": "Is 'Siemens AG GmbH & Co. KG' approved?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Siemens AG GmbH & Co. KG",
+      "notes": "Complex legal suffix - should still match Siemens AG",
+      "difficulty": "hard",
+      "language": "en",
+      "tags": ["edge", "complex_suffix"]
+    },
+    {
+      "id": "edge_002",
+      "category": "edge_case",
+      "prompt": "Check SIEMENS (all caps)",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "SIEMENS",
+      "notes": "All uppercase - case insensitivity test",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["edge", "case_insensitive"]
+    },
+    {
+      "id": "edge_003",
+      "category": "edge_case",
+      "prompt": "Is the company '  BMW   Group  ' valid?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "  BMW   Group  ",
+      "notes": "Extra whitespace handling",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["edge", "whitespace"]
+    },
+    {
+      "id": "edge_004",
+      "category": "edge_case",
+      "prompt": "E.ON - is it approved?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "E.ON",
+      "notes": "Company name with dots/periods",
+      "difficulty": "medium",
+      "language": "en",
+      "tags": ["edge", "special_chars"]
+    },
+    {
+      "id": "german_001",
+      "category": "german",
+      "prompt": "Ist Siemens AG als Praktikumsunternehmen zugelassen?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Siemens AG",
+      "difficulty": "medium",
+      "language": "de",
+      "tags": ["german", "whitelist"]
+    },
+    {
+      "id": "german_002",
+      "category": "german",
+      "prompt": "Prüfe bitte ob BMW Group auf der Whitelist steht",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "BMW Group",
+      "difficulty": "medium",
+      "language": "de",
+      "tags": ["german", "whitelist", "polite"]
+    },
+    {
+      "id": "german_003",
+      "category": "german",
+      "prompt": "Steht Fake Company GmbH auf der Blacklist?",
+      "expected_tool": "check_company_blocked",
+      "expected_result": {
+        "status": "blacklisted",
+        "is_blocked": true
+      },
+      "company_name": "Fake Company GmbH",
+      "difficulty": "medium",
+      "language": "de",
+      "tags": ["german", "blacklist"]
+    },
+    {
+      "id": "german_004",
+      "category": "german",
+      "prompt": "Kann ich bei der Firma Volkswagen ein Praktikum machen?",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Volkswagen",
+      "difficulty": "medium",
+      "language": "de",
+      "tags": ["german", "whitelist", "colloquial"]
+    }
+  ]
+}

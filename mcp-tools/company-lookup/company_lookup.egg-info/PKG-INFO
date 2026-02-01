@@ -1,0 +1,570 @@
+Metadata-Version: 2.4
+Name: company-lookup
+Version: 0.1.0
+Summary: MCP tool for company whitelist/blacklist lookup with fuzzy matching
+Author-email: Praktikantenamt AI Assistant <praktikantenamt@haw-hamburg.de>
+License: MIT
+Keywords: mcp,company-lookup,whitelist,blacklist,fuzzy-matching
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: fastapi>=0.109.0
+Requires-Dist: uvicorn>=0.27.0
+Requires-Dist: click>=8.1.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: openpyxl>=3.1.0
+Requires-Dist: rapidfuzz>=3.6.0
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: pyyaml>=6.0.0
+Requires-Dist: python-multipart>=0.0.6
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: black>=24.1.0; extra == "dev"
+Requires-Dist: mypy>=1.8.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: httpx>=0.26.0; extra == "dev"
+
+# Company Lookup MCP Tool
+
+An MCP (Model Context Protocol) tool for company whitelist/blacklist lookup with fuzzy matching. Designed for the Praktikantenamt AI-Assistant to validate company names for internship contracts.
+
+## Features
+
+- **Fuzzy Matching**: Intelligent matching using RapidFuzz to handle typos, variations, and partial names
+- **Excel Integration**: Read company lists from Excel files with customizable sheet and column names
+- **Multiple Interfaces**:
+  - CLI for command-line usage
+  - REST API for n8n workflow integration
+  - MCP server with SSE/stdio transport for Claude Desktop
+- **Docker Support**: Multi-mode Docker deployment with docker-compose profiles
+- **Testing Framework**: Comprehensive unit tests and MCP evaluation tools
+
+## Quick Start
+
+### Installation
+
+```bash
+cd mcp-tools/company-lookup
+pip install -e .
+```
+
+### Create Sample Data
+
+```bash
+python create_sample_data.py
+```
+
+This creates `data/companies.xlsx` with sample whitelist and blacklist companies.
+
+### CLI Usage
+
+```bash
+# Look up a company
+company-lookup lookup -e data/companies.xlsx -q "Siemens AG"
+
+# Look up with fuzzy matching
+company-lookup lookup -e data/companies.xlsx -q "Seimens" -t 70
+
+# List all companies
+company-lookup list -e data/companies.xlsx
+
+# List only whitelisted companies
+company-lookup list -e data/companies.xlsx --status whitelist
+
+# Show statistics
+company-lookup stats -e data/companies.xlsx
+
+# Batch lookup from file
+company-lookup batch -e data/companies.xlsx -i company_names.txt -f csv
+
+# Create template Excel file
+company-lookup create-template -o my_companies.xlsx
+
+# Start REST API server
+company-lookup serve -e data/companies.xlsx -p 8000
+```
+
+## Docker Deployment
+
+### Build and Run
+
+```bash
+# Build the image
+docker-compose build
+
+# Start MCP server with SSE (default)
+docker-compose up company-mcp
+
+# Start REST API server
+docker-compose --profile api up
+
+# Start MCP server with stdio
+docker-compose --profile stdio up
+```
+
+### Docker Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `company-mcp` | 8080 | MCP SSE transport (default) |
+| `company-api` | 8000 | FastAPI REST API |
+| `company-mcp-stdio` | - | MCP stdio transport |
+
+### Volume Mounts
+
+- `./data:/app/data:ro` - Company Excel file (read-only)
+- `./results:/app/results` - Output directory
+
+## REST API
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/lookup` | Look up a company |
+| POST | `/lookup/batch` | Batch lookup multiple companies |
+| GET | `/companies` | List all companies |
+| GET | `/companies/whitelist` | List whitelisted companies |
+| GET | `/companies/blacklist` | List blacklisted companies |
+| GET | `/stats` | Get database statistics |
+| POST | `/upload` | Upload Excel file |
+| GET | `/health` | Health check |
+
+### Example: Lookup Company
+
+```bash
+curl -X POST http://localhost:8000/lookup \
+  -H "Content-Type: application/json" \
+  -d '{"company_name": "Siemens", "threshold": 80}'
+```
+
+Response:
+```json
+{
+  "query": "Siemens",
+  "status": "whitelisted",
+  "confidence": 0.95,
+  "is_approved": true,
+  "is_blocked": false,
+  "best_match": {
+    "company_name": "Siemens AG",
+    "similarity_score": 95.2,
+    "status": "whitelisted",
+    "is_exact_match": false
+  }
+}
+```
+
+## MCP Tools
+
+When used as an MCP server, the following tools are available:
+
+### `lookup_company`
+
+Look up a company in the whitelist/blacklist database.
+
+**Parameters:**
+- `company_name` (required): The name of the company to look up
+- `threshold` (optional, default: 80): Minimum similarity score (0-100)
+- `max_results` (optional, default: 5): Maximum matches to return
+
+### `check_company_approved`
+
+Quick check if a company is approved (whitelisted).
+
+**Parameters:**
+- `company_name` (required): The name of the company
+- `threshold` (optional, default: 80): Minimum similarity score
+
+### `check_company_blocked`
+
+Quick check if a company is blocked (blacklisted).
+
+**Parameters:**
+- `company_name` (required): The name of the company
+- `threshold` (optional, default: 80): Minimum similarity score
+
+### `list_companies`
+
+List companies in the database.
+
+**Parameters:**
+- `status` (optional, default: "all"): Filter - "all", "whitelist", or "blacklist"
+
+### `get_company_stats`
+
+Get statistics about the company database.
+
+### `batch_lookup`
+
+Look up multiple companies at once.
+
+**Parameters:**
+- `company_names` (required): List of company names
+- `threshold` (optional, default: 80): Minimum similarity score
+
+## Claude Desktop Integration
+
+### Local Installation (stdio)
+
+Add to `~/.claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "company-lookup": {
+      "command": "company-lookup-mcp",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "COMPANY_LOOKUP_EXCEL_FILE": "/path/to/companies.xlsx"
+      }
+    }
+  }
+}
+```
+
+### Docker (SSE)
+
+1. Start the Docker container:
+   ```bash
+   docker-compose up company-mcp
+   ```
+
+2. Add to Claude Desktop config:
+   ```json
+   {
+     "mcpServers": {
+       "company-lookup": {
+         "url": "http://localhost:8080/sse"
+       }
+     }
+   }
+   ```
+
+## Excel File Format
+
+The Excel file should have two sheets:
+
+### Whitelist Sheet
+
+| Company Name | Category | Notes |
+|-------------|----------|-------|
+| Siemens AG | Technology | Major German corporation |
+| BMW Group | Automotive | Car manufacturer |
+
+### Blacklist Sheet
+
+| Company Name | Category | Notes |
+|-------------|----------|-------|
+| Fake Company GmbH | Unknown | Known scam company |
+
+Column names can be customized via configuration.
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `COMPANY_LOOKUP_EXCEL_FILE` | Path to Excel file | - |
+| `COMPANY_LOOKUP_THRESHOLD` | Default fuzzy threshold | 80.0 |
+| `COMPANY_LOOKUP_API_HOST` | API server host | 0.0.0.0 |
+| `COMPANY_LOOKUP_API_PORT` | API server port | 8000 |
+| `MCP_TRANSPORT` | MCP transport type | stdio |
+| `MCP_HOST` | MCP SSE host | 0.0.0.0 |
+| `MCP_PORT` | MCP SSE port | 8080 |
+
+### Configuration File
+
+`company_lookup/config/settings.yaml`:
+
+```yaml
+excel:
+  file_path: null
+  whitelist_sheet: "Whitelist"
+  blacklist_sheet: "Blacklist"
+  company_name_column: "Company Name"
+  notes_column: "Notes"
+  category_column: "Category"
+
+matching:
+  default_threshold: 80.0
+  case_sensitive: false
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+```
+
+## Fuzzy Matching
+
+The tool uses a combination of fuzzy matching algorithms:
+
+1. **Simple Ratio**: Character-level similarity
+2. **Partial Ratio**: Best substring match
+3. **Token Sort Ratio**: Handles word order differences
+4. **Token Set Ratio**: Handles extra words
+
+The final score is a weighted combination of these algorithms, optimized for company name matching.
+
+### Normalization
+
+Company names are normalized before matching:
+- Whitespace is trimmed
+- Case is normalized (unless case-sensitive mode)
+- Common suffixes are removed (GmbH, AG, SE, Ltd, Inc, etc.)
+
+## Testing
+
+The testing framework has two parallel components:
+
+1. **Algorithm Tests** (`test_quantification.py`) - Tests the fuzzy matching algorithms with edge cases
+2. **MCP Evaluation** (`evaluate_mcp.py`) - Tests LLM ability to correctly invoke MCP tools
+
+### Install Dev Dependencies
+
+```bash
+cd mcp-tools/company-lookup
+pip install -e ".[dev]"
+```
+
+### Run Algorithm Quantification Tests
+
+Tests the core fuzzy matching logic with 50+ edge cases:
+
+```bash
+# Run all quantification tests
+pytest tests/test_quantification.py -v
+
+# Run with detailed output
+pytest tests/test_quantification.py -v -s
+
+# Run specific test categories
+pytest tests/test_quantification.py -v -k "typo"
+pytest tests/test_quantification.py -v -k "blacklist"
+pytest tests/test_quantification.py -v -k "edge"
+
+# Generate standalone report
+python tests/test_quantification.py
+```
+
+Test categories:
+- **Exact matches** - Whitelist/blacklist exact matches
+- **Case variations** - Uppercase, lowercase, mixed case
+- **Typos** - Transposed letters, missing letters, doubled letters
+- **Suffix variations** - Missing/wrong/extra suffixes (AG, GmbH, SE)
+- **Whitespace** - Leading/trailing spaces, multiple spaces
+- **Partial matches** - Partial company names, different divisions
+- **Unknown companies** - Companies not in the database
+- **Blacklist edge cases** - Fuzzy blacklist detection
+- **Special characters** - Ampersands, dots, parentheses
+- **Short names** - 2-3 letter abbreviations (VW, BMW, SAP)
+- **Long names** - Full formal German company names
+- **Word order** - Reversed word order (Group BMW)
+
+### Run MCP Evaluation with LLMs
+
+Tests how well different LLMs can parse natural language and call MCP tools:
+
+```bash
+# Test with local Ollama models (default)
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b qwen2.5:7b
+
+# Test single Ollama model
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b
+
+# Test with custom Ollama endpoint
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b --endpoint http://my-server:11434
+
+# Test with Anthropic Claude (requires ANTHROPIC_API_KEY env var)
+export ANTHROPIC_API_KEY=sk-ant-...
+python tests/mcp_evaluation/evaluate_mcp.py --anthropic-model claude-3-haiku-20240307
+
+# Test with OpenAI-compatible API (LM Studio, vLLM, OpenRouter)
+python tests/mcp_evaluation/evaluate_mcp.py \
+  --openai-endpoint http://localhost:1234 \
+  --openai-model local-model
+
+# Use custom test prompts
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b -t my_prompts.json
+
+# Specify custom Excel file
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b -e data/companies.xlsx
+
+# Save results to custom directory
+python tests/mcp_evaluation/evaluate_mcp.py -m llama3.2:3b -o my_results/
+```
+
+### MCP Evaluation Output
+
+The evaluation produces:
+- **Console output** with Rich tables showing per-model metrics
+- **JSON results** saved to `tests/mcp_evaluation/results/`
+
+Metrics tracked:
+| Metric | Description |
+|--------|-------------|
+| Tool Call % | Percentage of prompts where tool JSON was successfully extracted |
+| Company Acc % | Percentage where company name was correctly extracted |
+| Status Acc % | Percentage where final status (whitelist/blacklist/unknown) was correct |
+| Avg Time | Average response time per prompt |
+
+### Test Prompts Structure
+
+The test prompts are defined in `tests/mcp_evaluation/test_prompts.json`:
+
+```json
+{
+  "metadata": {
+    "version": "2.0",
+    "total_prompts": 30
+  },
+  "test_cases": [
+    {
+      "id": "exact_001",
+      "category": "exact_match",
+      "prompt": "Check if Siemens AG is approved for internships",
+      "expected_tool": "lookup_company",
+      "expected_result": {
+        "status": "whitelisted",
+        "is_approved": true
+      },
+      "company_name": "Siemens AG",
+      "difficulty": "easy",
+      "language": "en",
+      "tags": ["exact", "whitelist"]
+    }
+  ]
+}
+```
+
+Categories covered:
+- `exact_match` - Exact company name queries
+- `fuzzy_match` - Typos and partial names
+- `blacklist` - Blocked company queries
+- `unknown` - Unknown company queries
+- `batch` - Multiple company queries
+- `stats` - Database statistics queries
+- `list` - List companies queries
+- `edge_case` - Complex suffixes, case, whitespace
+- `german` - German language prompts
+
+### LLM Config File
+
+For complex setups, use a JSON config file:
+
+```json
+{
+  "llms": [
+    {
+      "name": "Local-Llama",
+      "endpoint": "http://localhost:11434",
+      "model": "llama3.2:3b",
+      "api_type": "ollama",
+      "temperature": 0.0
+    },
+    {
+      "name": "Claude-Haiku",
+      "endpoint": "https://api.anthropic.com",
+      "model": "claude-3-haiku-20240307",
+      "api_type": "anthropic",
+      "api_key": "sk-ant-..."
+    }
+  ]
+}
+```
+
+Run with:
+```bash
+python tests/mcp_evaluation/evaluate_mcp.py -c llm_configs.json
+```
+
+### Interpreting Results
+
+Example output:
+```
+╭─────────────────── Results: Ollama-llama3.2:3b ───────────────────╮
+│ Metric                 │ Value │ Percentage │
+│ Total Tests            │ 30    │ 100%       │
+│ Tool Called            │ 28    │ 93.3%      │
+│ Correct Tool Name      │ 26    │ 86.7%      │
+│ Company Name Correct   │ 25    │ 83.3%      │
+│ Status Prediction      │ 24    │ 80.0%      │
+│ Avg Response Time      │ 1.23s │ -          │
+╰───────────────────────────────────────────────────────────────────╯
+```
+
+Guidelines:
+- **Tool Call % > 90%**: LLM reliably generates JSON tool calls
+- **Company Acc % > 85%**: LLM correctly extracts company names
+- **Status Acc % > 80%**: End-to-end lookup accuracy is good
+
+## n8n Integration
+
+For n8n workflow integration, use the REST API:
+
+1. Start the API server:
+   ```bash
+   company-lookup serve -e /path/to/companies.xlsx
+   # or with Docker:
+   docker-compose --profile api up
+   ```
+
+2. In n8n, use HTTP Request node:
+   - Method: POST
+   - URL: `http://localhost:8000/lookup`
+   - Body: `{"company_name": "{{$json.company_name}}"}`
+
+## Development
+
+### Code Formatting
+
+```bash
+black company_lookup/
+```
+
+### Type Checking
+
+```bash
+mypy company_lookup/
+```
+
+### Linting
+
+```bash
+ruff check company_lookup/
+```
+
+## Architecture
+
+```
+company_lookup/
+├── cli.py                 # Click CLI interface
+├── api.py                 # FastAPI REST endpoints
+├── mcp_server.py          # MCP server (SSE/stdio)
+├── config/
+│   ├── manager.py         # Configuration management
+│   └── settings.yaml      # Default settings
+├── core/
+│   ├── excel_reader.py    # Excel file parsing
+│   ├── fuzzy_matcher.py   # Fuzzy matching engine
+│   └── lookup_engine.py   # Main lookup logic
+├── data/
+│   └── schemas.py         # Pydantic models
+└── output/
+    ├── formatter.py       # Console formatting
+    └── exporter.py        # JSON/CSV export
+```
+
+## License
+
+MIT License
