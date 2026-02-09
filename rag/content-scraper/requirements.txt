@@ -1,0 +1,13 @@
+# Core dependencies for web scraping and embedding
+beautifulsoup4==4.12.3
+requests==2.31.0
+lxml==5.1.0
+
+# Sentence transformers for embeddings
+sentence-transformers==2.3.1
+
+# Qdrant vector database client
+qdrant-client==1.7.3
+
+# Configuration
+python-dotenv==1.0.1
