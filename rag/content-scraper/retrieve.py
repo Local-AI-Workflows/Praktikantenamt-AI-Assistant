@@ -5,9 +5,9 @@ Can be used standalone or called from n8n.
 """
 
 import sys
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 import config
+from embeddings import EmbeddingModel
 
 
 def retrieve_context(query: str, top_k: int = 3) -> list:
@@ -22,7 +22,7 @@ def retrieve_context(query: str, top_k: int = 3) -> list:
         List of dictionaries with text and metadata
     """
     # Load model
-    model = SentenceTransformer(config.EMBEDDING_MODEL)
+    model = EmbeddingModel()
     
     # Create query embedding
     query_embedding = model.encode(query).tolist()

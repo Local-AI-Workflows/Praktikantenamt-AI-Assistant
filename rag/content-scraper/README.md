@@ -6,6 +6,7 @@ A minimal, flexible system for scraping web content, creating embeddings, and st
 
 - ✅ **Multi-URL Support** - Scrape content from multiple websites
 - ✅ **Flexible Configuration** - All settings via `.env` file
+- ✅ **Multiple Embedding Backends** - Support for Sentence Transformers and Ollama
 - ✅ **Delta Loading** - Automatically skips duplicate content
 - ✅ **Duplicate Detection** - Uses content hashing to identify duplicates
 - ✅ **Semantic Search** - Find relevant content using embeddings
@@ -15,7 +16,9 @@ A minimal, flexible system for scraping web content, creating embeddings, and st
 
 - `ingest_data.py` - Scrape, embed, and store content
 - `test_retrieval.py` - Test semantic search
+- `retrieve.py` - Simple retrieval interface
 - `config.py` - Configuration loader
+- `embeddings.py` - Unified embedding interface (Sentence Transformers & Ollama)
 - `docker-compose.yml` - Qdrant database setup
 - `requirements.txt` - Python dependencies
 
@@ -78,8 +81,16 @@ QDRANT_HOST=localhost
 QDRANT_PORT=6333
 COLLECTION_NAME=my_collection
 
-# Embedding Model (multilingual, supports German)
+# Embedding Backend
+# Options: "sentence-transformers" or "ollama"
+EMBEDDING_BACKEND=sentence-transformers
+
+# Sentence Transformers Configuration (used when EMBEDDING_BACKEND=sentence-transformers)
 EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+
+# Ollama Configuration (used when EMBEDDING_BACKEND=ollama)
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=nomic-embed-text
 
 # Chunking
 CHUNK_SIZE=500
@@ -88,6 +99,34 @@ CHUNK_OVERLAP=50
 # Multiple URLs (comma-separated)
 SOURCE_URLS=https://example.com/page1,https://example.com/page2
 ```
+
+### Embedding Backends
+
+#### Sentence Transformers (Default)
+- **Pros:** Fast, runs locally, no external service needed
+- **Cons:** Limited to pre-trained models
+- **Best for:** Quick setup, offline usage
+
+```env
+EMBEDDING_BACKEND=sentence-transformers
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```
+
+#### Ollama
+- **Pros:** Flexible model choice, can use larger models, self-hosted
+- **Cons:** Requires Ollama server running
+- **Best for:** Custom models, advanced use cases
+
+```env
+EMBEDDING_BACKEND=ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=nomic-embed-text
+```
+
+Popular Ollama embedding models:
+- `nomic-embed-text` - Good general-purpose model
+- `mxbai-embed-large` - Higher quality, larger
+- `all-minilm` - Fast and lightweight
 
 ## 📊 How Delta Loading Works
 
@@ -177,7 +216,9 @@ content_retrieval/
 ├── .env                    # Your configuration (create from .env.example)
 ├── .env.example           # Example configuration
 ├── config.py              # Configuration loader
+├── embeddings.py          # Unified embedding interface
 ├── ingest_data.py         # Main ingestion script
+├── retrieve.py            # Simple retrieval script
 ├── test_retrieval.py      # Test semantic search
 ├── requirements.txt       # Python dependencies
 ├── docker-compose.yml     # Qdrant setup
@@ -205,6 +246,60 @@ curl http://localhost:6333/collections/htwg_knowledge_base
 open http://localhost:6333/dashboard
 ```
 
+## 🦙 Using Ollama for Embeddings
+
+If you want to use Ollama instead of Sentence Transformers:
+
+### 1. Install Ollama
+
+```bash
+# On Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# On macOS
+brew install ollama
+
+# On Windows
+# Download from https://ollama.com/download
+```
+
+### 2. Start Ollama
+
+```bash
+ollama serve
+```
+
+### 3. Pull an Embedding Model
+
+```bash
+# Recommended: nomic-embed-text
+ollama pull nomic-embed-text
+
+# Or try alternatives:
+ollama pull mxbai-embed-large
+ollama pull all-minilm
+```
+
+### 4. Update .env
+
+```env
+EMBEDDING_BACKEND=ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=nomic-embed-text
+```
+
+### 5. Run Ingestion
+
+```bash
+python ingest_data.py
+```
+
+**Note:** When switching between backends (Sentence Transformers ↔ Ollama), use `--force` to recreate the collection, as embeddings from different models have different dimensions and are not compatible:
+
+```bash
+python ingest_data.py --force
+```
+
 ## 🔧 Advanced Usage
 
 ### Add Multiple URLs
@@ -222,12 +317,28 @@ CHUNK_SIZE=700        # Larger chunks
 CHUNK_OVERLAP=100     # More overlap
 ```
 
-### Use Different Model
+### Use Different Embedding Model
 
-Edit `.env`:
+#### For Sentence Transformers:
 ```env
+EMBEDDING_BACKEND=sentence-transformers
 # Better quality, but slower and larger
 EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+```
+
+#### For Ollama:
+```bash
+# Pull different model
+ollama pull mxbai-embed-large
+
+# Update .env
+EMBEDDING_BACKEND=ollama
+OLLAMA_MODEL=mxbai-embed-large
+```
+
+**Important:** After changing embedding models, recreate the collection:
+```bash
+python ingest_data.py --force
 ```
 
 ### Force Recreate Collection

@@ -15,11 +15,18 @@ QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", "6333"))
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "htwg_knowledge_base")
 
-# Embedding Model Configuration
+# Embedding Backend Configuration
+EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "sentence-transformers")  # Options: "sentence-transformers", "ollama"
+
+# Sentence Transformers Configuration
 EMBEDDING_MODEL = os.getenv(
     "EMBEDDING_MODEL", 
     "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 )
+
+# Ollama Configuration
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "nomic-embed-text")
 
 # Chunking Configuration
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))
@@ -47,7 +54,12 @@ if __name__ == "__main__":
     print("=== Configuration ===")
     print(f"Qdrant Host: {QDRANT_HOST}:{QDRANT_PORT}")
     print(f"Collection: {COLLECTION_NAME}")
-    print(f"Embedding Model: {EMBEDDING_MODEL}")
+    print(f"Embedding Backend: {EMBEDDING_BACKEND}")
+    if EMBEDDING_BACKEND == "sentence-transformers":
+        print(f"Embedding Model: {EMBEDDING_MODEL}")
+    elif EMBEDDING_BACKEND == "ollama":
+        print(f"Ollama Host: {OLLAMA_HOST}")
+        print(f"Ollama Model: {OLLAMA_MODEL}")
     print(f"Chunk Size: {CHUNK_SIZE} chars (overlap: {CHUNK_OVERLAP})")
     print(f"Source URLs ({len(SOURCE_URLS)}):")
     for idx, url in enumerate(SOURCE_URLS, 1):

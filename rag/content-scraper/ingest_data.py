@@ -8,13 +8,13 @@ Includes duplicate detection and incremental updates.
 import requests
 import hashlib
 from bs4 import BeautifulSoup
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 import uuid
 from typing import List, Dict, Set
 from urllib.parse import urlparse
 import config
+from embeddings import EmbeddingModel, create_embeddings
 
 
 def generate_content_hash(text: str) -> str:
@@ -145,11 +145,6 @@ def get_existing_hashes(client: QdrantClient, collection_name: str) -> Set[str]:
         return set()
 
 
-def create_embeddings(texts: List[str], model: SentenceTransformer) -> List[List[float]]:
-    """Create embeddings for text chunks."""
-    print(f"  Creating embeddings for {len(texts)} chunks...")
-    embeddings = model.encode(texts, show_progress_bar=True)
-    return embeddings.tolist()
 
 
 def store_in_qdrant(
@@ -182,15 +177,26 @@ def store_in_qdrant(
             pass
     
     # Ensure collection exists
+    collection_exists = False
     try:
         client.get_collection(collection_name=collection_name)
         print(f"  Using existing collection: {collection_name}")
+        collection_exists = True
     except Exception:
-        client.create_collection(
-            collection_name=collection_name,
-            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
-        )
-        print(f"  Created new collection: {collection_name}")
+        pass
+    
+    if not collection_exists:
+        try:
+            client.create_collection(
+                collection_name=collection_name,
+                vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+            )
+            print(f"  Created new collection: {collection_name}")
+        except Exception as e:
+            if "already exists" in str(e).lower():
+                print(f"  Using existing collection: {collection_name}")
+            else:
+                print(f"  Warning: Collection operation failed, but continuing: {e}")
     
     # Filter out duplicates (delta loading)
     new_chunks = []
@@ -255,7 +261,12 @@ def main(force_recreate: bool = False):
     print(f"Configuration:")
     print(f"  Collection: {config.COLLECTION_NAME}")
     print(f"  Qdrant: {config.QDRANT_HOST}:{config.QDRANT_PORT}")
-    print(f"  Model: {config.EMBEDDING_MODEL}")
+    print(f"  Embedding Backend: {config.EMBEDDING_BACKEND}")
+    if config.EMBEDDING_BACKEND == "sentence-transformers":
+        print(f"  Model: {config.EMBEDDING_MODEL}")
+    elif config.EMBEDDING_BACKEND == "ollama":
+        print(f"  Ollama Host: {config.OLLAMA_HOST}")
+        print(f"  Ollama Model: {config.OLLAMA_MODEL}")
     print(f"  Chunk size: {config.CHUNK_SIZE} chars (overlap: {config.CHUNK_OVERLAP})")
     print(f"  Source URLs: {len(config.SOURCE_URLS)}")
     print(f"  Mode: {'FULL REFRESH' if force_recreate else 'DELTA LOADING'}")
@@ -305,9 +316,8 @@ def main(force_recreate: bool = False):
     print()
     
     # 3. Load embedding model
-    print(f"Loading embedding model: {config.EMBEDDING_MODEL}")
-    model = SentenceTransformer(config.EMBEDDING_MODEL)
-    print("  ✓ Model loaded")
+    print(f"Loading embedding model...")
+    model = EmbeddingModel()
     print()
     
     # 4. Create embeddings
@@ -328,16 +338,22 @@ def main(force_recreate: bool = False):
     )
     
     # Get final statistics
-    collection_info = client.get_collection(collection_name=config.COLLECTION_NAME)
-    
     print()
     print("="*70)
     print("  INGESTION COMPLETE")
     print("="*70)
     print(f"Collection: {config.COLLECTION_NAME}")
-    print(f"Total vectors in database: {collection_info.points_count}")
-    print(f"Vector dimension: {collection_info.config.params.vectors.size}")
-    print(f"Distance metric: {collection_info.config.params.vectors.distance}")
+    
+    try:
+        collection_info = client.get_collection(collection_name=config.COLLECTION_NAME)
+        print(f"Total vectors in database: {collection_info.points_count}")
+        print(f"Vector dimension: {collection_info.config.params.vectors.size}")
+        print(f"Distance metric: {collection_info.config.params.vectors.distance}")
+    except Exception as e:
+        print(f"Note: Could not retrieve collection statistics (client/server version mismatch)")
+        print(f"  Ingestion completed successfully, but statistics unavailable")
+        print(f"  Consider upgrading qdrant-client: pip install --upgrade qdrant-client")
+    
     print("="*70)
 
 

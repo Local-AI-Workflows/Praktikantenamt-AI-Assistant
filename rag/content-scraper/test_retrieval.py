@@ -5,9 +5,9 @@ Tests semantic search against the vector database.
 """
 
 import sys
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 import config
+from embeddings import EmbeddingModel
 
 
 def retrieve_context(query: str, top_k: int = 3) -> list:
@@ -22,8 +22,14 @@ def retrieve_context(query: str, top_k: int = 3) -> list:
         List of dictionaries with text and metadata
     """
     # Load model
-    print(f"Loading model: {config.EMBEDDING_MODEL}")
-    model = SentenceTransformer(config.EMBEDDING_MODEL)
+    print(f"Loading embedding model...")
+    print(f"  Backend: {config.EMBEDDING_BACKEND}")
+    if config.EMBEDDING_BACKEND == "sentence-transformers":
+        print(f"  Model: {config.EMBEDDING_MODEL}")
+    elif config.EMBEDDING_BACKEND == "ollama":
+        print(f"  Ollama: {config.OLLAMA_HOST}")
+        print(f"  Model: {config.OLLAMA_MODEL}")
+    model = EmbeddingModel()
     
     # Create query embedding
     print("Creating query embedding...")
@@ -108,7 +114,12 @@ def test_multiple_queries():
     print("="*70)
     print(f"\nConfiguration:")
     print(f"  Collection: {config.COLLECTION_NAME}")
-    print(f"  Model: {config.EMBEDDING_MODEL}")
+    print(f"  Backend: {config.EMBEDDING_BACKEND}")
+    if config.EMBEDDING_BACKEND == "sentence-transformers":
+        print(f"  Model: {config.EMBEDDING_MODEL}")
+    elif config.EMBEDDING_BACKEND == "ollama":
+        print(f"  Ollama Host: {config.OLLAMA_HOST}")
+        print(f"  Ollama Model: {config.OLLAMA_MODEL}")
     print(f"  Top K: 2")
     print()
     
