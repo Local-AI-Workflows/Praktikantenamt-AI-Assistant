@@ -168,7 +168,7 @@ async def calculate_workdays(request: CalculateRequest):
             holidays_count=result.holidays_count,
             working_days=result.working_days,
             holidays=[
-                {"date": h.date.isoformat(), "name": h.name, "is_national": h.is_national}
+                {"date": h.holiday_date.isoformat(), "name": h.name, "is_national": h.is_national}
                 for h in result.holidays
             ],
             confidence=result.confidence,
@@ -215,7 +215,7 @@ async def get_holidays(
 
         return [
             HolidayResponse(
-                date=h.date,
+                date=h.holiday_date,
                 name=h.name,
                 is_national=h.is_national,
             )
