@@ -8,6 +8,7 @@ import sys
 from qdrant_client import QdrantClient
 import config
 from embeddings import EmbeddingModel
+from qdrant_compat import search_qdrant
 
 
 def retrieve_context(query: str, top_k: int = 3) -> list:
@@ -42,7 +43,8 @@ def retrieve_context(query: str, top_k: int = 3) -> list:
     # Search
     print(f"Searching in collection: {config.COLLECTION_NAME}")
     try:
-        search_result = client.search(
+        search_result = search_qdrant(
+            client=client,
             collection_name=config.COLLECTION_NAME,
             query_vector=query_embedding,
             limit=top_k
@@ -58,14 +60,20 @@ def retrieve_context(query: str, top_k: int = 3) -> list:
     # Format results
     results = []
     for hit in search_result:
-        results.append({
+        result = {
             "text": hit.payload["text"],
             "score": hit.score,
             "source_url": hit.payload.get("source_url", "unknown"),
             "source_domain": hit.payload.get("source_domain", "unknown"),
             "chunk_index": hit.payload.get("chunk_index", 0),
             "content_hash": hit.payload.get("content_hash", "")[:8]  # First 8 chars
-        })
+        }
+        
+        # Add heading if present (from semantic chunking)
+        if "heading" in hit.payload and hit.payload["heading"]:
+            result["heading"] = hit.payload["heading"]
+        
+        results.append(result)
     
     return results
 
@@ -94,6 +102,11 @@ def display_results(query: str, results: list):
         print(f"Source: {result['source_domain']} (chunk #{result['chunk_index']})")
         print(f"URL: {result['source_url']}")
         print(f"Hash: {result['content_hash']}")
+        
+        # Display heading if available (from semantic chunking)
+        if "heading" in result and result["heading"]:
+            print(f"📑 Section: {result['heading']}")
+        
         print()
         print(result['text'])
         print()

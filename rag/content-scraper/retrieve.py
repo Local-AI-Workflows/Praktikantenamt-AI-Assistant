@@ -8,6 +8,7 @@ import sys
 from qdrant_client import QdrantClient
 import config
 from embeddings import EmbeddingModel
+from qdrant_compat import search_qdrant
 
 
 def retrieve_context(query: str, top_k: int = 3) -> list:
@@ -31,7 +32,8 @@ def retrieve_context(query: str, top_k: int = 3) -> list:
     client = QdrantClient(host=config.QDRANT_HOST, port=config.QDRANT_PORT)
     
     # Search
-    search_result = client.search(
+    search_result = search_qdrant(
+        client=client,
         collection_name=config.COLLECTION_NAME,
         query_vector=query_embedding,
         limit=top_k

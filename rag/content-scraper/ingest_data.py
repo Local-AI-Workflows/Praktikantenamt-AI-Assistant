@@ -7,14 +7,15 @@ Includes duplicate detection and incremental updates.
 
 import requests
 import hashlib
+import uuid
 from bs4 import BeautifulSoup
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
-import uuid
 from typing import List, Dict, Set
 from urllib.parse import urlparse
 import config
 from embeddings import EmbeddingModel, create_embeddings
+from semantic_chunking import chunk_by_headings
 
 
 def generate_content_hash(text: str) -> str:
@@ -22,36 +23,58 @@ def generate_content_hash(text: str) -> str:
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
 
-def fetch_website_content(url: str) -> tuple[str, str]:
+def fetch_website_content(url: str) -> tuple[str, str, str]:
     """
     Fetch content from a website.
-    Returns: (text_content, url)
+    Returns: (text_content, html_content, url)
     """
     print(f"  Fetching: {url}")
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         
+        # Store original HTML for semantic chunking
+        html_content = response.content
+        
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Remove script and style elements
-        for script in soup(["script", "style", "nav", "header", "footer"]):
+        # Remove script and style elements only (keep nav for now, might have content)
+        for script in soup(["script", "style"]):
             script.decompose()
         
-        # Get text content
-        text = soup.get_text()
+        # Try to find main content area first
+        main_content = None
+        for selector in ['main', 'article', '[role="main"]', '.content', '#content', '.main-content']:
+            main_content = soup.select_one(selector)
+            if main_content:
+                print(f"    ℹ Using main content selector: {selector}")
+                soup = main_content
+                break
         
-        # Clean up whitespace
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = ' '.join(chunk for chunk in chunks if chunk)
+        if not main_content:
+            print(f"    ℹ No main content found, using full page (more inclusive)")
+            # Still remove nav and footer for full page scraping
+            for elem in soup(["nav", "footer"]):
+                elem.decompose()
+        
+        # Get text content
+        text = soup.get_text(separator=' ', strip=True)
+        
+        # Clean up excessive whitespace while preserving sentence structure
+        import re
+        # Replace multiple spaces with single space
+        text = re.sub(r' +', ' ', text)
+        # Replace multiple newlines with single newline
+        text = re.sub(r'\n+', '\n', text)
+        # Remove spaces before punctuation
+        text = re.sub(r' +([.,;:!?])', r'\1', text)
         
         print(f"    ✓ Fetched {len(text)} characters")
-        return text, url
+        return text, html_content, url
         
     except Exception as e:
         print(f"    ✗ Error fetching {url}: {e}")
-        return None, url
+        return None, None, url
 
 
 def extract_domain(url: str) -> str:
@@ -63,43 +86,77 @@ def extract_domain(url: str) -> str:
 def chunk_text(text: str, url: str, chunk_size: int = 500, overlap: int = 50) -> List[Dict[str, str]]:
     """
     Split text into overlapping chunks with metadata.
+    Uses character-based sliding window for better context preservation.
     Each chunk includes content hash for duplicate detection.
     """
     chunks = []
-    sentences = text.split('. ')
-    current_chunk = ""
-    chunk_index = 0
     domain = extract_domain(url)
     
-    for sentence in sentences:
-        if len(current_chunk) + len(sentence) < chunk_size:
-            current_chunk += sentence + ". "
-        else:
-            if current_chunk:
-                chunk_text = current_chunk.strip()
-                chunk_hash = generate_content_hash(chunk_text)
-                
-                chunks.append({
-                    "text": chunk_text,
-                    "source_url": url,
-                    "source_domain": domain,
-                    "chunk_index": chunk_index,
-                    "content_hash": chunk_hash
-                })
-                chunk_index += 1
-            current_chunk = sentence + ". "
-    
-    # Add the last chunk
-    if current_chunk:
-        chunk_text = current_chunk.strip()
-        chunk_hash = generate_content_hash(chunk_text)
+    # If text is shorter than chunk_size, return it as a single chunk
+    if len(text) <= chunk_size:
+        chunk_hash = generate_content_hash(text)
         chunks.append({
-            "text": chunk_text,
+            "text": text,
             "source_url": url,
             "source_domain": domain,
-            "chunk_index": chunk_index,
+            "chunk_index": 0,
             "content_hash": chunk_hash
         })
+        return chunks
+    
+    # Use sliding window with overlap
+    chunk_index = 0
+    start = 0
+    
+    while start < len(text):
+        # Define end of chunk
+        end = start + chunk_size
+        
+        # If this is not the last chunk, try to break at sentence boundary
+        if end < len(text):
+            # Look for sentence endings (. ! ?) near the end position
+            search_start = max(start + chunk_size - 100, start)
+            search_end = min(end + 100, len(text))
+            
+            # Find the last sentence ending within search range
+            best_break = None
+            for i in range(search_end - 1, search_start - 1, -1):
+                if text[i] in '.!?' and i + 1 < len(text) and text[i + 1] in ' \n':
+                    best_break = i + 1
+                    break
+            
+            if best_break:
+                end = best_break
+        else:
+            end = len(text)
+        
+        # Extract chunk
+        chunk_text = text[start:end].strip()
+        
+        # Only add non-empty chunks
+        if chunk_text:
+            chunk_hash = generate_content_hash(chunk_text)
+            chunks.append({
+                "text": chunk_text,
+                "source_url": url,
+                "source_domain": domain,
+                "chunk_index": chunk_index,
+                "content_hash": chunk_hash
+            })
+            chunk_index += 1
+        
+        # Move start position (with overlap)
+        next_start = end - overlap
+        
+        # Avoid infinite loop - ensure we're always moving forward
+        if next_start >= end:
+            # Overlap is larger than chunk, just move to end
+            start = end
+        elif next_start <= start:
+            # We're not moving forward, skip overlap
+            start = end
+        else:
+            start = next_start
     
     return chunks
 
@@ -220,19 +277,27 @@ def store_in_qdrant(
     # Prepare points for upload
     points = []
     for chunk, embedding in zip(new_chunks, new_embeddings):
-        # Use content hash as ID to ensure true uniqueness
-        point_id = chunk["content_hash"][:32]  # Use first 32 chars of hash as ID
+        # Generate UUID from content hash for consistent, valid IDs
+        # This ensures the same content always gets the same UUID
+        point_id = str(uuid.UUID(chunk["content_hash"][:32]))
+        
+        # Build payload with optional heading field
+        payload = {
+            "text": chunk["text"],
+            "source_url": chunk["source_url"],
+            "source_domain": chunk["source_domain"],
+            "chunk_index": chunk["chunk_index"],
+            "content_hash": chunk["content_hash"]
+        }
+        
+        # Add heading if present (from semantic chunking)
+        if "heading" in chunk and chunk["heading"]:
+            payload["heading"] = chunk["heading"]
         
         point = PointStruct(
             id=point_id,
             vector=embedding,
-            payload={
-                "text": chunk["text"],
-                "source_url": chunk["source_url"],
-                "source_domain": chunk["source_domain"],
-                "chunk_index": chunk["chunk_index"],
-                "content_hash": chunk["content_hash"]
-            }
+            payload=payload
         )
         points.append(point)
     
@@ -290,9 +355,9 @@ def main(force_recreate: bool = False):
     print(f"Fetching content from {len(config.SOURCE_URLS)} URL(s)...")
     all_content = []
     for url in config.SOURCE_URLS:
-        content, source_url = fetch_website_content(url)
-        if content:
-            all_content.append((content, source_url))
+        text_content, html_content, source_url = fetch_website_content(url)
+        if text_content:
+            all_content.append((text_content, html_content, source_url))
     print(f"  ✓ Successfully fetched {len(all_content)} source(s)")
     print()
     
@@ -300,18 +365,14 @@ def main(force_recreate: bool = False):
         print("  ✗ No content fetched. Exiting.")
         return
     
-    # 2. Chunk all content
-    print("Chunking content...")
+    # 2. Chunk all content using semantic chunking (by headings)
+    print("Chunking content (semantic chunking by headings)...")
     all_chunks = []
-    for content, url in all_content:
-        chunks = chunk_text(
-            content, 
-            url, 
-            chunk_size=config.CHUNK_SIZE, 
-            overlap=config.CHUNK_OVERLAP
-        )
+    for text_content, html_content, url in all_content:
+        # Use semantic chunking (by HTML structure)
+        chunks = chunk_by_headings(html_content, url, max_chunk_size=config.CHUNK_SIZE * 2)
         all_chunks.extend(chunks)
-        print(f"  Created {len(chunks)} chunks from {url}")
+        print(f"  Created {len(chunks)} semantic chunks from {url}")
     print(f"  ✓ Total chunks: {len(all_chunks)}")
     print()
     
