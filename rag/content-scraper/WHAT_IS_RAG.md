@@ -19,11 +19,13 @@ Instead of letting an AI make up answers, RAG retrieves real information first, 
 
 ### Setup
 ```bash
-./setup.sh                                    # Run setup
+pip install -r requirements.txt
+docker compose up -d
+cp .env.example .env
 ```
 
 ### Configure
-Edit `.env` file with your URLs:
+Edit `.env` file with your URLs and Qdrant settings
 ```env
 SOURCE_URLS=https://example.com/page1,https://example.com/page2
 ```
@@ -52,17 +54,12 @@ Add two nodes to your workflow:
 **1. Vector Store Qdrant (as Tool)**
 - Mode: "Connect to Qdrant and Make Available as Tool"
 - Collection: Your collection name from `.env`
-- URL: `http://localhost:6333`
+- URL: (your Qdrant URL)
 
 **2. AI Agent**
 - Connect Vector Store as Tool
 - Connect Ollama/OpenAI as Language Model
 - Prompt: "Use the Vector Store tool to find information and answer: {{ $json.question }}"
-
-Workflow:
-```
-Email Trigger -> AI Agent (with Vector Store Tool) -> Response
-```
 
 The AI automatically:
 1. Searches the vector database for relevant information
@@ -95,3 +92,9 @@ Retrieved Information + Question -> AI -> Answer
 - Start with Top K = 3, increase if answers need more context
 - Delta loading automatically skips duplicate content on subsequent runs
 - n8n connects directly to Qdrant (no API server needed)
+
+## Struggles during Development
+
+- **Delta Loading**: Implementing content hashing to skip duplicates was tricky but essential for efficiency.
+- **Embedding Consistency**: Ensuring the same embedding model is used for both ingestion and retrieval to maintain accuracy.
+- **Response Quality**: Custom chunking strategy (chunk by headings) & model choice (mxbai-embed-large) significantly improved retrieval relevance and answer quality.
