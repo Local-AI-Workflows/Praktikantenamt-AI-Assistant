@@ -60,6 +60,27 @@ class ConsoleFormatter:
         self.console.print(table)
         self.console.print()
 
+        # Confusion matrix
+        labels = list(report.per_category_metrics.keys())
+        if report.confusion_matrix and labels:
+            self.console.print("[bold]Confusion Matrix[/bold]")
+            matrix_table = Table(show_header=True, header_style="bold")
+            matrix_table.add_column("Expected/Pred", style="cyan", width=30)
+
+            for label in labels:
+                matrix_table.add_column(label, justify="right")
+
+            for row_label, row in zip(labels, report.confusion_matrix):
+                row_values = [str(value) for value in row]
+                if len(row_values) < len(labels):
+                    row_values.extend(["0"] * (len(labels) - len(row_values)))
+                elif len(row_values) > len(labels):
+                    row_values = row_values[: len(labels)]
+                matrix_table.add_row(row_label, *row_values)
+
+            self.console.print(matrix_table)
+            self.console.print()
+
         # Misrouted emails
         if report.misclassifications:
             self.console.print("[bold yellow]Misrouted Emails[/bold yellow]")
@@ -82,4 +103,26 @@ class ConsoleFormatter:
                 self.console.print(f"  • {uuid_str}")
             if len(report.emails_not_found) > 10:
                 self.console.print(f"  ... and {len(report.emails_not_found) - 10} more")
+            self.console.print()
+
+        # Attachment statistics (only shown when attachments were used)
+        if report.attachment_stats:
+            stats = report.attachment_stats
+            self.console.print("[bold]Attachment Statistics[/bold]")
+            attach_table = Table(show_header=True, header_style="bold")
+            attach_table.add_column("Metric", style="cyan", width=38)
+            attach_table.add_column("Value", justify="right")
+
+            attach_table.add_row(
+                "Emails with PDF attachment", str(stats.total_with_attachments)
+            )
+            attach_table.add_row(
+                "Emails without attachment", str(stats.total_without_attachments)
+            )
+            attach_table.add_row(
+                "Routing accuracy (with attachment)",
+                f"{stats.attachment_routing_accuracy:.1%}",
+            )
+
+            self.console.print(attach_table)
             self.console.print()

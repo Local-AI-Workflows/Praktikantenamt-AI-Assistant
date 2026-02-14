@@ -323,21 +323,22 @@ def generate(count, output, seed, verbose):
         formatter.console.print(f"Generating {count} dummy contracts...")
 
         generator = ContractGenerator(seed=seed)
-        contracts = generator.generate_batch(count)
+        dataset = generator.generate_dataset(num_contracts=count)
+        contracts = dataset.contracts
 
         # Save to file
-        generator.save_to_file(contracts, output)
+        generator.save_dataset(dataset, output)
 
         formatter.console.print(f"[green]✓[/green] Generated {len(contracts)} contracts")
         formatter.console.print(f"Saved to [cyan]{output}[/cyan]")
 
         # Show distribution
-        format_dist = {}
-        status_dist = {}
+        format_dist: dict = {}
+        status_dist: dict = {}
         for c in contracts:
-            format_dist[c.format] = format_dist.get(c.format, 0) + 1
-            status_dist[c.ground_truth.expected_validation_status] = (
-                status_dist.get(c.ground_truth.expected_validation_status, 0) + 1
+            format_dist[c.format.value] = format_dist.get(c.format.value, 0) + 1
+            status_dist[c.ground_truth.expected_status.value] = (
+                status_dist.get(c.ground_truth.expected_status.value, 0) + 1
             )
 
         formatter.console.print("\nFormat distribution:")
@@ -351,7 +352,7 @@ def generate(count, output, seed, verbose):
         if verbose:
             formatter.console.print("\nSample contracts:")
             for c in contracts[:3]:
-                formatter.console.print(f"\n--- {c.id} ({c.format}) ---")
+                formatter.console.print(f"\n--- {c.id} ({c.format.value}) ---")
                 formatter.console.print(c.text[:200] + "...")
 
     except Exception as e:
@@ -397,6 +398,130 @@ def report(result_file, format):
 
     except Exception as e:
         formatter.console.print(f"[bold red]Error:[/bold red] {e}")
+        sys.exit(1)
+
+
+@main.command("generate-scanned-pdfs")
+@click.option(
+    "--dataset",
+    "-d",
+    default="test_data/dummy_contracts.json",
+    type=click.Path(exists=True),
+    help="Path to contract dataset JSON (default: test_data/dummy_contracts.json)",
+)
+@click.option(
+    "--output-dir",
+    "-o",
+    default="test_data/scanned_pdfs",
+    type=click.Path(),
+    help="Directory to write scanned PDFs (default: test_data/scanned_pdfs)",
+)
+@click.option(
+    "--severity",
+    type=click.Choice(["low", "medium", "high", "mixed"]),
+    default="mixed",
+    show_default=True,
+    help="Scan artifact severity. 'mixed' assigns each contract a random severity.",
+)
+@click.option(
+    "--dpi",
+    type=int,
+    default=200,
+    show_default=True,
+    help="Render resolution in DPI (higher = better quality but slower)",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=None,
+    help="Random seed for reproducible artifact generation",
+)
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def generate_scanned_pdfs(dataset, output_dir, severity, dpi, seed, verbose):
+    """Render contracts as realistic scanned-document PDFs with image artifacts."""
+    import random as _random
+    from pathlib import Path as _Path
+
+    from contract_validator.data.schemas import OcrSeverity
+    from contract_validator.core.scan_renderer import render_scanned_pdf
+
+    formatter = ConsoleFormatter()
+
+    try:
+        # Load contracts
+        formatter.console.print(f"Loading dataset from [cyan]{dataset}[/cyan]...")
+        contracts = DataLoader.load_contracts(dataset)
+        formatter.console.print(f"Loaded {len(contracts)} contracts")
+
+        if not contracts:
+            formatter.console.print("[yellow]No contracts to process.[/yellow]")
+            return
+
+        # Prepare output directory
+        out_dir = _Path(output_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        # Severity mapping
+        _sev_map = {
+            "low": OcrSeverity.LOW,
+            "medium": OcrSeverity.MEDIUM,
+            "high": OcrSeverity.HIGH,
+        }
+        _all_severities = list(OcrSeverity)
+        rng = _random.Random(seed)
+
+        formatter.console.print(
+            f"Rendering {len(contracts)} scanned PDFs → [cyan]{out_dir}[/cyan]"
+        )
+
+        ok = 0
+        failed = 0
+
+        with formatter.create_progress_bar() as progress:
+            task = progress.add_task("Rendering...", total=len(contracts))
+            for contract in contracts:
+                # Determine severity for this contract
+                if severity == "mixed":
+                    chosen_sev = rng.choice(_all_severities)
+                else:
+                    chosen_sev = _sev_map[severity]
+
+                out_file = out_dir / f"{contract.id}_scanned.pdf"
+                contract_seed = (seed or 0) + hash(contract.id) & 0xFFFFFF
+
+                try:
+                    render_scanned_pdf(
+                        contract_text=contract.text,
+                        output_path=out_file,
+                        severity=chosen_sev,
+                        dpi=dpi,
+                        seed=contract_seed,
+                    )
+                    ok += 1
+                    if verbose:
+                        formatter.console.print(
+                            f"  [green]✓[/green] {contract.id} "
+                            f"({contract.format.value}, sev={chosen_sev.value}) → {out_file.name}"
+                        )
+                except Exception as exc:
+                    failed += 1
+                    formatter.console.print(
+                        f"  [red]✗[/red] {contract.id}: {exc}"
+                    )
+
+                progress.update(task, advance=1)
+
+        formatter.console.print(
+            f"\n[green]✓[/green] {ok} scanned PDFs written to [cyan]{out_dir}[/cyan]"
+        )
+        if failed:
+            formatter.console.print(f"[red]✗ {failed} contracts failed[/red]")
+
+    except Exception as e:
+        formatter.console.print(f"[bold red]Error:[/bold red] {e}")
+        if verbose:
+            import traceback
+            traceback.print_exc()
         sys.exit(1)
 
 

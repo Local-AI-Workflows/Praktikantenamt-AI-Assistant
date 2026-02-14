@@ -174,6 +174,7 @@ class ContractExecutor:
         # Create result object
         return ExtractionResult(
             contract_id=contract.id,
+            contract_format=contract.format,
             extracted=extracted,
             expected=contract.ground_truth,
             student_name_correct=correctness["student_name"],

@@ -5,7 +5,7 @@ Workflow validation logic and metrics calculation.
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sklearn.metrics import accuracy_score
 
@@ -16,7 +16,9 @@ sys.path.insert(0, str(categorization_path))
 from prompt_tester.core.validator import Validator as BaseValidator
 
 from workflow_validator.data.schemas import (
+    AttachmentStats,
     EmailLocation,
+    EmailWithUUID,
     FolderMapping,
     WorkflowMisclassification,
     WorkflowValidationReport,
@@ -58,6 +60,7 @@ class WorkflowValidator(BaseValidator):
         folder_mappings: List[FolderMapping],
         wait_time: int,
         total_sent: int,
+        sent_emails: Optional[List[EmailWithUUID]] = None,
     ) -> WorkflowValidationReport:
         """
         Validate email routing and generate report.
@@ -69,6 +72,7 @@ class WorkflowValidator(BaseValidator):
             folder_mappings: Folder mappings used
             wait_time: Wait time in seconds
             total_sent: Total emails sent
+            sent_emails: Optional list of sent emails for attachment stats
 
         Returns:
             WorkflowValidationReport with all metrics
@@ -109,6 +113,11 @@ class WorkflowValidator(BaseValidator):
             if el.found_in_folder is None
         ]
 
+        # Compute attachment stats when sent_emails are provided
+        attachment_stats = None
+        if sent_emails:
+            attachment_stats = self._compute_attachment_stats(email_locations, sent_emails)
+
         return WorkflowValidationReport(
             overall_accuracy=overall_accuracy,
             total_emails=len(email_locations),
@@ -126,4 +135,36 @@ class WorkflowValidator(BaseValidator):
             wait_time_seconds=wait_time,
             total_sent=total_sent,
             total_found=len([el for el in email_locations if el.found_in_folder]),
+            attachment_stats=attachment_stats,
+        )
+
+    def _compute_attachment_stats(
+        self,
+        email_locations: List[EmailLocation],
+        sent_emails: List[EmailWithUUID],
+    ) -> AttachmentStats:
+        """Calculate routing accuracy broken down by attachment presence."""
+        uuid_to_attachment = {
+            str(ewu.uuid): ewu.attachment for ewu in sent_emails
+        }
+
+        with_attachments = [
+            el for el in email_locations
+            if uuid_to_attachment.get(str(el.uuid)) is not None
+        ]
+        without_attachments = [
+            el for el in email_locations
+            if uuid_to_attachment.get(str(el.uuid)) is None
+        ]
+
+        attachment_routing_accuracy = (
+            sum(el.is_correct for el in with_attachments) / len(with_attachments)
+            if with_attachments
+            else 0.0
+        )
+
+        return AttachmentStats(
+            total_with_attachments=len(with_attachments),
+            total_without_attachments=len(without_attachments),
+            attachment_routing_accuracy=attachment_routing_accuracy,
         )

@@ -5,9 +5,11 @@ SMTP client for sending test emails with optional connection reuse, retries, and
 import smtplib
 import time
 import logging
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Optional
+from typing import Optional, Tuple
 from uuid import UUID
 
 from workflow_validator.data.schemas import SMTPConfig
@@ -57,12 +59,22 @@ class SMTPClient:
         sender: str,
         uuid: UUID,
         to_address: Optional[str] = None,
+        attachment: Optional[Tuple[bytes, str, str]] = None,
     ) -> bool:
         """
-        Send a test email with embedded UUID.
+        Send a test email with embedded UUID and optional file attachment.
 
         This implementation attempts to reuse the SMTP connection when configured to do so,
         and will retry on transient errors such as SMTPServerDisconnected.
+
+        Args:
+            subject: Email subject line
+            body: Email body text
+            sender: From address
+            uuid: Tracking UUID (embedded in body and X-Test-UUID header)
+            to_address: Recipient address (uses config.from_address if None)
+            attachment: Optional tuple of (file_bytes, filename, content_type),
+                        e.g. (pdf_bytes, "praktikumsvertrag.pdf", "application/pdf")
         """
         # Prepare message
         msg = MIMEMultipart()
@@ -72,6 +84,16 @@ class SMTPClient:
         msg["X-Test-UUID"] = str(uuid)
         body_with_uuid = f"{body}\n\n[TEST-ID: {uuid}]"
         msg.attach(MIMEText(body_with_uuid, "plain", "utf-8"))
+
+        # Attach file if provided
+        if attachment is not None:
+            file_bytes, filename, content_type = attachment
+            main_type, sub_type = content_type.split("/", 1)
+            part = MIMEBase(main_type, sub_type)
+            part.set_payload(file_bytes)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=filename)
+            msg.attach(part)
 
         attempts = 0
         while attempts <= self.config.max_retries:

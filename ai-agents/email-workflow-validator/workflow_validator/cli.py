@@ -60,7 +60,12 @@ def main():
     is_flag=True,
     help="Only validate existing emails (skip send phase, use stored UUIDs)",
 )
-def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, validate_only):
+@click.option(
+    "--no-attachments",
+    is_flag=True,
+    help="Disable PDF attachment generation for contract_submission emails",
+)
+def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, validate_only, no_attachments):
     """
     Run full workflow validation: send emails, wait, validate routing.
     
@@ -133,7 +138,12 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, valida
             sender = EmailSender(smtp_client, uuid_tracker)
 
             with console.status("[bold green]Sending emails..."):
-                sent_emails = sender.send_batch(emails, test_inbox, verbose=verbose)
+                sent_emails = sender.send_batch(
+                    emails,
+                    test_inbox,
+                    verbose=verbose,
+                    include_attachments=not no_attachments,
+                )
 
             console.print(
                 f"[green]✓ Sent {len(sent_emails)}/{len(emails)} emails[/green]\n"
@@ -192,6 +202,7 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, valida
                             predicted_category == ewu.original_email.expected_category
                         ),
                         validation_timestamp=datetime.now(),
+                        had_attachment=ewu.attachment is not None,
                     )
                     email_locations.append(location)
 
@@ -210,6 +221,7 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, valida
                         predicted_category=None,
                         is_correct=False,
                         validation_timestamp=datetime.now(),
+                        had_attachment=ewu.attachment is not None,
                     )
                     email_locations.append(location)
 
@@ -235,6 +247,7 @@ def validate(dataset, config, wait_time, no_cleanup, test_inbox, verbose, valida
             folder_mappings=cfg.folder_mappings,
             wait_time=cfg.wait_time_seconds,
             total_sent=len(sent_emails),
+            sent_emails=sent_emails,
         )
 
         # 8. Display results

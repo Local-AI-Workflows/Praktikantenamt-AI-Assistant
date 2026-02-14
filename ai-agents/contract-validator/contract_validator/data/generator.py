@@ -37,6 +37,41 @@ class ContractGenerator:
         "Krause", "Lehmann", "Schmitz", "Maier"
     ]
 
+    # Supervisors at companies — appear as noise alongside the student
+    SUPERVISORS = [
+        ("Dr. Andreas Berger", "Abteilungsleiter", "+49 89 123456-10"),
+        ("Sabine Kremer", "HR-Beauftragte", "+49 30 987654-22"),
+        ("Thomas Reinhardt", "Betreuender Ingenieur", "+49 40 112233-44"),
+        ("Prof. Dr. Claudia Wirth", "Projektleiterin", "+49 69 445566-99"),
+        ("Michael Hoffbauer", "Personalreferent", "+49 711 778899-01"),
+    ]
+
+    # Degree programmes — noise field in form_style
+    DEGREE_PROGRAMMES = [
+        "Informatik (B.Sc.)",
+        "Wirtschaftsinformatik (B.Sc.)",
+        "Maschinenbau (B.Eng.)",
+        "Elektrotechnik (B.Eng.)",
+        "Medieninformatik (B.Sc.)",
+        "Betriebswirtschaftslehre (B.A.)",
+    ]
+
+    # Departments — noise field in tabular
+    DEPARTMENTS = [
+        "Entwicklung / R&D",
+        "IT-Infrastruktur",
+        "Produktmanagement",
+        "Qualitaetssicherung",
+        "Finanzwesen / Controlling",
+        "Vertrieb & Marketing",
+    ]
+
+    # German month names for prose dates
+    GERMAN_MONTHS = [
+        "Januar", "Februar", "Maerz", "April", "Mai", "Juni",
+        "Juli", "August", "September", "Oktober", "November", "Dezember"
+    ]
+
     # Whitelisted companies with addresses
     WHITELIST_COMPANIES = [
         ("Siemens AG", "Werner-von-Siemens-Str. 1, 80333 Muenchen"),
@@ -132,7 +167,7 @@ class ContractGenerator:
             contracts.append(contract)
 
         # Create dataset metadata
-        metadata = {
+        metadata: Dict[str, Any] = {
             "version": "1.0",
             "total_contracts": num_contracts,
             "seed": self.seed,
@@ -262,6 +297,97 @@ class ContractGenerator:
             current += timedelta(days=1)
         return days
 
+    # ------------------------------------------------------------------ #
+    #  Distractor / helper generators                                      #
+    # ------------------------------------------------------------------ #
+
+    def _generate_contract_ref(self) -> str:
+        """Generate a contract reference number (looks numeric but is NOT the Matrikelnummer)."""
+        year = random.randint(2024, 2026)
+        num = random.randint(10000, 99999)
+        return f"PV-{year}-{num}"
+
+    def _generate_phone(self) -> str:
+        """Generate a plausible German phone number."""
+        area = random.choice(["089", "030", "040", "069", "0711", "0221"])
+        main = random.randint(100000, 999999)
+        ext = random.randint(10, 99)
+        return f"+49 {area.lstrip('0')} {main}-{ext}"
+
+    def _generate_iban(self) -> str:
+        """Generate a fake but plausible-looking German IBAN."""
+        bank = random.choice(["3704 0044", "2004 1010", "7001 0080", "5001 0517"])
+        account = random.randint(1000000000, 9999999999)
+        check = random.randint(10, 99)
+        return f"DE{check} {bank} {str(account)[:4]} {str(account)[4:8]} {str(account)[8:10]}"
+
+    def _format_date_prose(self, d: date) -> str:
+        """Format a date as German prose: '1. Maerz 2026' (no leading zero)."""
+        return f"{d.day}. {self.GERMAN_MONTHS[d.month - 1]} {d.year}"
+
+    def _pick_supervisor(self) -> tuple:
+        """Return a (name, title, phone) supervisor tuple."""
+        return random.choice(self.SUPERVISORS)
+
+    def _generate_letterhead(self, company_name: str, company_address: str, phone: str) -> str:
+        """Generate a company letterhead block."""
+        city = company_address.split(",")[-1].strip() if "," in company_address else "Hamburg"
+        # Use today as document date for realism
+        doc_date = date(2026, 2, 14)
+        return (
+            f"{company_name}\n"
+            f"{company_address}\n"
+            f"Tel.: {phone}  |  www.{company_name.lower().replace(' ', '').replace('.', '')}.de\n"
+            f"\n"
+            f"{city}, den {self._format_date_prose(doc_date)}\n"
+        )
+
+    def _generate_boilerplate_clauses(
+        self,
+        company_name: str,
+        supervisor_name: str,
+        start_prose: str,
+        end_prose: str,
+        monthly_pay: int,
+        iban: str,
+    ) -> str:
+        """Generate 5 legal §-clauses as a multi-paragraph block."""
+        return (
+            f"\n§1 Gegenstand des Vertrages\n"
+            f"Die {company_name} (nachfolgend 'Unternehmen') bietet dem Praktikanten/der "
+            f"Praktikantin die Moeglichkeit, ein Pflichtpraktikum gemaess der Studienordnung "
+            f"der Hochschule fuer Angewandte Wissenschaften Hamburg (HAW Hamburg) zu absolvieren. "
+            f"Der Einsatz erfolgt in Absprache mit {supervisor_name}.\n"
+            f"\n§2 Pflichten des Praktikanten/der Praktikantin\n"
+            f"Die/Der Praktikant/in verpflichtet sich, die uebertragenen Aufgaben sorgfaeltig "
+            f"und gewissenhaft auszufuehren, die betrieblichen Ordnungen einzuhalten sowie "
+            f"am Ende des Praktikums einen Praktikumsbericht einzureichen.\n"
+            f"\n§3 Arbeitszeit und Dauer\n"
+            f"Die regelmaessige woechentliche Arbeitszeit betraegt 40 Stunden. "
+            f"Das Praktikum laeuft vom {start_prose} bis zum {end_prose}. "
+            f"Urlaubs- und Feiertagsregelungen folgen den betrieblichen Bestimmungen.\n"
+            f"\n§4 Verguetung\n"
+            f"Der Praktikant/die Praktikantin erhaelt eine monatliche Verguetung von "
+            f"{monthly_pay},00 EUR brutto. Die Auszahlung erfolgt per Bankueberweisung auf "
+            f"das vom Praktikanten angegebene Konto (IBAN: {iban}).\n"
+            f"\n§5 Vertraulichkeit\n"
+            f"Der Praktikant/die Praktikantin verpflichtet sich, alle im Rahmen des "
+            f"Praktikums erlangten vertraulichen Informationen der {company_name} "
+            f"gegenueber Dritten nicht preiszugeben. Diese Verpflichtung gilt auch nach "
+            f"Beendigung des Praktikumsverhaeltnisses.\n"
+        )
+
+    def _generate_signature_block(self, student_name: str, supervisor_name: str) -> str:
+        """Generate a signature block for the contract."""
+        return (
+            f"\nDieser Vertrag wurde in zwei gleichlautenden Ausfertigungen erstellt "
+            f"und von beiden Parteien unterzeichnet.\n"
+            f"\n"
+            f"________________________    ________________________\n"
+            f"(Unternehmen)               (Praktikant/in)\n"
+            f"{supervisor_name:<28}{student_name}\n"
+        )
+
     def _generate_contract_text(
         self,
         contract_format: ContractFormat,
@@ -291,22 +417,22 @@ class ContractGenerator:
         if contract_format == ContractFormat.STRUCTURED:
             return self._generate_structured_text(
                 student_name, matrikelnummer, company_name, company_address,
-                start_str, end_str, fields_to_omit
+                start_date, end_date, start_str, end_str, fields_to_omit
             )
         elif contract_format == ContractFormat.TABULAR:
             return self._generate_tabular_text(
                 student_name, matrikelnummer, company_name, company_address,
-                start_str, end_str, fields_to_omit
+                start_date, end_date, start_str, end_str, fields_to_omit
             )
         elif contract_format == ContractFormat.FORM_STYLE:
             return self._generate_form_text(
                 student_name, matrikelnummer, company_name, company_address,
-                start_str, end_str, fields_to_omit
+                start_date, end_date, start_str, end_str, fields_to_omit
             )
         else:  # FLOWING_TEXT
             return self._generate_flowing_text(
                 student_name, matrikelnummer, company_name, company_address,
-                start_str, end_str, fields_to_omit
+                start_date, end_date, start_str, end_str, fields_to_omit
             )
 
     def _generate_structured_text(
@@ -315,27 +441,57 @@ class ContractGenerator:
         matrikelnummer: str,
         company_name: str,
         company_address: str,
+        start_date: date,
+        end_date: date,
         start_str: str,
         end_str: str,
         fields_to_omit: List[str],
     ) -> str:
-        """Generate structured format contract text."""
-        lines = ["PRAKTIKUMSVERTRAG", ""]
-        lines.append(f"Student: {student_name}")
+        """Generate structured format contract text with letterhead, boilerplate, and signature."""
+        supervisor_name, supervisor_title, supervisor_phone = self._pick_supervisor()
+        contract_ref = self._generate_contract_ref()
+        iban = self._generate_iban()
+        monthly_pay = random.randint(4, 8) * 100
+        start_prose = self._format_date_prose(start_date)
+        end_prose = self._format_date_prose(end_date)
+
+        lines = [
+            self._generate_letterhead(company_name, company_address, supervisor_phone),
+            "=" * 60,
+            "PRAKTIKUMSVERTRAG",
+            f"Vertragsnummer: {contract_ref}",
+            "=" * 60,
+            "",
+            "VERTRAGSPARTEIEN",
+            "-" * 40,
+            f"Student:          {student_name}",
+        ]
 
         if "matrikelnummer" not in fields_to_omit:
-            lines.append(f"Matrikelnummer: {matrikelnummer}")
+            lines.append(f"Matrikelnummer:   {matrikelnummer}")
 
-        lines.append(f"Firma: {company_name}")
+        lines.append(f"Firma:            {company_name}")
 
         if "company_address" not in fields_to_omit:
-            lines.append(f"Adresse: {company_address}")
+            lines.append(f"Adresse:          {company_address}")
 
         if "start_date" not in fields_to_omit:
-            lines.append(f"Beginn: {start_str}")
+            lines.append(f"Beginn:           {start_str}")
 
         if "end_date" not in fields_to_omit:
-            lines.append(f"Ende: {end_str}")
+            lines.append(f"Ende:             {end_str}")
+
+        lines.append(f"Betreuer:         {supervisor_name} ({supervisor_title})")
+        lines.append(f"Kontakt:          {supervisor_phone}")
+        lines.append("")
+
+        lines.append(
+            self._generate_boilerplate_clauses(
+                company_name, supervisor_name, start_prose, end_prose, monthly_pay, iban
+            )
+        )
+
+        lines.append(self._generate_signature_block(student_name, supervisor_name))
 
         return "\n".join(lines)
 
@@ -345,32 +501,73 @@ class ContractGenerator:
         matrikelnummer: str,
         company_name: str,
         company_address: str,
+        start_date: date,
+        end_date: date,
         start_str: str,
         end_str: str,
         fields_to_omit: List[str],
     ) -> str:
-        """Generate tabular format contract text."""
+        """Generate tabular format contract text with letterhead, prose dates, and boilerplate."""
+        supervisor_name, supervisor_title, supervisor_phone = self._pick_supervisor()
+        contract_ref = self._generate_contract_ref()
+        iban = self._generate_iban()
+        monthly_pay = random.randint(4, 8) * 100
+        department = random.choice(self.DEPARTMENTS)
+        start_prose = self._format_date_prose(start_date)
+        end_prose = self._format_date_prose(end_date)
+
         lines = [
-            "| Feld             | Wert                    |",
-            "|------------------|-------------------------|",
-            f"| Name             | {student_name:<23} |",
+            self._generate_letterhead(company_name, company_address, supervisor_phone),
+            "# PRAKTIKUMSVERTRAG",
+            "",
+            f"**Vertragsnummer:** {contract_ref}",
+            "",
+            "## Vertragsparteien",
+            "",
+            "| Feld                | Wert                                          |",
+            "|---------------------|-----------------------------------------------|",
+            f"| Name                | {student_name:<45} |",
         ]
 
         if "matrikelnummer" not in fields_to_omit:
-            lines.append(f"| Matrikel-Nr.     | {matrikelnummer:<23} |")
+            lines.append(f"| Matrikel-Nr.        | {matrikelnummer:<45} |")
 
-        lines.append(f"| Unternehmen      | {company_name:<23} |")
+        lines.append(f"| Unternehmen         | {company_name:<45} |")
 
         if "company_address" not in fields_to_omit:
-            # Truncate address if too long
-            addr = company_address[:23] if len(company_address) > 23 else company_address
-            lines.append(f"| Adresse          | {addr:<23} |")
+            addr = company_address[:45] if len(company_address) > 45 else company_address
+            lines.append(f"| Adresse             | {addr:<45} |")
 
         if "start_date" not in fields_to_omit:
-            lines.append(f"| Praktikumsbeginn | {start_str:<23} |")
+            lines.append(f"| Praktikumsbeginn    | {start_str:<45} |")
 
         if "end_date" not in fields_to_omit:
-            lines.append(f"| Praktikumsende   | {end_str:<23} |")
+            lines.append(f"| Praktikumsende      | {end_str:<45} |")
+
+        lines.append(f"| Betreuer/in         | {supervisor_name} ({supervisor_title})".ljust(66) + "|")
+        lines.append(f"| Abteilung           | {department:<45} |")
+        lines.append(f"| Kontakt Betreuer    | {supervisor_phone:<45} |")
+        lines.append("")
+        lines.append("## Vertragsdauer")
+        lines.append("")
+
+        if "start_date" not in fields_to_omit and "end_date" not in fields_to_omit:
+            lines.append(
+                f"Das Praktikum beginnt am {start_prose} und endet am {end_prose}. "
+                f"Die Gesamtdauer ergibt sich aus den oben genannten Vertragsdaten."
+            )
+        elif "start_date" not in fields_to_omit:
+            lines.append(f"Das Praktikum beginnt am {start_prose}. Das Enddatum ist noch festzulegen.")
+        elif "end_date" not in fields_to_omit:
+            lines.append(f"Das Praktikum endet spaetestens am {end_prose}.")
+
+        lines.append("")
+        lines.append(
+            self._generate_boilerplate_clauses(
+                company_name, supervisor_name, start_prose, end_prose, monthly_pay, iban
+            )
+        )
+        lines.append(self._generate_signature_block(student_name, supervisor_name))
 
         return "\n".join(lines)
 
@@ -380,29 +577,68 @@ class ContractGenerator:
         matrikelnummer: str,
         company_name: str,
         company_address: str,
+        start_date: date,
+        end_date: date,
         start_str: str,
         end_str: str,
         fields_to_omit: List[str],
     ) -> str:
-        """Generate form-style format contract text."""
+        """Generate form-style contract with letterhead, distractors, and boilerplate."""
+        supervisor_name, supervisor_title, supervisor_phone = self._pick_supervisor()
+        contract_ref = self._generate_contract_ref()
+        iban = self._generate_iban()
+        monthly_pay = random.randint(4, 8) * 100
+        degree = random.choice(self.DEGREE_PROGRAMMES)
+        start_prose = self._format_date_prose(start_date)
+        end_prose = self._format_date_prose(end_date)
+
         lines = [
-            f"Name des Praktikanten: _{student_name}_{'_' * (30 - len(student_name))}",
+            self._generate_letterhead(company_name, company_address, supervisor_phone),
+            "PRAKTIKUMSVERTRAG - ANTRAGSFORMULAR",
+            f"Vertragsnummer: ____{contract_ref}____",
+            "",
+            "ANGABEN ZUM PRAKTIKANTEN / ZUR PRAKTIKANTIN",
+            "-" * 50,
+            f"Name des Praktikanten:        __{student_name}{'_' * max(0, 30 - len(student_name))}",
         ]
 
         if "matrikelnummer" not in fields_to_omit:
-            lines.append(f"Matrikelnummer: ____{matrikelnummer}____________________")
+            lines.append(f"Matrikelnummer:               ____{matrikelnummer}____________________")
 
-        lines.append(f"Praktikumsbetrieb: __{company_name}_{'_' * max(0, 25 - len(company_name))}")
+        lines.append(f"Studiengang:                  __{degree}{'_' * max(0, 28 - len(degree))}")
+        lines.append("")
+        lines.append("ANGABEN ZUM UNTERNEHMEN")
+        lines.append("-" * 50)
+        lines.append(f"Praktikumsbetrieb:            __{company_name}{'_' * max(0, 28 - len(company_name))}")
 
         if "company_address" not in fields_to_omit:
-            lines.append(f"Adresse: __{company_address}_")
+            lines.append(f"Adresse:                      __{company_address}__")
+
+        lines.append(f"Telefon Unternehmen:          __{supervisor_phone}__")
+        lines.append(f"Betreuer/in im Unternehmen:   __{supervisor_name} ({supervisor_title})__")
+        lines.append("")
+        lines.append("PRAKTIKUMSZEITRAUM")
+        lines.append("-" * 50)
 
         if "start_date" not in fields_to_omit and "end_date" not in fields_to_omit:
-            lines.append(f"von: __{start_str}__ bis: __{end_str}__")
+            lines.append(f"von: __{start_str}__  bis: __{end_str}__")
+            lines.append(f"(entspricht dem Zeitraum vom {start_prose} bis {end_prose})")
         elif "start_date" not in fields_to_omit:
-            lines.append(f"von: __{start_str}__ bis: ______________")
+            lines.append(f"von: __{start_str}__  bis: ______________")
+            lines.append(f"(Beginn: {start_prose})")
         elif "end_date" not in fields_to_omit:
-            lines.append(f"von: ______________ bis: __{end_str}__")
+            lines.append(f"von: ______________  bis: __{end_str}__")
+            lines.append(f"(Ende: {end_prose})")
+        else:
+            lines.append("von: ______________  bis: ______________")
+
+        lines.append("")
+        lines.append(
+            self._generate_boilerplate_clauses(
+                company_name, supervisor_name, start_prose, end_prose, monthly_pay, iban
+            )
+        )
+        lines.append(self._generate_signature_block(student_name, supervisor_name))
 
         return "\n".join(lines)
 
@@ -412,41 +648,98 @@ class ContractGenerator:
         matrikelnummer: str,
         company_name: str,
         company_address: str,
+        start_date: date,
+        end_date: date,
         start_str: str,
         end_str: str,
         fields_to_omit: List[str],
     ) -> str:
-        """Generate flowing text format contract text."""
+        """Generate multi-paragraph flowing prose contract with all distractor elements."""
+        supervisor_name, supervisor_title, supervisor_phone = self._pick_supervisor()
+        contract_ref = self._generate_contract_ref()
+        iban = self._generate_iban()
+        monthly_pay = random.randint(4, 8) * 100
+        start_prose = self._format_date_prose(start_date)
+        end_prose = self._format_date_prose(end_date)
+
         # Determine gender based on typical German first name endings
         first_name = student_name.split()[0]
-        if first_name.endswith(("a", "e", "i")) and first_name not in ["Max", "Niklas", "Lukas", "Tim", "Moritz"]:
+        if first_name.endswith(("a", "e", "i")) and first_name not in [
+            "Max", "Niklas", "Lukas", "Tim", "Moritz"
+        ]:
             title = "Frau"
+            pronoun = "ihre"
         else:
             title = "Herr"
+            pronoun = "seine"
 
-        # Build the text
-        parts = [f"Hiermit wird bestaetigt, dass {title} {student_name}"]
+        city = company_address.split(",")[-1].strip() if "," in company_address else "Hamburg"
 
-        if "matrikelnummer" not in fields_to_omit:
-            parts.append(f"(Matrikelnummer {matrikelnummer})")
+        paragraphs = [self._generate_letterhead(company_name, company_address, supervisor_phone)]
+        paragraphs.append("PRAKTIKUMSVERTRAG\n")
 
-        parts.append(f"sein Pflichtpraktikum bei der {company_name}")
-
+        # Preamble — both parties named, supervisor as company rep (noise)
+        preamble = (
+            f"Zwischen der {company_name} (nachfolgend 'Unternehmen'), vertreten durch "
+            f"{supervisor_name}, {supervisor_title}, Telefon: {supervisor_phone},"
+        )
         if "company_address" not in fields_to_omit:
-            # Extract city from address
-            city = company_address.split(",")[-1].strip() if "," in company_address else company_address
-            parts.append(f"in {city}")
+            preamble += f" mit Sitz in {city},"
+        preamble += (
+            f" und {title} {student_name}"
+        )
+        if "matrikelnummer" not in fields_to_omit:
+            preamble += f", Matrikelnummer {matrikelnummer},"
+        preamble += (
+            " Studierender der Hochschule fuer Angewandte Wissenschaften Hamburg (HAW Hamburg),"
+            " wird folgender Praktikumsvertrag geschlossen:"
+        )
+        paragraphs.append(preamble)
 
+        # Duration paragraph — prose dates + numeric dates as noise
+        duration_parts = []
         if "start_date" not in fields_to_omit and "end_date" not in fields_to_omit:
-            parts.append(f"vom {start_str} bis zum {end_str}")
+            duration_parts.append(
+                f"Das Pflichtpraktikum beginnt am {start_prose} ({start_str}) "
+                f"und endet am {end_prose} ({end_str}). "
+                f"Die Vertragsnummer lautet: {contract_ref}."
+            )
         elif "start_date" not in fields_to_omit:
-            parts.append(f"ab dem {start_str}")
+            duration_parts.append(
+                f"Das Pflichtpraktikum beginnt am {start_prose} ({start_str}). "
+                f"Das Enddatum wird gesondert schriftlich vereinbart. "
+                f"Vertragsnummer: {contract_ref}."
+            )
         elif "end_date" not in fields_to_omit:
-            parts.append(f"bis zum {end_str}")
+            duration_parts.append(
+                f"Das Pflichtpraktikum endet am {end_prose} ({end_str}). "
+                f"Vertragsnummer: {contract_ref}."
+            )
+        else:
+            duration_parts.append(
+                f"Die Dauer des Pflichtpraktikums wird separat festgelegt. "
+                f"Vertragsnummer: {contract_ref}."
+            )
 
-        parts.append("absolvieren wird.")
+        if duration_parts:
+            paragraphs.append(" ".join(duration_parts))
 
-        return " ".join(parts)
+        paragraphs.append(
+            self._generate_boilerplate_clauses(
+                company_name, supervisor_name, start_prose, end_prose, monthly_pay, iban
+            )
+        )
+        paragraphs.append(
+            f"Dieser Vertrag wurde in zwei gleichlautenden Ausfertigungen erstellt "
+            f"und von beiden Parteien unterzeichnet.\n"
+            f"{city}, den {self._format_date_prose(date(2026, 2, 14))}\n"
+            f"\n"
+            f"____________________    ____________________\n"
+            f"(Unternehmen)           (Praktikant/in)\n"
+            f"{supervisor_name:<24}{student_name}\n"
+        )
+
+        return "\n\n".join(paragraphs)
 
     def _generate_metadata(
         self,
@@ -455,15 +748,20 @@ class ContractGenerator:
         working_days: int,
     ) -> Dict[str, Any]:
         """Generate contract metadata."""
-        # Determine difficulty
+        # Determine difficulty — all formats now have boilerplate + distractors
         if status == ValidationStatus.MISSING_DATA:
             difficulty = "hard"
         elif contract_format == ContractFormat.FLOWING_TEXT:
-            difficulty = "medium"
+            # Dates buried in prose, multiple number distractors, supervisor noise
+            difficulty = "hard"
         elif status == ValidationStatus.VALID and working_days >= 95 and working_days <= 97:
             difficulty = "edge_case"
+        elif contract_format in (ContractFormat.STRUCTURED, ContractFormat.TABULAR):
+            # Key fields still labeled but surrounded by legal noise and distractors
+            difficulty = "medium"
         else:
-            difficulty = "easy"
+            # form_style: labeled but with phone numbers, IBAN, extra fields
+            difficulty = "medium"
 
         return {
             "difficulty": difficulty,
@@ -487,27 +785,28 @@ class ContractGenerator:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Convert to dict for JSON serialization
+        def _contract_to_dict(c: Contract) -> Dict[str, Any]:
+            d: Dict[str, Any] = {
+                "id": c.id,
+                "text": c.text,
+                "format": c.format.value,
+                "ground_truth": {
+                    "student_name": c.ground_truth.student_name,
+                    "matrikelnummer": c.ground_truth.matrikelnummer,
+                    "company_name": c.ground_truth.company_name,
+                    "company_address": c.ground_truth.company_address,
+                    "start_date": c.ground_truth.start_date.isoformat(),
+                    "end_date": c.ground_truth.end_date.isoformat(),
+                    "working_days": c.ground_truth.working_days,
+                    "expected_status": c.ground_truth.expected_status.value,
+                },
+                "metadata": c.metadata,
+            }
+            return d
+
         data = {
             "metadata": dataset.metadata,
-            "contracts": [
-                {
-                    "id": c.id,
-                    "text": c.text,
-                    "format": c.format.value,
-                    "ground_truth": {
-                        "student_name": c.ground_truth.student_name,
-                        "matrikelnummer": c.ground_truth.matrikelnummer,
-                        "company_name": c.ground_truth.company_name,
-                        "company_address": c.ground_truth.company_address,
-                        "start_date": c.ground_truth.start_date.isoformat(),
-                        "end_date": c.ground_truth.end_date.isoformat(),
-                        "working_days": c.ground_truth.working_days,
-                        "expected_status": c.ground_truth.expected_status.value,
-                    },
-                    "metadata": c.metadata,
-                }
-                for c in dataset.contracts
-            ],
+            "contracts": [_contract_to_dict(c) for c in dataset.contracts],
         }
 
         with open(path, "w", encoding="utf-8") as f:

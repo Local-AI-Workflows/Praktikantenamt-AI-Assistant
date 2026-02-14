@@ -101,6 +101,7 @@ class ResultExporter:
                     "predicted_category",
                     "is_correct",
                     "validation_timestamp",
+                    "had_attachment",
                 ]
             )
 
@@ -115,6 +116,7 @@ class ResultExporter:
                         location.predicted_category or "NOT_FOUND",
                         location.is_correct,
                         location.validation_timestamp.isoformat(),
+                        location.had_attachment,
                     ]
                 )
 

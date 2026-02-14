@@ -15,7 +15,7 @@ sys.path.insert(0, str(categorization_path))
 
 from prompt_tester.data.schemas import Email
 
-from workflow_validator.data.schemas import EmailWithUUID
+from workflow_validator.data.schemas import AttachmentInfo, EmailWithUUID
 
 
 class UUIDTracker:
@@ -31,19 +31,25 @@ class UUIDTracker:
         self.storage_path = Path(storage_path)
         self.mappings: Dict[str, EmailWithUUID] = {}
 
-    def generate_and_track(self, email: Email) -> EmailWithUUID:
+    def generate_and_track(
+        self, email: Email, attachment: Optional[AttachmentInfo] = None
+    ) -> EmailWithUUID:
         """
         Generate UUID for email and track it.
 
         Args:
             email: Test email
+            attachment: Optional attachment metadata (filename, size, content type)
 
         Returns:
             EmailWithUUID with generated UUID
         """
         email_uuid = uuid4()
         email_with_uuid = EmailWithUUID(
-            uuid=email_uuid, original_email=email, sent_timestamp=datetime.now()
+            uuid=email_uuid,
+            original_email=email,
+            sent_timestamp=datetime.now(),
+            attachment=attachment,
         )
         self.mappings[str(email_uuid)] = email_with_uuid
         return email_with_uuid
@@ -56,16 +62,21 @@ class UUIDTracker:
         """
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
 
-        data = {
-            str(uuid): {
+        data = {}
+        for uuid, ewu in self.mappings.items():
+            entry = {
                 "email_id": ewu.original_email.id,
                 "expected_category": ewu.original_email.expected_category,
                 "sent_timestamp": ewu.sent_timestamp.isoformat(),
                 "subject": ewu.original_email.subject,
                 "sender": ewu.original_email.sender,
+                "has_attachment": ewu.attachment is not None,
             }
-            for uuid, ewu in self.mappings.items()
-        }
+            if ewu.attachment is not None:
+                entry["attachment_filename"] = ewu.attachment.filename
+                entry["attachment_content_type"] = ewu.attachment.content_type
+                entry["attachment_size_bytes"] = ewu.attachment.size_bytes
+            data[str(uuid)] = entry
 
         with open(self.storage_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -104,22 +115,31 @@ class UUIDTracker:
         for uuid_str, metadata in self.mappings.items():
             # Reconstruct EmailWithUUID from metadata
             from prompt_tester.data.schemas import Email
-            
+
             email = Email(
                 id=metadata["email_id"],
                 subject=metadata.get("subject", ""),
                 sender=metadata.get("sender", ""),
                 body="",  # Body not stored
-                expected_category=metadata["expected_category"]
+                expected_category=metadata["expected_category"],
             )
-            
+
+            attachment = None
+            if metadata.get("has_attachment") and metadata.get("attachment_filename"):
+                attachment = AttachmentInfo(
+                    filename=metadata["attachment_filename"],
+                    content_type=metadata.get("attachment_content_type", "application/pdf"),
+                    size_bytes=metadata.get("attachment_size_bytes", 0),
+                )
+
             ewu = EmailWithUUID(
                 uuid=UUID(uuid_str),
                 original_email=email,
-                sent_timestamp=datetime.fromisoformat(metadata["sent_timestamp"])
+                sent_timestamp=datetime.fromisoformat(metadata["sent_timestamp"]),
+                attachment=attachment,
             )
             result.append(ewu)
-        
+
         return result
 
     def get_expected_category(self, uuid: UUID) -> Optional[str]:

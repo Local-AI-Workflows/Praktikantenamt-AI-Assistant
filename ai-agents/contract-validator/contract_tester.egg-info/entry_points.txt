@@ -1,0 +1,2 @@
+[console_scripts]
+contract-tester = contract_validator.cli:main

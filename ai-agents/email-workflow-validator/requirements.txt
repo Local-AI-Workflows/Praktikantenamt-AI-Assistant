@@ -8,4 +8,7 @@ scikit-learn>=1.3.0
 # Environment variable management
 python-dotenv>=1.0.0
 
+# PDF generation for dummy contract attachments (optional - graceful fallback if absent)
+fpdf2>=2.7.0
+
 # Note: imaplib and smtplib are Python standard library

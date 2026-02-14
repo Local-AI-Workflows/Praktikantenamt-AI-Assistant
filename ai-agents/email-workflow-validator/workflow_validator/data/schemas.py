@@ -17,12 +17,33 @@ sys.path.insert(0, str(categorization_path))
 from prompt_tester.data.schemas import Email, Metrics
 
 
+class AttachmentInfo(BaseModel):
+    """Metadata about an email attachment."""
+
+    filename: str = Field(..., description="Attachment filename")
+    content_type: str = Field(default="application/pdf", description="MIME content type")
+    size_bytes: int = Field(..., description="Attachment size in bytes")
+
+
+class AttachmentStats(BaseModel):
+    """Statistics about attachment handling across the workflow test run."""
+
+    total_with_attachments: int = Field(..., description="Emails sent with attachments")
+    total_without_attachments: int = Field(..., description="Emails sent without attachments")
+    attachment_routing_accuracy: float = Field(
+        ..., description="Routing accuracy for emails that had attachments"
+    )
+
+
 class EmailWithUUID(BaseModel):
     """Email with tracking UUID for validation."""
 
     uuid: UUID = Field(..., description="RFC4122 UUID for tracking")
     original_email: Email = Field(..., description="Original test email")
     sent_timestamp: datetime = Field(..., description="When email was sent")
+    attachment: Optional[AttachmentInfo] = Field(
+        default=None, description="Attachment metadata, present when email was sent with a file"
+    )
 
 
 class EmailLocation(BaseModel):
@@ -40,6 +61,9 @@ class EmailLocation(BaseModel):
     is_correct: bool = Field(False, description="Whether routing was correct")
     validation_timestamp: datetime = Field(
         ..., description="When validation occurred"
+    )
+    had_attachment: bool = Field(
+        default=False, description="Whether this email was sent with an attachment"
     )
 
 
@@ -178,3 +202,7 @@ class WorkflowValidationReport(BaseModel):
     wait_time_seconds: int = Field(..., description="How long we waited")
     total_sent: int = Field(..., description="Total emails sent")
     total_found: int = Field(..., description="Total emails found")
+    attachment_stats: Optional[AttachmentStats] = Field(
+        default=None,
+        description="Attachment handling statistics, None if no attachments were sent",
+    )

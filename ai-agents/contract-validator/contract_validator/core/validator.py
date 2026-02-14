@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Set
 
 from contract_validator.core.working_days import calculate_working_days
 from contract_validator.data.schemas import (
+    Contract,
     ExtractedData,
     ExtractionMetrics,
     ExtractionResult,
@@ -69,32 +70,39 @@ class ExtractionValidator:
     def _calculate_per_format_accuracy(
         self, results: List[ExtractionResult]
     ) -> Dict[str, float]:
-        """Calculate accuracy grouped by contract format."""
-        # Group results by format (stored in metadata of expected)
+        """Calculate accuracy grouped by contract format, including ocr_scanned."""
         format_results: Dict[str, List[ExtractionResult]] = {}
 
         for result in results:
-            # Get format from expected metadata if available
-            if result.expected.expected_status:
-                # Use a simple heuristic based on contract_id pattern
-                # In practice, the format would be stored in the Contract metadata
-                format_key = "unknown"
-                for possible_format in ["structured", "tabular", "form_style", "flowing_text"]:
-                    if possible_format in str(getattr(result, 'metadata', '')):
-                        format_key = possible_format
-                        break
-                if format_key not in format_results:
-                    format_results[format_key] = []
-                format_results[format_key].append(result)
+            key = result.contract_format.value
+            format_results.setdefault(key, []).append(result)
 
-        # Calculate accuracy for each format
-        per_format = {}
-        for format_name, format_res in format_results.items():
-            if format_res:
-                correct = sum(1 for r in format_res if r.all_correct)
-                per_format[format_name] = correct / len(format_res)
+        return {
+            fmt: sum(1 for r in res if r.all_correct) / len(res)
+            for fmt, res in format_results.items()
+            if res
+        }
 
-        return per_format
+    def validate_results(
+        self,
+        results: List[ExtractionResult],
+        contracts: List[Contract],
+        prompt_name: str = "",
+    ) -> ValidationReport:
+        """
+        Calculate metrics and build a ValidationReport from extraction results.
+
+        This is the single entry point called by the CLI's test command.
+        """
+        metrics = self.calculate_metrics(results)
+
+        # Build a ValidationReport (business-rule validation lives in ValidationValidator)
+        return create_validation_report(
+            extraction_results=results,
+            validation_results=[],   # business-rule validation not wired in test command
+            extraction_metrics=metrics,
+            prompt_name=prompt_name,
+        )
 
 
 class ValidationValidator:

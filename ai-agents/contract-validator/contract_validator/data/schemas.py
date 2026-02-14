@@ -27,6 +27,14 @@ class ValidationStatus(str, Enum):
     MISSING_DATA = "missing_data"
 
 
+class OcrSeverity(str, Enum):
+    """Severity level for OCR corruption / scan artifact simulation."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class ExtractedData(BaseModel):
     """Data extracted from a contract by the LLM."""
 
@@ -83,6 +91,7 @@ class ExtractionResult(BaseModel):
     """Result of extracting data from a single contract."""
 
     contract_id: str = Field(..., description="Contract identifier")
+    contract_format: ContractFormat = Field(..., description="Format of the source contract")
     extracted: ExtractedData = Field(..., description="Extracted data from the contract")
     expected: GroundTruth = Field(..., description="Ground truth data")
     student_name_correct: bool = Field(..., description="Whether student name was extracted correctly")

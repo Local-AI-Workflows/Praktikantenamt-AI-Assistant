@@ -24,6 +24,60 @@ class ConsoleFormatter:
         """Initialize console formatter."""
         self.console = Console()
 
+    def print_extraction_report(self, report: ValidationReport) -> None:
+        """
+        Print extraction report to console.
+
+        Shows per-field accuracy, per-format accuracy (including ocr_scanned),
+        and per-OCR-severity accuracy where applicable.
+        """
+        self.console.print()
+        self.console.rule("[bold blue]Contract Extraction Report[/bold blue]")
+        self.console.print()
+
+        self.console.print(f"[bold]Prompt:[/bold] {report.prompt_name}")
+        self.console.print(f"[bold]Timestamp:[/bold] {report.test_timestamp}")
+        self.console.print(f"[bold]Total Contracts:[/bold] {report.total_contracts}")
+        self.console.print()
+
+        # Per-field accuracy
+        self.console.print("[bold]Per-Field Accuracy:[/bold]")
+        self._print_extraction_metrics(report.extraction_metrics)
+        self.console.print()
+
+        # Per-format accuracy
+        if report.extraction_metrics.per_format_accuracy:
+            self.console.print("[bold]Per-Format Accuracy:[/bold]")
+            fmt_table = Table(show_header=True, header_style="bold magenta")
+            fmt_table.add_column("Format", style="cyan")
+            fmt_table.add_column("Contracts", justify="right")
+            fmt_table.add_column("All-Fields Correct", justify="right")
+
+            # Count contracts per format from results
+            format_counts: dict = {}
+            for r in report.results:
+                k = r.contract_format.value
+                format_counts[k] = format_counts.get(k, 0) + 1
+
+            for fmt, acc in sorted(report.extraction_metrics.per_format_accuracy.items()):
+                color = "green" if acc >= 0.8 else "yellow" if acc >= 0.6 else "red"
+                count = format_counts.get(fmt, 0)
+                fmt_table.add_row(fmt, str(count), f"[{color}]{acc:.1%}[/{color}]")
+
+            self.console.print(fmt_table)
+            self.console.print()
+
+        # Extraction errors (incorrect contracts)
+        errors = [r for r in report.results if not r.all_correct]
+        if errors:
+            self.console.print(
+                f"[bold]Extraction Errors:[/bold] {len(errors)} / {report.total_contracts} contracts"
+            )
+            self._print_extraction_errors(errors[:10])
+            if len(errors) > 10:
+                self.console.print(f"  ... and {len(errors) - 10} more (see output file)")
+            self.console.print()
+
     def print_validation_report(self, report: ValidationReport) -> None:
         """
         Print validation report to console.
