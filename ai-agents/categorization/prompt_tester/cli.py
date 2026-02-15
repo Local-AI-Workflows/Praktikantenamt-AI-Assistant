@@ -62,15 +62,23 @@ def main():
     default="both",
     help="Output format (default: both)",
 )
+@click.option(
+    "--iterations",
+    "-i",
+    default=1,
+    type=int,
+    help="Number of test iterations for robust evaluation (default: 1)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def test(prompt, system_prompt, dataset, config, output, format, verbose):
+def test(prompt, system_prompt, dataset, config, output, format, iterations, verbose):
     """Run validation on a single prompt."""
-    formatter = ConsoleFormatter()
-
     try:
         # Load configuration
         config_manager = ConfigManager(config)
         cfg = config_manager.load_config()
+
+        # Initialize formatter with categories for confusion matrix
+        formatter = ConsoleFormatter(cfg.categories)
 
         # Check Ollama health
         ollama_client = OllamaClient(
@@ -126,45 +134,120 @@ def test(prompt, system_prompt, dataset, config, output, format, verbose):
         executor = PromptExecutor(ollama_client)
         validator = Validator(cfg.categories)
 
-        formatter.console.print(f"Running categorization on {len(emails)} emails...")
+        # Validate iterations parameter
+        if iterations < 1:
+            formatter.console.print("[bold red]Error:[/bold red] Iterations must be >= 1")
+            sys.exit(1)
 
-        with formatter.create_progress_bar() as progress:
-            task = progress.add_task("Processing emails...", total=len(emails))
-            results = []
-            for i, email in enumerate(emails):
-                result = executor.execute_single(email, prompt_config)
-                results.append(result)
-                progress.update(task, advance=1)
+        # Run multiple iterations if requested
+        if iterations > 1:
+            formatter.console.print(
+                f"Running {iterations} test iterations for robust evaluation..."
+            )
+            all_reports = []
+
+            for iteration in range(iterations):
+                formatter.console.print(
+                    f"\n[bold cyan]Iteration {iteration + 1}/{iterations}[/bold cyan]"
+                )
+
+                with formatter.create_progress_bar() as progress:
+                    task = progress.add_task(
+                        f"Iteration {iteration + 1}...", total=len(emails)
+                    )
+                    results = []
+                    for i, email in enumerate(emails):
+                        result = executor.execute_single(email, prompt_config)
+                        results.append(result)
+                        progress.update(task, advance=1)
+                        if verbose:
+                            formatter.console.print(
+                                f"  [{i+1}/{len(emails)}] {email.id}: {result.predicted_category}"
+                            )
+
+                # Validate this iteration
+                report = validator.validate_results(
+                    results, prompt_name=prompt_name, prompt_version=prompt_version
+                )
+                all_reports.append(report)
+
                 if verbose:
                     formatter.console.print(
-                        f"  [{i+1}/{len(emails)}] {email.id}: {result.predicted_category}"
+                        f"Iteration {iteration + 1} Accuracy: {report.overall_accuracy:.2%}"
                     )
 
-        # Validate results
-        report = validator.validate_results(
-            results, prompt_name=prompt_name, prompt_version=prompt_version
-        )
+            # Aggregate all reports
+            aggregated_report = validator.aggregate_reports(all_reports)
 
-        # Display results
-        formatter.print_validation_report(report)
+            # Display aggregated results
+            formatter.print_aggregated_report(aggregated_report)
 
-        # Export results
-        exporter = ResultExporter(
-            output_directory=cfg.output_directory,
-            timestamp_format=cfg.timestamp_format,
-        )
+            # Export aggregated results
+            exporter = ResultExporter(
+                output_directory=cfg.output_directory,
+                timestamp_format=cfg.timestamp_format,
+            )
 
-        if format == "json":
-            json_path = exporter.export_json(report, output)
-            formatter.console.print(f"Results saved to [cyan]{json_path}[/cyan]")
-        elif format == "csv":
-            csv_path = exporter.export_csv(results, output)
-            formatter.console.print(f"Results saved to [cyan]{csv_path}[/cyan]")
-        else:  # both
-            json_path, csv_path = exporter.export_both(report, results)
-            formatter.console.print(f"Results saved to:")
-            formatter.console.print(f"  • JSON: [cyan]{json_path}[/cyan]")
-            formatter.console.print(f"  • CSV: [cyan]{csv_path}[/cyan]")
+            if format == "json":
+                json_path = exporter.export_aggregated_json(aggregated_report, output)
+                formatter.console.print(
+                    f"Aggregated results saved to [cyan]{json_path}[/cyan]"
+                )
+            elif format == "csv":
+                # For CSV, export the last iteration's results
+                csv_path = exporter.export_csv(all_reports[-1].misclassifications, output)
+                formatter.console.print(f"Results saved to [cyan]{csv_path}[/cyan]")
+            else:  # both
+                json_path = exporter.export_aggregated_json(aggregated_report, output)
+                # For CSV, export the last iteration's results
+                csv_path = exporter.export_csv(
+                    results, output=output.replace(".json", ".csv") if output else None
+                )
+                formatter.console.print("Aggregated results saved to:")
+                formatter.console.print(f"  • JSON: [cyan]{json_path}[/cyan]")
+                formatter.console.print(f"  • CSV (last iteration): [cyan]{csv_path}[/cyan]")
+
+        else:
+            # Single iteration (existing behavior for backwards compatibility)
+            formatter.console.print(f"Running categorization on {len(emails)} emails...")
+
+            with formatter.create_progress_bar() as progress:
+                task = progress.add_task("Processing emails...", total=len(emails))
+                results = []
+                for i, email in enumerate(emails):
+                    result = executor.execute_single(email, prompt_config)
+                    results.append(result)
+                    progress.update(task, advance=1)
+                    if verbose:
+                        formatter.console.print(
+                            f"  [{i+1}/{len(emails)}] {email.id}: {result.predicted_category}"
+                        )
+
+            # Validate results
+            report = validator.validate_results(
+                results, prompt_name=prompt_name, prompt_version=prompt_version
+            )
+
+            # Display results
+            formatter.print_validation_report(report)
+
+            # Export results
+            exporter = ResultExporter(
+                output_directory=cfg.output_directory,
+                timestamp_format=cfg.timestamp_format,
+            )
+
+            if format == "json":
+                json_path = exporter.export_json(report, output)
+                formatter.console.print(f"Results saved to [cyan]{json_path}[/cyan]")
+            elif format == "csv":
+                csv_path = exporter.export_csv(results, output)
+                formatter.console.print(f"Results saved to [cyan]{csv_path}[/cyan]")
+            else:  # both
+                json_path, csv_path = exporter.export_both(report, results)
+                formatter.console.print(f"Results saved to:")
+                formatter.console.print(f"  • JSON: [cyan]{json_path}[/cyan]")
+                formatter.console.print(f"  • CSV: [cyan]{csv_path}[/cyan]")
 
     except Exception as e:
         formatter.console.print(f"[bold red]Error:[/bold red] {e}")
@@ -204,12 +287,18 @@ def test(prompt, system_prompt, dataset, config, output, format, verbose):
 )
 @click.option("--output", "-o", type=click.Path(), help="Output file path (optional)")
 @click.option("--show-disagreements", is_flag=True, help="Show emails where prompts disagree")
-def compare(prompts, system_prompt, dataset, config, output, show_disagreements):
+@click.option(
+    "--iterations",
+    "-i",
+    default=1,
+    type=int,
+    help="Number of test iterations per prompt for robust comparison (default: 1)",
+)
+def compare(prompts, system_prompt, dataset, config, output, show_disagreements, iterations):
     """Compare multiple prompts side-by-side."""
-    formatter = ConsoleFormatter()
-
     try:
         if len(prompts) < 2:
+            formatter = ConsoleFormatter()
             formatter.console.print(
                 "[bold red]Error:[/bold red] Need at least 2 prompts to compare"
             )
@@ -218,6 +307,9 @@ def compare(prompts, system_prompt, dataset, config, output, show_disagreements)
         # Load configuration
         config_manager = ConfigManager(config)
         cfg = config_manager.load_config()
+
+        # Initialize formatter with categories
+        formatter = ConsoleFormatter(cfg.categories)
 
         # Check Ollama health
         ollama_client = OllamaClient(
@@ -268,25 +360,90 @@ def compare(prompts, system_prompt, dataset, config, output, show_disagreements)
         validator = Validator(cfg.categories)
         comparator = Comparator(executor, validator)
 
-        formatter.console.print(f"Comparing {len(prompts)} prompts on {len(emails)} emails...")
+        # Validate iterations parameter
+        if iterations < 1:
+            formatter.console.print("[bold red]Error:[/bold red] Iterations must be >= 1")
+            sys.exit(1)
 
-        with formatter.create_progress_bar() as progress:
-            task = progress.add_task("Running comparison...", total=len(prompts) * len(emails))
-            # Note: comparator handles the actual execution
-            comparison_report = comparator.compare_prompts(prompt_configs, emails)
-            progress.update(task, completed=len(prompts) * len(emails))
+        # Run multiple iterations if requested
+        if iterations > 1:
+            formatter.console.print(
+                f"Comparing {len(prompts)} prompts with {iterations} iterations each..."
+            )
+            all_aggregated_reports = {}
 
-        # Display results
-        formatter.print_comparison_report(comparison_report)
+            for prompt_config in prompt_configs:
+                formatter.console.print(
+                    f"\n[bold cyan]Testing {prompt_config.name} ({iterations} iterations)[/bold cyan]"
+                )
 
-        # Export results
-        exporter = ResultExporter(
-            output_directory=cfg.output_directory,
-            timestamp_format=cfg.timestamp_format,
-        )
+                # Collect multiple reports for this prompt
+                prompt_reports = []
+                for iteration in range(iterations):
+                    formatter.console.print(
+                        f"  Iteration {iteration + 1}/{iterations}..."
+                    )
+                    results = executor.execute_batch(emails, prompt_config)
+                    report = validator.validate_results(
+                        results, prompt_config.name, prompt_config.version
+                    )
+                    prompt_reports.append(report)
 
-        comparison_path = exporter.export_comparison(comparison_report, output)
-        formatter.console.print(f"Comparison results saved to [cyan]{comparison_path}[/cyan]")
+                # Aggregate reports for this prompt
+                aggregated = validator.aggregate_reports(prompt_reports)
+                all_aggregated_reports[prompt_config.name] = aggregated
+                formatter.console.print(
+                    f"  Mean Accuracy: {aggregated.mean_accuracy:.2%} ± {aggregated.std_accuracy:.2%}"
+                )
+
+            # Create aggregated comparison
+            aggregated_comparison = comparator.create_aggregated_comparison(
+                all_aggregated_reports
+            )
+
+            # Display results
+            formatter.print_aggregated_comparison_report(aggregated_comparison)
+
+            # Export results
+            exporter = ResultExporter(
+                output_directory=cfg.output_directory,
+                timestamp_format=cfg.timestamp_format,
+            )
+
+            comparison_path = exporter.export_aggregated_comparison(
+                aggregated_comparison, output
+            )
+            formatter.console.print(
+                f"Aggregated comparison results saved to [cyan]{comparison_path}[/cyan]"
+            )
+
+        else:
+            # Single iteration (existing behavior for backwards compatibility)
+            formatter.console.print(
+                f"Comparing {len(prompts)} prompts on {len(emails)} emails..."
+            )
+
+            with formatter.create_progress_bar() as progress:
+                task = progress.add_task(
+                    "Running comparison...", total=len(prompts) * len(emails)
+                )
+                # Note: comparator handles the actual execution
+                comparison_report = comparator.compare_prompts(prompt_configs, emails)
+                progress.update(task, completed=len(prompts) * len(emails))
+
+            # Display results
+            formatter.print_comparison_report(comparison_report)
+
+            # Export results
+            exporter = ResultExporter(
+                output_directory=cfg.output_directory,
+                timestamp_format=cfg.timestamp_format,
+            )
+
+            comparison_path = exporter.export_comparison(comparison_report, output)
+            formatter.console.print(
+                f"Comparison results saved to [cyan]{comparison_path}[/cyan]"
+            )
 
     except Exception as e:
         formatter.console.print(f"[bold red]Error:[/bold red] {e}")

@@ -2,21 +2,38 @@
 Console output formatting using Rich library.
 """
 
-from typing import List
+from typing import Dict, List, Union
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from prompt_tester.data.schemas import ComparisonReport, ValidationReport
+from prompt_tester.data.schemas import (
+    AggregatedComparisonReport,
+    AggregatedMetrics,
+    AggregatedValidationReport,
+    ComparisonReport,
+    ValidationReport,
+)
 
 
 class ConsoleFormatter:
     """Formats output for console display."""
 
-    def __init__(self):
-        """Initialize console formatter."""
+    def __init__(self, categories: List[str] = None):
+        """
+        Initialize console formatter.
+
+        Args:
+            categories: List of category names for confusion matrix labeling
+        """
         self.console = Console()
+        self.categories = categories or [
+            "contract_submission",
+            "international_office_question",
+            "internship_postponement",
+            "uncategorized",
+        ]
 
     def print_validation_report(self, report: ValidationReport) -> None:
         """
@@ -137,11 +154,7 @@ class ConsoleFormatter:
 
     def _print_confusion_matrix(self, matrix: List[List[int]]) -> None:
         """Print confusion matrix as a table."""
-        # For now, print a simple representation
-        # Could be enhanced with heatmap visualization
-        self.console.print("  (rows=actual, columns=predicted)")
-        for row in matrix:
-            self.console.print("  " + str(row))
+        self._print_confusion_matrix_table(matrix, self.categories)
 
     def _print_misclassifications(self, misclassifications: list) -> None:
         """Print misclassification details."""
@@ -191,3 +204,139 @@ class ConsoleFormatter:
             TextColumn("[progress.description]{task.description}"),
             console=self.console,
         )
+
+    def _print_confusion_matrix_table(
+        self, matrix: List[List[Union[int, float]]], categories: List[str]
+    ) -> None:
+        """Print confusion matrix as a formatted table."""
+        # Create table with row and column labels
+        table = Table(
+            show_header=True,
+            header_style="bold magenta",
+            title="Rows=Actual, Cols=Predicted",
+        )
+        table.add_column("Actual \\ Predicted", style="cyan")
+
+        for category in categories:
+            table.add_column(category[:10], justify="right")  # Truncate long names
+
+        for i, row_category in enumerate(categories):
+            row_values = [
+                f"{val:.1f}" if isinstance(val, float) else str(val) for val in matrix[i]
+            ]
+            table.add_row(row_category[:10], *row_values)
+
+        self.console.print(table)
+
+    def _print_aggregated_metrics_table(
+        self, metrics_dict: Dict[str, AggregatedMetrics]
+    ) -> None:
+        """Print aggregated per-category metrics as a table."""
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Category", style="cyan")
+        table.add_column("Precision", justify="right")
+        table.add_column("Recall", justify="right")
+        table.add_column("F1-Score", justify="right")
+        table.add_column("Support", justify="right")
+
+        for category, metrics in metrics_dict.items():
+            table.add_row(
+                category,
+                f"{metrics.mean_precision:.2%} ± {metrics.std_precision:.2%}",
+                f"{metrics.mean_recall:.2%} ± {metrics.std_recall:.2%}",
+                f"{metrics.mean_f1_score:.2%} ± {metrics.std_f1_score:.2%}",
+                str(metrics.support),
+            )
+
+        self.console.print(table)
+
+    def print_aggregated_report(self, report: AggregatedValidationReport) -> None:
+        """
+        Print aggregated validation report to console.
+
+        Args:
+            report: AggregatedValidationReport to display
+        """
+        self.console.print()
+        self.console.rule("[bold blue]Aggregated Validation Report[/bold blue]")
+        self.console.print()
+
+        # Overall metrics
+        self.console.print(f"[bold]Prompt:[/bold] {report.prompt_name or 'Unknown'}")
+        self.console.print(f"[bold]Iterations:[/bold] {report.num_iterations}")
+        self.console.print(f"[bold]Timestamp:[/bold] {report.test_timestamp}")
+        self.console.print()
+
+        # Accuracy with std dev
+        accuracy_color = (
+            "green"
+            if report.mean_accuracy >= 0.8
+            else "yellow"
+            if report.mean_accuracy >= 0.6
+            else "red"
+        )
+        self.console.print(
+            f"[bold]Overall Accuracy:[/bold] [{accuracy_color}]{report.mean_accuracy:.2%} ±  {report.std_accuracy:.2%}[/{accuracy_color}]"
+        )
+        self.console.print()
+
+        # Per-category metrics table with std dev
+        if report.per_category_metrics:
+            self.console.print("[bold]Per-Category Metrics (Mean ± Std Dev):[/bold]")
+            self._print_aggregated_metrics_table(report.per_category_metrics)
+            self.console.print()
+
+        # Aggregated confusion matrix as nice table
+        if report.aggregated_confusion_matrix:
+            self.console.print("[bold]Aggregated Confusion Matrix:[/bold]")
+            self._print_confusion_matrix_table(
+                report.aggregated_confusion_matrix, self.categories
+            )
+            self.console.print()
+
+    def print_aggregated_comparison_report(
+        self, report: AggregatedComparisonReport
+    ) -> None:
+        """Print aggregated comparison report to console."""
+        self.console.print()
+        self.console.rule("[bold blue]Aggregated Prompt Comparison Report[/bold blue]")
+        self.console.print()
+
+        self.console.print(
+            f"[bold]Prompts Compared:[/bold] {', '.join(report.prompts_compared)}"
+        )
+        self.console.print(
+            f"[bold]Iterations per Prompt:[/bold] {report.num_iterations}"
+        )
+        self.console.print()
+
+        # Accuracy comparison table with std dev
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Prompt", style="cyan")
+        table.add_column("Mean Accuracy", justify="right")
+        table.add_column("Std Dev", justify="right")
+        table.add_column("Winner", justify="center")
+
+        for prompt_name in sorted(
+            report.aggregated_accuracy_comparison.keys(),
+            key=lambda x: report.aggregated_accuracy_comparison[x]["mean"],
+            reverse=True,
+        ):
+            metrics = report.aggregated_accuracy_comparison[prompt_name]
+            is_winner = prompt_name == report.winner
+            accuracy_color = (
+                "green"
+                if metrics["mean"] >= 0.8
+                else "yellow"
+                if metrics["mean"] >= 0.6
+                else "red"
+            )
+
+            table.add_row(
+                prompt_name,
+                f"[{accuracy_color}]{metrics['mean']:.2%}[/{accuracy_color}]",
+                f"{metrics['std']:.2%}",
+                "🏆" if is_winner else "",
+            )
+
+        self.console.print(table)

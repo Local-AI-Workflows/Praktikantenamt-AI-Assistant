@@ -8,7 +8,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from prompt_tester.data.schemas import ComparisonReport, Result, ValidationReport
+from prompt_tester.data.schemas import (
+    AggregatedComparisonReport,
+    AggregatedValidationReport,
+    ComparisonReport,
+    Result,
+    ValidationReport,
+)
 
 
 class ResultExporter:
@@ -212,3 +218,128 @@ class ResultExporter:
         csv_path = self.export_csv(results, str(csv_file))
 
         return (json_path, csv_path)
+
+    def export_aggregated_json(
+        self, report: AggregatedValidationReport, file_path: str = None
+    ) -> str:
+        """
+        Export aggregated validation report to JSON file.
+
+        Args:
+            report: AggregatedValidationReport to export
+            file_path: Optional file path. If not provided, auto-generates.
+
+        Returns:
+            Path to exported file
+        """
+        if file_path is None:
+            timestamp = datetime.now().strftime(self.timestamp_format)
+            prompt_name = report.prompt_name or "unknown"
+            file_path = self.output_directory / (
+                f"aggregated_{prompt_name}_{report.num_iterations}runs_{timestamp}.json"
+            )
+        else:
+            file_path = Path(file_path)
+
+        # Convert report to dict
+        report_dict = {
+            "test_metadata": {
+                "timestamp": report.test_timestamp.isoformat(),
+                "prompt_name": report.prompt_name,
+                "prompt_version": report.prompt_version,
+                "num_iterations": report.num_iterations,
+            },
+            "aggregated_metrics": {
+                "mean_accuracy": report.mean_accuracy,
+                "std_accuracy": report.std_accuracy,
+            },
+            "per_category_metrics": {
+                category: {
+                    "mean_precision": metrics.mean_precision,
+                    "std_precision": metrics.std_precision,
+                    "mean_recall": metrics.mean_recall,
+                    "std_recall": metrics.std_recall,
+                    "mean_f1_score": metrics.mean_f1_score,
+                    "std_f1_score": metrics.std_f1_score,
+                    "support": metrics.support,
+                }
+                for category, metrics in report.per_category_metrics.items()
+            },
+            "confusion_matrices": {
+                "aggregated": report.aggregated_confusion_matrix,
+                "std_dev": report.std_confusion_matrix,
+                "individual": report.confusion_matrices,
+            },
+            "individual_reports": [
+                {
+                    "iteration": i + 1,
+                    "accuracy": r.overall_accuracy,
+                    "timestamp": r.test_timestamp.isoformat(),
+                }
+                for i, r in enumerate(report.individual_reports)
+            ],
+        }
+
+        # Write to file
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(report_dict, f, indent=2, ensure_ascii=False)
+
+        return str(file_path)
+
+    def export_aggregated_comparison(
+        self, report: AggregatedComparisonReport, file_path: str = None
+    ) -> str:
+        """
+        Export aggregated comparison report to JSON file.
+
+        Args:
+            report: AggregatedComparisonReport to export
+            file_path: Optional file path. If not provided, auto-generates.
+
+        Returns:
+            Path to exported file
+        """
+        if file_path is None:
+            timestamp = datetime.now().strftime(self.timestamp_format)
+            prompts_str = "_vs_".join(report.prompts_compared[:2])
+            file_path = self.output_directory / (
+                f"aggregated_comparison_{prompts_str}_{report.num_iterations}runs_{timestamp}.json"
+            )
+        else:
+            file_path = Path(file_path)
+
+        # Convert report to dict
+        report_dict = {
+            "test_metadata": {
+                "timestamp": report.test_timestamp.isoformat(),
+                "prompts_compared": report.prompts_compared,
+                "num_iterations": report.num_iterations,
+                "winner": report.winner,
+            },
+            "aggregated_accuracy_comparison": report.aggregated_accuracy_comparison,
+            "per_prompt_reports": {
+                prompt_name: {
+                    "mean_accuracy": report_obj.mean_accuracy,
+                    "std_accuracy": report_obj.std_accuracy,
+                    "per_category_metrics": {
+                        cat: {
+                            "mean_precision": metrics.mean_precision,
+                            "std_precision": metrics.std_precision,
+                            "mean_recall": metrics.mean_recall,
+                            "std_recall": metrics.std_recall,
+                            "mean_f1_score": metrics.mean_f1_score,
+                            "std_f1_score": metrics.std_f1_score,
+                            "support": metrics.support,
+                        }
+                        for cat, metrics in report_obj.per_category_metrics.items()
+                    },
+                }
+                for prompt_name, report_obj in report.per_prompt_reports.items()
+            },
+        }
+
+        # Write to file
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(report_dict, f, indent=2, ensure_ascii=False)
+
+        return str(file_path)

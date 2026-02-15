@@ -5,13 +5,20 @@ Validation logic and accuracy metrics calculation.
 from datetime import datetime
 from typing import Dict, List
 
+import numpy as np
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     precision_recall_fscore_support,
 )
 
-from prompt_tester.data.schemas import Metrics, Result, ValidationReport
+from prompt_tester.data.schemas import (
+    AggregatedMetrics,
+    AggregatedValidationReport,
+    Metrics,
+    Result,
+    ValidationReport,
+)
 
 
 class Validator:
@@ -147,3 +154,61 @@ class Validator:
             List of misclassified Result objects
         """
         return [r for r in results if not r.is_correct]
+
+    def aggregate_reports(
+        self, reports: List[ValidationReport]
+    ) -> AggregatedValidationReport:
+        """
+        Aggregate multiple validation reports into summary statistics.
+
+        Args:
+            reports: List of ValidationReport objects from different runs
+
+        Returns:
+            AggregatedValidationReport with mean and std dev
+        """
+        if not reports:
+            raise ValueError("Cannot aggregate empty list of reports")
+
+        # Calculate mean and std for overall accuracy
+        accuracies = [r.overall_accuracy for r in reports]
+        mean_accuracy = float(np.mean(accuracies))
+        std_accuracy = float(np.std(accuracies))
+
+        # Aggregate per-category metrics
+        per_category_metrics = {}
+        for category in self.categories:
+            precisions = [r.per_category_metrics[category].precision for r in reports]
+            recalls = [r.per_category_metrics[category].recall for r in reports]
+            f1_scores = [r.per_category_metrics[category].f1_score for r in reports]
+            support = reports[0].per_category_metrics[category].support
+
+            per_category_metrics[category] = AggregatedMetrics(
+                mean_precision=float(np.mean(precisions)),
+                std_precision=float(np.std(precisions)),
+                mean_recall=float(np.mean(recalls)),
+                std_recall=float(np.std(recalls)),
+                mean_f1_score=float(np.mean(f1_scores)),
+                std_f1_score=float(np.std(f1_scores)),
+                support=support,
+            )
+
+        # Aggregate confusion matrices
+        confusion_matrices = [r.confusion_matrix for r in reports]
+        cm_array = np.array(confusion_matrices)
+        aggregated_cm = np.mean(cm_array, axis=0)
+        std_cm = np.std(cm_array, axis=0)
+
+        return AggregatedValidationReport(
+            num_iterations=len(reports),
+            mean_accuracy=mean_accuracy,
+            std_accuracy=std_accuracy,
+            per_category_metrics=per_category_metrics,
+            confusion_matrices=confusion_matrices,
+            aggregated_confusion_matrix=aggregated_cm.tolist(),
+            std_confusion_matrix=std_cm.tolist(),
+            individual_reports=reports,
+            prompt_name=reports[0].prompt_name,
+            prompt_version=reports[0].prompt_version,
+            test_timestamp=datetime.now(),
+        )

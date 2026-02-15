@@ -114,6 +114,75 @@ class ComparisonReport(BaseModel):
     )
 
 
+class AggregatedMetrics(BaseModel):
+    """Aggregated metrics over multiple test runs."""
+
+    mean_precision: float = Field(..., description="Mean precision across runs")
+    std_precision: float = Field(..., description="Standard deviation of precision")
+    mean_recall: float = Field(..., description="Mean recall across runs")
+    std_recall: float = Field(..., description="Standard deviation of recall")
+    mean_f1_score: float = Field(..., description="Mean F1-score across runs")
+    std_f1_score: float = Field(..., description="Standard deviation of F1-score")
+    support: int = Field(..., description="Number of true instances (constant across runs)")
+
+
+class AggregatedValidationReport(BaseModel):
+    """Validation report aggregated over multiple test runs."""
+
+    num_iterations: int = Field(..., description="Number of test iterations")
+    mean_accuracy: float = Field(..., description="Mean overall accuracy")
+    std_accuracy: float = Field(..., description="Standard deviation of accuracy")
+
+    per_category_metrics: Dict[str, AggregatedMetrics] = Field(
+        ..., description="Aggregated metrics for each category"
+    )
+
+    # Confusion matrices
+    confusion_matrices: List[List[List[int]]] = Field(
+        ..., description="All confusion matrices from individual runs"
+    )
+    aggregated_confusion_matrix: List[List[float]] = Field(
+        ..., description="Mean confusion matrix across all runs"
+    )
+    std_confusion_matrix: List[List[float]] = Field(
+        ..., description="Standard deviation confusion matrix"
+    )
+
+    # Individual reports for reference
+    individual_reports: List[ValidationReport] = Field(
+        ..., description="All individual validation reports"
+    )
+
+    # Metadata
+    prompt_name: Optional[str] = Field(default=None, description="Name of prompt tested")
+    prompt_version: Optional[str] = Field(default=None, description="Version of prompt tested")
+    test_timestamp: datetime = Field(
+        default_factory=datetime.now, description="When test was run"
+    )
+
+
+class AggregatedComparisonReport(BaseModel):
+    """Comparison report with aggregated metrics over multiple iterations."""
+
+    num_iterations: int = Field(..., description="Number of iterations per prompt")
+    prompts_compared: List[str] = Field(..., description="List of prompt names compared")
+
+    # Aggregated accuracy comparison
+    aggregated_accuracy_comparison: Dict[str, Dict[str, float]] = Field(
+        ..., description="Mean and std accuracy for each prompt"
+    )
+
+    # Individual aggregated reports per prompt
+    per_prompt_reports: Dict[str, AggregatedValidationReport] = Field(
+        ..., description="Aggregated report for each prompt"
+    )
+
+    winner: Optional[str] = Field(
+        default=None, description="Best performing prompt (by mean accuracy)"
+    )
+    test_timestamp: datetime = Field(default_factory=datetime.now)
+
+
 class Config(BaseModel):
     """Configuration for the testing framework."""
 

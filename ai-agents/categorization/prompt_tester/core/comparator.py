@@ -8,6 +8,8 @@ from typing import Dict, List
 from prompt_tester.core.executor import PromptExecutor
 from prompt_tester.core.validator import Validator
 from prompt_tester.data.schemas import (
+    AggregatedComparisonReport,
+    AggregatedValidationReport,
     ComparisonReport,
     Disagreement,
     Email,
@@ -117,3 +119,39 @@ class Comparator:
                 )
 
         return disagreements
+
+    def create_aggregated_comparison(
+        self, per_prompt_reports: Dict[str, AggregatedValidationReport]
+    ) -> AggregatedComparisonReport:
+        """
+        Create comparison report from aggregated prompt reports.
+
+        Args:
+            per_prompt_reports: Dict mapping prompt name to AggregatedValidationReport
+
+        Returns:
+            AggregatedComparisonReport
+        """
+        if len(per_prompt_reports) < 2:
+            raise ValueError("Need at least 2 prompts to compare")
+
+        # Extract aggregated accuracy comparison
+        aggregated_accuracy_comparison = {
+            prompt_name: {"mean": report.mean_accuracy, "std": report.std_accuracy}
+            for prompt_name, report in per_prompt_reports.items()
+        }
+
+        # Determine winner (highest mean accuracy)
+        winner = max(aggregated_accuracy_comparison.items(), key=lambda x: x[1]["mean"])[0]
+
+        # Get number of iterations (should be same for all)
+        num_iterations = list(per_prompt_reports.values())[0].num_iterations
+
+        return AggregatedComparisonReport(
+            num_iterations=num_iterations,
+            prompts_compared=list(per_prompt_reports.keys()),
+            aggregated_accuracy_comparison=aggregated_accuracy_comparison,
+            per_prompt_reports=per_prompt_reports,
+            winner=winner,
+            test_timestamp=datetime.now(),
+        )
