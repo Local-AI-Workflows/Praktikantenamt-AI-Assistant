@@ -284,15 +284,6 @@
       "tags": ["stats", "count"]
     },
     {
-      "id": "stats_002",
-      "category": "stats",
-      "prompt": "What's the total count of whitelisted and blacklisted companies?",
-      "expected_tool": "get_company_stats",
-      "difficulty": "easy",
-      "language": "en",
-      "tags": ["stats", "count"]
-    },
-    {
       "id": "list_001",
       "category": "list",
       "prompt": "List all approved companies",
