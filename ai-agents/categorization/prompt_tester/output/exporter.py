@@ -6,12 +6,13 @@ import csv
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from prompt_tester.data.schemas import (
     AggregatedComparisonReport,
     AggregatedValidationReport,
     ComparisonReport,
+    Config,
     Result,
     ValidationReport,
 )
@@ -34,14 +35,26 @@ class ResultExporter:
         # Ensure output directory exists
         self.output_directory.mkdir(parents=True, exist_ok=True)
 
+    def _build_run_config(self, config: Optional[Config]) -> dict:
+        """Build run_config dict from Config object, or return empty dict if None."""
+        if config is None:
+            return {}
+        return {
+            "model": config.ollama_model,
+            "endpoint": config.ollama_endpoint,
+            "timeout": config.ollama_timeout,
+            "max_retries": config.ollama_max_retries,
+        }
+
     def export_json(
-        self, report: ValidationReport, file_path: str = None
+        self, report: ValidationReport, config: Optional[Config] = None, file_path: str = None
     ) -> str:
         """
         Export validation report to JSON file.
 
         Args:
             report: ValidationReport to export
+            config: Optional Config object to include run configuration
             file_path: Optional file path. If not provided, auto-generates.
 
         Returns:
@@ -61,11 +74,14 @@ class ResultExporter:
                 "prompt_name": report.prompt_name,
                 "prompt_version": report.prompt_version,
                 "total_emails": report.total_emails,
+                "run_config": self._build_run_config(config),
             },
             "metrics": {
                 "overall_accuracy": report.overall_accuracy,
                 "correct_predictions": report.correct_predictions,
                 "incorrect_predictions": report.incorrect_predictions,
+                "parse_errors": report.parse_errors,
+                "mean_execution_time": report.mean_execution_time,
             },
             "per_category_metrics": {
                 category: {
@@ -142,13 +158,14 @@ class ResultExporter:
         return str(file_path)
 
     def export_comparison(
-        self, report: ComparisonReport, file_path: str = None
+        self, report: ComparisonReport, config: Optional[Config] = None, file_path: str = None
     ) -> str:
         """
         Export comparison report to JSON file.
 
         Args:
             report: ComparisonReport to export
+            config: Optional Config object to include run configuration
             file_path: Optional file path. If not provided, auto-generates.
 
         Returns:
@@ -167,6 +184,7 @@ class ResultExporter:
                 "timestamp": report.test_timestamp.isoformat(),
                 "prompts_compared": report.prompts_compared,
                 "winner": report.winner,
+                "run_config": self._build_run_config(config),
             },
             "accuracy_comparison": report.accuracy_comparison,
             "disagreements": [
@@ -191,7 +209,11 @@ class ResultExporter:
         return str(file_path)
 
     def export_both(
-        self, report: ValidationReport, results: List[Result], prefix: str = None
+        self,
+        report: ValidationReport,
+        results: List[Result],
+        config: Optional[Config] = None,
+        prefix: str = None,
     ) -> tuple:
         """
         Export both JSON and CSV formats.
@@ -199,6 +221,7 @@ class ResultExporter:
         Args:
             report: ValidationReport to export
             results: List of Result objects for CSV
+            config: Optional Config object to include run configuration
             prefix: Optional filename prefix
 
         Returns:
@@ -214,19 +237,23 @@ class ResultExporter:
             json_file = self.output_directory / f"test_{prompt_name}_{timestamp}.json"
             csv_file = self.output_directory / f"results_{prompt_name}_{timestamp}.csv"
 
-        json_path = self.export_json(report, str(json_file))
+        json_path = self.export_json(report, config, str(json_file))
         csv_path = self.export_csv(results, str(csv_file))
 
         return (json_path, csv_path)
 
     def export_aggregated_json(
-        self, report: AggregatedValidationReport, file_path: str = None
+        self,
+        report: AggregatedValidationReport,
+        config: Optional[Config] = None,
+        file_path: str = None,
     ) -> str:
         """
         Export aggregated validation report to JSON file.
 
         Args:
             report: AggregatedValidationReport to export
+            config: Optional Config object to include run configuration
             file_path: Optional file path. If not provided, auto-generates.
 
         Returns:
@@ -248,10 +275,13 @@ class ResultExporter:
                 "prompt_name": report.prompt_name,
                 "prompt_version": report.prompt_version,
                 "num_iterations": report.num_iterations,
+                "run_config": self._build_run_config(config),
             },
             "aggregated_metrics": {
                 "mean_accuracy": report.mean_accuracy,
                 "std_accuracy": report.std_accuracy,
+                "mean_parse_errors": report.mean_parse_errors,
+                "mean_execution_time": report.mean_execution_time,
             },
             "per_category_metrics": {
                 category: {
@@ -274,6 +304,8 @@ class ResultExporter:
                 {
                     "iteration": i + 1,
                     "accuracy": r.overall_accuracy,
+                    "parse_errors": r.parse_errors,
+                    "mean_execution_time": r.mean_execution_time,
                     "timestamp": r.test_timestamp.isoformat(),
                 }
                 for i, r in enumerate(report.individual_reports)
@@ -287,13 +319,17 @@ class ResultExporter:
         return str(file_path)
 
     def export_aggregated_comparison(
-        self, report: AggregatedComparisonReport, file_path: str = None
+        self,
+        report: AggregatedComparisonReport,
+        config: Optional[Config] = None,
+        file_path: str = None,
     ) -> str:
         """
         Export aggregated comparison report to JSON file.
 
         Args:
             report: AggregatedComparisonReport to export
+            config: Optional Config object to include run configuration
             file_path: Optional file path. If not provided, auto-generates.
 
         Returns:
@@ -315,12 +351,15 @@ class ResultExporter:
                 "prompts_compared": report.prompts_compared,
                 "num_iterations": report.num_iterations,
                 "winner": report.winner,
+                "run_config": self._build_run_config(config),
             },
             "aggregated_accuracy_comparison": report.aggregated_accuracy_comparison,
             "per_prompt_reports": {
                 prompt_name: {
                     "mean_accuracy": report_obj.mean_accuracy,
                     "std_accuracy": report_obj.std_accuracy,
+                    "mean_parse_errors": report_obj.mean_parse_errors,
+                    "mean_execution_time": report_obj.mean_execution_time,
                     "per_category_metrics": {
                         cat: {
                             "mean_precision": metrics.mean_precision,
@@ -333,6 +372,21 @@ class ResultExporter:
                         }
                         for cat, metrics in report_obj.per_category_metrics.items()
                     },
+                    "confusion_matrices": {
+                        "aggregated": report_obj.aggregated_confusion_matrix,
+                        "std_dev": report_obj.std_confusion_matrix,
+                        "individual": report_obj.confusion_matrices,
+                    },
+                    "iteration_details": [
+                        {
+                            "iteration": i + 1,
+                            "accuracy": r.overall_accuracy,
+                            "parse_errors": r.parse_errors,
+                            "mean_execution_time": r.mean_execution_time,
+                            "timestamp": r.test_timestamp.isoformat(),
+                        }
+                        for i, r in enumerate(report_obj.individual_reports)
+                    ],
                 }
                 for prompt_name, report_obj in report.per_prompt_reports.items()
             },

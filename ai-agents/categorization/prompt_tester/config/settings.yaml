@@ -2,7 +2,7 @@
 
 # Ollama Configuration
 ollama:
-  endpoint: "http://localhost:11434"
+  endpoint: "http://gpu-server01.ios.htwg-konstanz.de:11434"
   model: "llama3.2:3b"
   timeout: 30
   max_retries: 3

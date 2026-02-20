@@ -61,6 +61,10 @@ class Validator:
         correct = sum(1 for r in results if r.is_correct)
         incorrect = len(results) - correct
 
+        # Count parse errors and mean execution time
+        parse_errors = sum(1 for r in results if r.predicted_category == "parse_error")
+        mean_execution_time = float(np.mean([r.execution_time for r in results])) if results else 0.0
+
         # Calculate per-category metrics
         per_category_metrics = self.calculate_metrics_per_category(y_true, y_pred)
 
@@ -75,6 +79,8 @@ class Validator:
             total_emails=len(results),
             correct_predictions=correct,
             incorrect_predictions=incorrect,
+            parse_errors=parse_errors,
+            mean_execution_time=mean_execution_time,
             per_category_metrics=per_category_metrics,
             confusion_matrix=conf_matrix,
             misclassifications=misclassifications,
@@ -175,6 +181,10 @@ class Validator:
         mean_accuracy = float(np.mean(accuracies))
         std_accuracy = float(np.std(accuracies))
 
+        # Aggregate parse errors and execution time
+        mean_parse_errors = float(np.mean([r.parse_errors for r in reports]))
+        mean_execution_time = float(np.mean([r.mean_execution_time for r in reports]))
+
         # Aggregate per-category metrics
         per_category_metrics = {}
         for category in self.categories:
@@ -203,6 +213,8 @@ class Validator:
             num_iterations=len(reports),
             mean_accuracy=mean_accuracy,
             std_accuracy=std_accuracy,
+            mean_parse_errors=mean_parse_errors,
+            mean_execution_time=mean_execution_time,
             per_category_metrics=per_category_metrics,
             confusion_matrices=confusion_matrices,
             aggregated_confusion_matrix=aggregated_cm.tolist(),

@@ -62,10 +62,51 @@ class ConfigManager:
 
         try:
             with open(config_path, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-                return config or {}
+                config = yaml.safe_load(f) or {}
+                return self._normalize_yaml_config(config)
         except yaml.YAMLError as e:
             raise ValueError(f"Error parsing YAML config file: {e}")
+
+    def _normalize_yaml_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Normalize YAML config structure to flat Config schema.
+
+        Supports both nested YAML sections (preferred) and already-flat keys.
+        """
+        normalized: Dict[str, Any] = dict(config)
+
+        ollama = config.get("ollama") or {}
+        if isinstance(ollama, dict):
+            if "endpoint" in ollama:
+                normalized["ollama_endpoint"] = ollama["endpoint"]
+            if "model" in ollama:
+                normalized["ollama_model"] = ollama["model"]
+            if "timeout" in ollama:
+                normalized["ollama_timeout"] = ollama["timeout"]
+            if "max_retries" in ollama:
+                normalized["ollama_max_retries"] = ollama["max_retries"]
+
+        output = config.get("output") or {}
+        if isinstance(output, dict):
+            if "format" in output:
+                normalized["output_format"] = output["format"]
+            if "directory" in output:
+                normalized["output_directory"] = output["directory"]
+            if "timestamp_format" in output:
+                normalized["timestamp_format"] = output["timestamp_format"]
+
+        validation = config.get("validation") or {}
+        if isinstance(validation, dict):
+            if "include_confusion_matrix" in validation:
+                normalized["include_confusion_matrix"] = validation["include_confusion_matrix"]
+            if "per_category_metrics" in validation:
+                normalized["per_category_metrics"] = validation["per_category_metrics"]
+
+        normalized.pop("ollama", None)
+        normalized.pop("output", None)
+        normalized.pop("validation", None)
+
+        return normalized
 
     def _apply_env_overrides(self, config_dict: Dict[str, Any]) -> Dict[str, Any]:
         """

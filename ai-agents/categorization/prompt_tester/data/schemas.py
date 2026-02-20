@@ -73,6 +73,8 @@ class ValidationReport(BaseModel):
     total_emails: int = Field(..., description="Total number of emails tested")
     correct_predictions: int = Field(..., description="Number of correct predictions")
     incorrect_predictions: int = Field(..., description="Number of incorrect predictions")
+    parse_errors: int = Field(default=0, description="Number of emails where LLM response could not be parsed")
+    mean_execution_time: float = Field(default=0.0, description="Mean execution time per email in seconds")
     per_category_metrics: Dict[str, Metrics] = Field(
         ..., description="Metrics for each category"
     )
@@ -132,6 +134,8 @@ class AggregatedValidationReport(BaseModel):
     num_iterations: int = Field(..., description="Number of test iterations")
     mean_accuracy: float = Field(..., description="Mean overall accuracy")
     std_accuracy: float = Field(..., description="Standard deviation of accuracy")
+    mean_parse_errors: float = Field(default=0.0, description="Mean number of parse errors per run")
+    mean_execution_time: float = Field(default=0.0, description="Mean execution time per email across all runs in seconds")
 
     per_category_metrics: Dict[str, AggregatedMetrics] = Field(
         ..., description="Aggregated metrics for each category"

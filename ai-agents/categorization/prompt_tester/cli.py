@@ -189,7 +189,7 @@ def test(prompt, system_prompt, dataset, config, output, format, iterations, ver
             )
 
             if format == "json":
-                json_path = exporter.export_aggregated_json(aggregated_report, output)
+                json_path = exporter.export_aggregated_json(aggregated_report, cfg, output)
                 formatter.console.print(
                     f"Aggregated results saved to [cyan]{json_path}[/cyan]"
                 )
@@ -198,7 +198,7 @@ def test(prompt, system_prompt, dataset, config, output, format, iterations, ver
                 csv_path = exporter.export_csv(all_reports[-1].misclassifications, output)
                 formatter.console.print(f"Results saved to [cyan]{csv_path}[/cyan]")
             else:  # both
-                json_path = exporter.export_aggregated_json(aggregated_report, output)
+                json_path = exporter.export_aggregated_json(aggregated_report, cfg, output)
                 # For CSV, export the last iteration's results
                 csv_path = exporter.export_csv(
                     results, output=output.replace(".json", ".csv") if output else None
@@ -238,13 +238,13 @@ def test(prompt, system_prompt, dataset, config, output, format, iterations, ver
             )
 
             if format == "json":
-                json_path = exporter.export_json(report, output)
+                json_path = exporter.export_json(report, cfg, output)
                 formatter.console.print(f"Results saved to [cyan]{json_path}[/cyan]")
             elif format == "csv":
                 csv_path = exporter.export_csv(results, output)
                 formatter.console.print(f"Results saved to [cyan]{csv_path}[/cyan]")
             else:  # both
-                json_path, csv_path = exporter.export_both(report, results)
+                json_path, csv_path = exporter.export_both(report, results, cfg)
                 formatter.console.print(f"Results saved to:")
                 formatter.console.print(f"  • JSON: [cyan]{json_path}[/cyan]")
                 formatter.console.print(f"  • CSV: [cyan]{csv_path}[/cyan]")
@@ -295,15 +295,8 @@ def test(prompt, system_prompt, dataset, config, output, format, iterations, ver
     help="Number of test iterations per prompt for robust comparison (default: 1)",
 )
 def compare(prompts, system_prompt, dataset, config, output, show_disagreements, iterations):
-    """Compare multiple prompts side-by-side."""
+    """Compare multiple prompts side-by-side. With a single prompt, runs aggregated evaluation."""
     try:
-        if len(prompts) < 2:
-            formatter = ConsoleFormatter()
-            formatter.console.print(
-                "[bold red]Error:[/bold red] Need at least 2 prompts to compare"
-            )
-            sys.exit(1)
-
         # Load configuration
         config_manager = ConfigManager(config)
         cfg = config_manager.load_config()
@@ -358,12 +351,45 @@ def compare(prompts, system_prompt, dataset, config, output, show_disagreements,
         # Run comparison
         executor = PromptExecutor(ollama_client)
         validator = Validator(cfg.categories)
-        comparator = Comparator(executor, validator)
 
         # Validate iterations parameter
         if iterations < 1:
             formatter.console.print("[bold red]Error:[/bold red] Iterations must be >= 1")
             sys.exit(1)
+
+        # Single-prompt mode: run aggregated evaluation instead of comparison
+        if len(prompt_configs) == 1:
+            prompt_config = prompt_configs[0]
+            formatter.console.print(
+                f"Single prompt detected — running aggregated evaluation "
+                f"({iterations} iteration{'s' if iterations > 1 else ''})..."
+            )
+
+            prompt_reports = []
+            for iteration in range(iterations):
+                formatter.console.print(
+                    f"  Iteration {iteration + 1}/{iterations}..."
+                )
+                results = executor.execute_batch(emails, prompt_config)
+                report = validator.validate_results(
+                    results, prompt_config.name, prompt_config.version
+                )
+                prompt_reports.append(report)
+
+            aggregated_report = validator.aggregate_reports(prompt_reports)
+            formatter.print_aggregated_report(aggregated_report)
+
+            exporter = ResultExporter(
+                output_directory=cfg.output_directory,
+                timestamp_format=cfg.timestamp_format,
+            )
+            json_path = exporter.export_aggregated_json(aggregated_report, cfg, output)
+            formatter.console.print(
+                f"Aggregated results saved to [cyan]{json_path}[/cyan]"
+            )
+            return
+
+        comparator = Comparator(executor, validator)
 
         # Run multiple iterations if requested
         if iterations > 1:
@@ -411,7 +437,7 @@ def compare(prompts, system_prompt, dataset, config, output, show_disagreements,
             )
 
             comparison_path = exporter.export_aggregated_comparison(
-                aggregated_comparison, output
+                aggregated_comparison, cfg, output
             )
             formatter.console.print(
                 f"Aggregated comparison results saved to [cyan]{comparison_path}[/cyan]"
@@ -440,7 +466,7 @@ def compare(prompts, system_prompt, dataset, config, output, show_disagreements,
                 timestamp_format=cfg.timestamp_format,
             )
 
-            comparison_path = exporter.export_comparison(comparison_report, output)
+            comparison_path = exporter.export_comparison(comparison_report, cfg, output)
             formatter.console.print(
                 f"Comparison results saved to [cyan]{comparison_path}[/cyan]"
             )
