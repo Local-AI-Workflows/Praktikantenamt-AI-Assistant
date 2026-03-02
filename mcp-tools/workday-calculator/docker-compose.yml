@@ -8,6 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: workday-calculator-mcp
+    command: ["workday-calc-mcp", "--transport", "sse", "--host", "0.0.0.0", "--port", "8082"]
     ports:
       - "8082:8082"
     environment:

@@ -1,7 +1,7 @@
 # Dockerfile for Workday Calculator MCP Server
 # Supports three modes:
 # - REST API (HTTP): Default, port 8000
-# - MCP SSE (HTTP): For Claude Desktop remote, port 8080
+# - MCP SSE (HTTP): For Claude Desktop remote, port 8082
 # - MCP stdio: For local Claude Desktop
 
 FROM python:3.12-slim
