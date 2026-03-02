@@ -38,10 +38,10 @@ RUN useradd --create-home --shell /bin/bash appuser && \
 USER appuser
 
 # Expose ports: 8000 for REST API, 8080 for MCP SSE
-EXPOSE 8000 8080
+EXPOSE 8000 8082
 
 # Default to MCP SSE mode (recommended for Docker)
 # Override with:
 # - REST API: ["uvicorn", "workday_calculator.api:app", "--host", "0.0.0.0", "--port", "8000"]
 # - MCP stdio: ["workday-calc-mcp", "--transport", "stdio"]
-CMD ["workday-calc-mcp", "--transport", "sse", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["workday-calc-mcp", "--transport", "sse", "--host", "0.0.0.0", "--port", "8082"]
