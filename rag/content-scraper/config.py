@@ -26,7 +26,8 @@ EMBEDDING_MODEL = os.getenv(
 
 # Ollama Configuration
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "nomic-embed-text")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "nomic-embed-text")  # for embeddings
+OLLAMA_LLM_MODEL = os.getenv("OLLAMA_LLM_MODEL", "mistral:instruct")  # for chat/generate (test_simple_response.py)
 
 # Chunking Configuration
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))

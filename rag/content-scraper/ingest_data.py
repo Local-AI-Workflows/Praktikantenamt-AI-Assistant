@@ -281,7 +281,7 @@ def store_in_qdrant(
         # This ensures the same content always gets the same UUID
         point_id = str(uuid.UUID(chunk["content_hash"][:32]))
         
-        # Build payload with optional heading field
+        # Build payload with metadata
         payload = {
             "text": chunk["text"],
             "source_url": chunk["source_url"],
@@ -293,6 +293,10 @@ def store_in_qdrant(
         # Add heading if present (from semantic chunking)
         if "heading" in chunk and chunk["heading"]:
             payload["heading"] = chunk["heading"]
+        
+        # Add document_id if present
+        if "document_id" in chunk:
+            payload["document_id"] = chunk["document_id"]
         
         point = PointStruct(
             id=point_id,
@@ -367,13 +371,36 @@ def main(force_recreate: bool = False):
     
     # 2. Chunk all content using semantic chunking (by headings)
     print("Chunking content (semantic chunking by headings)...")
+    print(f"  Target chunk size: {config.CHUNK_SIZE} chars")
+    print(f"  Max chunk size: ~900 chars")
+    print(f"  Overlap: {config.CHUNK_OVERLAP} chars")
     all_chunks = []
+    chunk_stats = {'total_length': 0, 'count': 0, 'by_document': {}}
+    
     for text_content, html_content, url in all_content:
         # Use semantic chunking (by HTML structure)
-        chunks = chunk_by_headings(html_content, url, max_chunk_size=config.CHUNK_SIZE * 2)
+        # Pass target size (CHUNK_SIZE) and hard max (~900)
+        chunks = chunk_by_headings(html_content, url, max_chunk_size=900, target_chunk_size=config.CHUNK_SIZE)
         all_chunks.extend(chunks)
-        print(f"  Created {len(chunks)} semantic chunks from {url}")
+        
+        # Collect statistics
+        doc_chunks = len(chunks)
+        doc_total_length = sum(len(c['text']) for c in chunks)
+        doc_avg_length = doc_total_length / doc_chunks if doc_chunks > 0 else 0
+        
+        chunk_stats['by_document'][url] = {
+            'chunks': doc_chunks,
+            'avg_length': doc_avg_length
+        }
+        chunk_stats['total_length'] += doc_total_length
+        chunk_stats['count'] += doc_chunks
+        
+        print(f"  Created {doc_chunks} semantic chunks from {url}")
+        print(f"    → Avg chunk length: {doc_avg_length:.0f} chars")
+    
+    overall_avg = chunk_stats['total_length'] / chunk_stats['count'] if chunk_stats['count'] > 0 else 0
     print(f"  ✓ Total chunks: {len(all_chunks)}")
+    print(f"  ✓ Overall average chunk length: {overall_avg:.0f} chars")
     print()
     
     # 3. Load embedding model

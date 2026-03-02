@@ -14,14 +14,15 @@ def generate_content_hash(text: str) -> str:
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
 
-def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 2000) -> List[Dict[str, str]]:
+def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 900, target_chunk_size: int = 700) -> List[Dict[str, str]]:
     """
     Chunk HTML content by headings, keeping semantic sections together.
     
     Args:
         html_content: Raw HTML content
         url: Source URL
-        max_chunk_size: Maximum size for a chunk (will try to split large sections)
+        max_chunk_size: Hard maximum size for a chunk (will split if exceeded)
+        target_chunk_size: Target size to aim for when splitting large sections
     
     Returns:
         List of chunk dictionaries
@@ -48,7 +49,7 @@ def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 2000) -
     
     if not headings:
         # No headings found, fall back to paragraph-based chunking
-        return _chunk_by_paragraphs(soup, url, max_chunk_size)
+        return _chunk_by_paragraphs(soup, url, target_chunk_size)
     
     # Process each section defined by headings
     for i, heading in enumerate(headings):
@@ -84,9 +85,9 @@ def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 2000) -
         
         section_text = section_text.strip()
         
-        # If section is too large, split it
-        if len(section_text) > max_chunk_size:
-            sub_chunks = _split_large_section(section_text, heading_text, max_chunk_size)
+        # If section exceeds target size, split it into smaller chunks
+        if len(section_text) > target_chunk_size:
+            sub_chunks = _split_large_section(section_text, heading_text, target_chunk_size, max_chunk_size)
             for sub_chunk in sub_chunks:
                 chunk_hash = generate_content_hash(sub_chunk)
                 chunks.append({
@@ -95,7 +96,8 @@ def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 2000) -
                     'source_domain': _extract_domain(url),
                     'chunk_index': chunk_index,
                     'content_hash': chunk_hash,
-                    'heading': heading_text
+                    'heading': heading_text,
+                    'document_id': _generate_document_id(url)
                 })
                 chunk_index += 1
         else:
@@ -108,14 +110,15 @@ def chunk_by_headings(html_content: str, url: str, max_chunk_size: int = 2000) -
                     'source_domain': _extract_domain(url),
                     'chunk_index': chunk_index,
                     'content_hash': chunk_hash,
-                    'heading': heading_text
+                    'heading': heading_text,
+                    'document_id': _generate_document_id(url)
                 })
                 chunk_index += 1
     
     return chunks
 
 
-def _chunk_by_paragraphs(soup: BeautifulSoup, url: str, max_chunk_size: int) -> List[Dict[str, str]]:
+def _chunk_by_paragraphs(soup: BeautifulSoup, url: str, target_chunk_size: int) -> List[Dict[str, str]]:
     """Fallback: chunk by paragraphs if no headings found."""
     chunks = []
     chunk_index = 0
@@ -131,8 +134,8 @@ def _chunk_by_paragraphs(soup: BeautifulSoup, url: str, max_chunk_size: int) -> 
         if not para_text:
             continue
         
-        # If adding this paragraph exceeds max size, save current chunk
-        if current_chunk and len(current_chunk) + len(para_text) > max_chunk_size:
+        # If adding this paragraph exceeds target size, save current chunk
+        if current_chunk and len(current_chunk) + len(para_text) > target_chunk_size:
             chunk_hash = generate_content_hash(current_chunk)
             chunks.append({
                 'text': current_chunk.strip(),
@@ -140,7 +143,8 @@ def _chunk_by_paragraphs(soup: BeautifulSoup, url: str, max_chunk_size: int) -> 
                 'source_domain': _extract_domain(url),
                 'chunk_index': chunk_index,
                 'content_hash': chunk_hash,
-                'heading': None
+                'heading': None,
+                'document_id': _generate_document_id(url)
             })
             chunk_index += 1
             current_chunk = para_text
@@ -156,14 +160,18 @@ def _chunk_by_paragraphs(soup: BeautifulSoup, url: str, max_chunk_size: int) -> 
             'source_domain': _extract_domain(url),
             'chunk_index': chunk_index,
             'content_hash': chunk_hash,
-            'heading': None
+            'heading': None,
+            'document_id': _generate_document_id(url)
         })
     
     return chunks
 
 
-def _split_large_section(text: str, heading: str, max_size: int) -> List[str]:
-    """Split a large section into smaller chunks while preserving sentences."""
+def _split_large_section(text: str, heading: str, target_size: int, max_size: int) -> List[str]:
+    """
+    Split a large section into smaller chunks while preserving sentences.
+    Aims for target_size but will not exceed max_size.
+    """
     chunks = []
     
     # Try to split by sentences
@@ -179,12 +187,25 @@ def _split_large_section(text: str, heading: str, max_size: int) -> List[str]:
         if i < len(sentences) - 1 or not sentence.endswith('.'):
             sentence += '.'
         
-        # If adding this sentence exceeds max, save current chunk
-        if current_chunk and len(current_chunk) + len(sentence) > max_size:
+        # If adding this sentence exceeds target AND we have content, save current chunk
+        if current_chunk and len(current_chunk) + len(sentence) > target_size:
+            # But if current chunk is still under max_size, we can continue a bit
+            if len(current_chunk) < max_size:
+                # Add sentence if total doesn't exceed max_size
+                if len(current_chunk) + len(sentence) <= max_size:
+                    current_chunk += " " + sentence
+                    continue
+            
+            # Save current chunk and start new one
             chunks.append(current_chunk.strip())
             current_chunk = sentence
         else:
             current_chunk += " " + sentence if current_chunk else sentence
+        
+        # If current chunk itself exceeds max_size, force split
+        if len(current_chunk) > max_size:
+            chunks.append(current_chunk.strip())
+            current_chunk = ""
     
     # Add last chunk
     if current_chunk:
@@ -197,6 +218,11 @@ def _extract_domain(url: str) -> str:
     """Extract domain from URL."""
     from urllib.parse import urlparse
     return urlparse(url).netloc
+
+
+def _generate_document_id(url: str) -> str:
+    """Generate a consistent document ID from URL."""
+    return hashlib.md5(url.encode('utf-8')).hexdigest()[:16]
 
 
 if __name__ == "__main__":
