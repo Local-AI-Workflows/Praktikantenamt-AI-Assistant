@@ -438,9 +438,12 @@ def verify_result(
 
     if extracted_company:
         try:
+            # Use a fixed low threshold for verification — we only want to confirm
+            # that the extracted name maps to the correct company. The threshold
+            # value the LLM chose for the production call must not affect scoring.
             request = LookupRequest(
                 company_name=extracted_company,
-                fuzzy_threshold=float(params.get("threshold", 75)),
+                fuzzy_threshold=75.0,
                 max_results=5,
             )
             result = engine.lookup(request)

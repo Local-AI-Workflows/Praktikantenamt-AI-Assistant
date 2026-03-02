@@ -9,10 +9,11 @@ from typing import List, Tuple
 
 import requests
 
+from prompt_tester.clients.base import BaseClient
 from prompt_tester.data.schemas import Email, PromptConfig, Result
 
 
-class OllamaClient:
+class OllamaClient(BaseClient):
     """HTTP-based client for Ollama API."""
 
     def __init__(self, endpoint: str, model: str, timeout: int = 30, max_retries: int = 3):
@@ -29,6 +30,14 @@ class OllamaClient:
         self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
+
+    @property
+    def model_name(self) -> str:
+        return self.model
+
+    @property
+    def provider(self) -> str:
+        return "ollama"
 
     def generate(self, system_prompt: str, user_prompt: str) -> Tuple[str, float]:
         """
@@ -104,14 +113,14 @@ class OllamaClient:
 class PromptExecutor:
     """Orchestrates prompt execution over email datasets."""
 
-    def __init__(self, ollama_client: OllamaClient):
+    def __init__(self, client: BaseClient):
         """
         Initialize prompt executor.
 
         Args:
-            ollama_client: Configured OllamaClient instance
+            client: Any BaseClient implementation (OllamaClient, OpenAIClient, etc.)
         """
-        self.client = ollama_client
+        self.client = client
 
     def execute_batch(
         self, emails: List[Email], prompt_config: PromptConfig

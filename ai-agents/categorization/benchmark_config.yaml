@@ -1,0 +1,101 @@
+# =====================================================================
+# Multi-Model Benchmark Configuration
+# =====================================================================
+# Run: python run_model_benchmark.py
+# Or:  python run_model_benchmark.py --config benchmark_config.yaml
+#
+# Set enabled: false to skip a model without removing it from the list.
+# OLLAMA_ENDPOINT env var (in .env) overrides the endpoint for all Ollama models.
+
+# --- Prompt to evaluate all models against ---
+prompt:
+  user_prompt: "prompts/v4_lyra_prompt.txt"
+  system_prompt: "prompts/system_prompt.txt"
+
+# --- Benchmark settings ---
+benchmark:
+  num_iterations: 5
+  output_directory: "results"
+  dataset: "test_data/dummy_emails.json"
+  ollama_endpoint: "http://gpu-server01.ios.htwg-konstanz.de:11434"
+  categories:
+    - "contract_submission"
+    - "international_office_question"
+    - "internship_postponement"
+    - "uncategorized"
+
+# --- Model definitions ---
+# provider: ollama | openai | anthropic
+# VRAM estimates are for Q4_K_M (default Ollama quantization)
+models:
+
+  # ────────────────────────────────────────────
+  # Local — Large  (~16 GB VRAM, fits on 1×V100-32GB)
+  # ────────────────────────────────────────────
+
+  - model_id: "qwen3.5:27b"
+    display_name: "Qwen 3.5 27B"
+    provider: ollama
+    timeout: 180
+    max_retries: 3
+    enabled: true
+
+  # ────────────────────────────────────────────
+  # Local — Mid-scale  (~20-26 GB VRAM)
+  # ────────────────────────────────────────────
+
+  - model_id: "qwen2.5:32b"
+    display_name: "Qwen 2.5 32B"
+    provider: ollama
+    timeout: 200
+    max_retries: 3
+    enabled: true
+
+  - model_id: "deepseek-r1:32b"
+    display_name: "DeepSeek-R1 32B"
+    provider: ollama
+    timeout: 200
+    max_retries: 3
+    enabled: true
+
+  - model_id: "mixtral:8x7b"
+    display_name: "Mixtral 8x7B"
+    provider: ollama
+    timeout: 120
+    max_retries: 3
+    enabled: true
+
+  # ────────────────────────────────────────────
+  # Local — Small  (~6 GB VRAM, any GPU)
+  # ────────────────────────────────────────────
+
+  - model_id: "llama3.1:8b"
+    display_name: "LLaMA 3.1 8B"
+    provider: ollama
+    timeout: 60
+    max_retries: 3
+    enabled: true
+
+  - model_id: "gemma2:9b"
+    display_name: "Gemma 2 9B"
+    provider: ollama
+    timeout: 60
+    max_retries: 3
+    enabled: true
+
+  # ────────────────────────────────────────────
+  # API Models
+  # ────────────────────────────────────────────
+
+  - model_id: "gpt-4.1-mini"
+    display_name: "GPT-4.1 mini"
+    provider: openai
+    max_tokens: 50
+    temperature: 0.0
+    enabled: true
+
+  - model_id: "claude-haiku-4-5"
+    display_name: "Claude Haiku 4.5"
+    provider: anthropic
+    max_tokens: 50
+    enabled: true

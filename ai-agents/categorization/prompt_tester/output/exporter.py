@@ -16,6 +16,7 @@ from prompt_tester.data.schemas import (
     Result,
     ValidationReport,
 )
+from prompt_tester.data.benchmark_schemas import BenchmarkReport
 
 
 class ResultExporter:
@@ -393,6 +394,122 @@ class ResultExporter:
         }
 
         # Write to file
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(report_dict, f, indent=2, ensure_ascii=False)
+
+        return str(file_path)
+
+    def export_benchmark_report(
+        self,
+        report: BenchmarkReport,
+        file_path: str = None,
+    ) -> str:
+        """
+        Export a multi-model BenchmarkReport to JSON.
+
+        Args:
+            report: BenchmarkReport from the benchmark runner
+            file_path: Optional output path. Auto-generated if not provided.
+
+        Returns:
+            Path to the exported file
+        """
+        if file_path is None:
+            timestamp = datetime.now().strftime(self.timestamp_format)
+            file_path = self.output_directory / f"benchmark_{report.prompt_name}_{timestamp}.json"
+        else:
+            file_path = Path(file_path)
+
+        report_dict: dict = {
+            "benchmark_metadata": {
+                "timestamp": report.benchmark_timestamp.isoformat(),
+                "prompt_name": report.prompt_name,
+                "prompt_user_file": report.prompt_user_file,
+                "prompt_system_file": report.prompt_system_file,
+                "num_iterations": report.num_iterations,
+                "total_emails": report.total_emails,
+                "total_models_attempted": report.total_models_attempted,
+                "total_models_succeeded": report.total_models_succeeded,
+            },
+            "winner": report.winner,
+            "rankings": [
+                {
+                    "rank": r.rank,
+                    "model_id": r.model_id,
+                    "display_name": r.display_name,
+                    "provider": r.provider,
+                    "mean_accuracy": r.mean_accuracy,
+                    "std_accuracy": r.std_accuracy,
+                    "mean_execution_time_ms": r.mean_execution_time_ms,
+                    "mean_parse_errors": r.mean_parse_errors,
+                }
+                for r in report.rankings
+            ],
+            "model_results": {},
+        }
+
+        for model_id, result in report.model_results.items():
+            if result.status == "error":
+                report_dict["model_results"][model_id] = {
+                    "model_id": result.model_id,
+                    "display_name": result.display_name,
+                    "provider": result.provider,
+                    "status": "error",
+                    "error_message": result.error_message,
+                }
+                continue
+
+            agg = result.aggregated_report
+            report_dict["model_results"][model_id] = {
+                "model_id": result.model_id,
+                "display_name": result.display_name,
+                "provider": result.provider,
+                "status": "success",
+                "aggregated_metrics": {
+                    "mean_accuracy": agg.mean_accuracy,
+                    "std_accuracy": agg.std_accuracy,
+                    "mean_parse_errors": agg.mean_parse_errors,
+                    "mean_execution_time": agg.mean_execution_time,
+                },
+                "per_category_metrics": {
+                    category: {
+                        "mean_precision": metrics.mean_precision,
+                        "std_precision": metrics.std_precision,
+                        "mean_recall": metrics.mean_recall,
+                        "std_recall": metrics.std_recall,
+                        "mean_f1_score": metrics.mean_f1_score,
+                        "std_f1_score": metrics.std_f1_score,
+                        "support": metrics.support,
+                    }
+                    for category, metrics in agg.per_category_metrics.items()
+                },
+                "confusion_matrices": {
+                    "labels": list(agg.per_category_metrics.keys()),
+                    "aggregated": agg.aggregated_confusion_matrix,
+                    "std_dev": agg.std_confusion_matrix,
+                    "individual": agg.confusion_matrices,
+                },
+                "iteration_details": [
+                    {
+                        "iteration": i + 1,
+                        "accuracy": r.overall_accuracy,
+                        "parse_errors": r.parse_errors,
+                        "mean_execution_time": r.mean_execution_time,
+                        "timestamp": r.test_timestamp.isoformat(),
+                        "misclassifications": [
+                            {
+                                "email_id": m.email_id,
+                                "expected": m.expected_category,
+                                "predicted": m.predicted_category,
+                                "raw_response": m.raw_response,
+                            }
+                            for m in r.misclassifications
+                        ],
+                    }
+                    for i, r in enumerate(agg.individual_reports)
+                ],
+            }
+
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(report_dict, f, indent=2, ensure_ascii=False)
 

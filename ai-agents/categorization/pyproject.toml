@@ -16,6 +16,9 @@ dependencies = [
     "scikit-learn>=1.3.0",
     "rich>=13.7.0",
     "pyyaml>=6.0",
+    "openai>=1.30.0",
+    "anthropic>=0.28.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -30,7 +33,14 @@ dev = [
 prompt-tester = "prompt_tester.cli:main"
 
 [tool.setuptools]
-packages = ["prompt_tester"]
+packages = [
+    "prompt_tester",
+    "prompt_tester.clients",
+    "prompt_tester.core",
+    "prompt_tester.data",
+    "prompt_tester.output",
+    "prompt_tester.config",
+]
 
 [tool.black]
 line-length = 100
