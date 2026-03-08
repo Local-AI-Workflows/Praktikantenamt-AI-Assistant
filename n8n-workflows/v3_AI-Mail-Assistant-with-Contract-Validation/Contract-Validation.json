@@ -1,0 +1,231 @@
+{
+  "name": "Contract Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "file-id"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "bucketName": "n8n-test",
+        "fileKey": "={{ $json['file-id'] }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        480,
+        352
+      ],
+      "id": "f6d1175f-75e5-44f9-b824-1d969c7521c4",
+      "name": "Download a file",
+      "credentials": {
+        "s3": {
+          "id": "RxENyjjtsWVtJtbv",
+          "name": "minio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        352
+      ],
+      "id": "4e7ee8c3-ebc7-4aaf-9962-1acf5a3f3ec4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extrahiere die Praktikumsdaten aus diesem Vertrag:\n\nBenutze das Company-Lookup MCP Tool, um zu validieren, ob die Firma in dem Vertrag allowlisted ist.\nBenutze das Workday-Calculator MCP Tool, um aus dem gegebenen Zeitraum die Arbeitstage zu berechnen.\n\n{{ $json.text }}\n\nAntworte im JSON-Format:\n\n  \"student_name\": \"...\",\n  \"matrikelnummer\": \"...\",\n  \"company_name\": \"...\",\n  \"company_address\": \"...\",\n  \"start_date\": \"YYYY-MM-DD\",\n  \"end_date\": \"YYYY-MM-DD\",\n  \"valid_company\": boolean\n  \"workdays\": integer",
+        "hasOutputParser": true,
+        "options": {
+          "maxIterations": 10,
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        976,
+        352
+      ],
+      "id": "0a552f8c-98bd-4ea5-8102-cad5002c2462",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        848,
+        560
+      ],
+      "id": "cdb0fa6c-8d90-48e9-b6f7-9dd1516efe5e",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "a2vc8YHZZULiPxz8",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://gpu-server01.ios.htwg-konstanz.de:8081/sse",
+        "serverTransport": "sse",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        608
+      ],
+      "id": "85fc81d9-75bf-48b0-9be6-7cd306e11e8d",
+      "name": "Company Lookup MCP"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "  {\"student_name\": \"...\",\n  \"matrikelnummer\": \"...\",\n  \"company_name\": \"...\",\n  \"company_address\": \"...\",\n  \"start_date\": \"YYYY-MM-DD\",\n  \"end_date\": \"YYYY-MM-DD\",\n  \"valid_company\": true,\n  \"workdays\": 95  \n  }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        576
+      ],
+      "id": "2eb0455f-719d-425f-8282-4bf18c23f99c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://gpu-server01.ios.htwg-konstanz.de:8082/sse",
+        "serverTransport": "sse",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1088,
+        704
+      ],
+      "id": "f0db062d-5386-4c31-80c9-e7b83ab5816d",
+      "name": "Workday Calculator Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Download a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download a file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Lookup MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workday Calculator Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a6c10836-13bf-4934-8e3b-291868b0be35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5a21f3dd512284e407cf51499e52af1e882a92c596324836edca9c307f3e37cd"
+  },
+  "id": "1ZcGacJ2YTByFhtf",
+  "tags": []
+}

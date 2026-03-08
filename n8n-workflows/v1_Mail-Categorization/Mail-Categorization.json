@@ -1,0 +1,396 @@
+{
+  "name": "Mail Categorization",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        -768,
+        -48
+      ],
+      "id": "9fb89983-525c-4fab-aa31-1092346dc8a9",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "AV2QpuPe6C6s5A90",
+          "name": "IOS Test Mail Account IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "35add2ec-d543-4804-b83e-19fe018ec163",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "international_office_question",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "contract_submission",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "6d4c0d74-e14d-4698-8ea0-3988ff1f6f8d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "aa0b117c-225c-47cf-943c-79dd3e963d07",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "internship_postponement",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "23ab2266-e562-4675-8e32-8300ba0f2b6b",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "uncategorized",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -80
+      ],
+      "id": "2b987f86-e4a4-4594-b3e3-49b4e8dc48db",
+      "name": "Switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "llama3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        176
+      ],
+      "id": "b659b5dc-e4e5-4693-a5bd-768e6ea658d1",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "a2vc8YHZZULiPxz8",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Trigger (IMAP)').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "INBOX.contract_submission",
+          "mode": "list",
+          "cachedResultName": "INBOX.contract_submission"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -144
+      ],
+      "id": "e72b0362-68c6-4ddf-98a1-4546ef29429c",
+      "name": "MoveEmail with Contract Submission",
+      "credentials": {
+        "imap": {
+          "id": "AV2QpuPe6C6s5A90",
+          "name": "IOS Test Mail Account IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Trigger (IMAP)').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "INBOX.international_questions",
+          "mode": "list",
+          "cachedResultName": "INBOX.international_questions"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -336
+      ],
+      "id": "345dfa14-ee5c-487d-863f-fbfbc801e016",
+      "name": "MoveEmail with International Question",
+      "credentials": {
+        "imap": {
+          "id": "AV2QpuPe6C6s5A90",
+          "name": "IOS Test Mail Account IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Trigger (IMAP)').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "INBOX.postponement_requests",
+          "mode": "list",
+          "cachedResultName": "INBOX.postponement_requests"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        32,
+        48
+      ],
+      "id": "c7554fe4-ae69-4575-bf80-cce987aab435",
+      "name": "MoveEmail with Postponement Request",
+      "credentials": {
+        "imap": {
+          "id": "AV2QpuPe6C6s5A90",
+          "name": "IOS Test Mail Account IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Trigger (IMAP)').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "INBOX.uncategorized",
+          "mode": "list",
+          "cachedResultName": "INBOX.uncategorized"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        32,
+        240
+      ],
+      "id": "47c38d2e-95bc-4f4c-9c4c-be57f5ae7071",
+      "name": "MoveEmail which is Uncategorized",
+      "credentials": {
+        "imap": {
+          "id": "AV2QpuPe6C6s5A90",
+          "name": "IOS Test Mail Account IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Du bist ein E-Mail-Klassifizierungs-Assistent für das Praktikantenamt der HTWG Konstanz. Deine Aufgabe ist es, eingehende E-Mails in GENAU EINE Kategorie einzuordnen.\n\n## KATEGORIEN\n\n1. **contract_submission** - E-Mails zur Einreichung oder Korrektur von Praktikumsverträgen (meist mit Anhängen oder Erwähnung von Vertragsdokumenten)\n2. **international_office_question** - Fragen zu Auslandspraktika (Visum, Anerkennung, Versicherung, ausländische Länder)\n3. **internship_postponement** - Anfragen zur Verschiebung, Pausierung oder Terminänderung von Praktika (Gesundheit, Prüfungen, Schwangerschaft, private Gründe)\n4. **uncategorized** - Alles andere (technische Probleme, Spam, unklare Anfragen, ODER E-Mails mit mehreren Hauptanliegen)\n\n## KLASSIFIZIERUNGSREGELN\n\n**Prioritätsreihenfolge:**\n1. Wenn die E-Mail MEHRERE Hauptanliegen hat → Wähle **uncategorized**\n2. Wenn \"Vertrag\" ODER \"contract\" erwähnt wird + has_attachment=true ODER Diskussion über Einreichung → **contract_submission**\n3. Wenn ausländische Länder, \"Ausland\", \"international\", Visum oder ausländische Firmenstandorte erwähnt werden → **international_office_question**\n4. Wenn \"verschieb\", \"pausier\", \"unterbrech\", \"später\", Verschiebung oder Änderung von Praktikumsterminen erwähnt wird → **internship_postponement**\n5. Wenn nichts davon klar zutrifft → **uncategorized**\n\n**Wichtige Indikatoren:**\n- **contract_submission**: Vertrag, Anhang, einreichen, Unterschrift, Dokumente einreichen, Unterlagen absenden, Genehmigungsunterlagen\n- **international_office_question**: Ausland, international, Visum, Versicherung (im internationalen Kontext), Anerkennung, Ländernamen (Niederlande, USA, etc.)\n- **internship_postponement**: verschieben, pausieren, unterbrechen, später beginnen, Termin ändern, gesundheitliche Gründe, privat (mit Zeitänderungs-Kontext)\n\n## BEISPIELE\n\n### Beispiel 1: international_office_question\n**Eingabe:**\nBetreff: Frage zu Auslandspraktikum in den Niederlanden\nVon: lena.zimmermann@htwg-konstanz.de\nHat Anhang: false\nText: Guten Tag,\\n\\nplanes planen ein Praktikum bei einem niederländischen Unternehmen in Amsterdam und hätte gerne Informationen zu den spezifischen Anforderungen. Benötige ich eine Genehmigung des Praktikantamts vor Antritt des Praktikums oder kann ich mich erst nachher registrieren? Zudem würde ich gerne wissen, welche Versicherungen für Auslandspraktika notwendig sind und ob das Zeugnis der ausländischen Betriebsstätte anerkannt wird. Können Sie mich auch an die zuständige Stelle für internationale Praktika weiterleiten?\\n\\nVielen Dank für Ihre Unterstützung!\\nLena Zimmermann\n\n**Ausgabe:**\nCategory: international_office_question\nReasoning: E-Mail fragt nach Auslandspraktikum in den Niederlanden mit Fragen zu Genehmigung, Versicherung und Anerkennung ausländischer Zeugnisse.\n\n---\n\n### Beispiel 2: internship_postponement\n**Eingabe:**\nBetreff: Praktikum verschieben - neue Genehmigung benötigt\nVon: felicia.koester@htwg-konstanz.de\nHat Anhang: false\nText: Sehr geehrtes Praktikantenamt,\\n\\nleider muss ich aufgrund von gesundheitlichen Gründen mein geplantes Praktikum verschieben. Das Praktikum bei der EngineerWorks AG sollte ursprünglich am 01. April 2024 für acht Wochen beginnen. Ich möchte diesen Termin auf September 2024 verschieben. Der Betrieb hat der Verschiebung schriftlich zugestimmt und stellt mir gerne einen neuen Praktikumsplatz zur Verfügung. Wie müssen wir in diesem Fall vorgehen und welche Formulare benötigen Sie von uns?\\n\\nMit freundlichen Grüßen,\\nFelicia Köster\n\n**Ausgabe:**\nCategory: internship_postponement\nReasoning: Studentin möchte Praktikumsbeginn von April auf September verschieben aus gesundheitlichen Gründen.\n\n---\n\n### Beispiel 3: uncategorized\n**Eingabe:**\nBetreff: Test\nVon: spam@example.com\nHat Anhang: false\nText: Test\n\n**Ausgabe:**\nCategory: uncategorized\nReasoning: Keine erkennbare Absicht, sehr kurzer Inhalt, keine relevanten Informationen für Praktikantenamt.\n\n---\n\n### Beispiel 4: contract_submission (mit Nebenfrage)\n**Eingabe:**\nBetreff: Praktikumsvertrag Multimedia GmbH + Frage zur Genehmigung\nVon: thomas.voigt@htwg-konstanz.de\nHat Anhang: true\nText: Hallo Praktikantenamt,\\n\\nanbei reiche ich meinen Praktikumsvertrag für das Praktikum bei der Multimedia GmbH ein. Das Praktikum beginnt am 20. Mai 2024 und dauert 10 Wochen. Alle erforderlichen Unterlagen sind beigefügt und vom Betrieb unterzeichnet. Zusätzlich hätte ich gerne eine kurze Frage: Kann ich nach dem Praktikum direkt ein Anschluss-Praktikum machen, ohne zwischen den beiden ein vollständiges Genehmigungsverfahren durchlaufen zu müssen? Dies würde mir sehr bei meiner Planung helfen.\\n\\nBesten Dank und viele Grüße,\\nThomas Voigt\n\n**Ausgabe:**\nCategory: contract_submission\nReasoning: Hauptabsicht ist Einreichung des Praktikumsvertrags mit Anhang. Zusatzfrage ist sekundär.\n\n---\n\n### Beispiel 5: internship_postponement (informell/vage)\n**Eingabe:**\nBetreff: Kurze Rückfrage wegen nächster Woche\nVon: p.schneider@htwg-konstanz.de\nHat Anhang: false\nText: Hallo,\\n\\nmein Chef meinte ich soll mich bei Ihnen melden. Wir haben da eine Situation mit dem Termin nächste Woche - das klappt bei mir leider nicht mehr so wie besprochen. Privat ist gerade einiges los und ich bräuchte etwa zwei bis drei Wochen später. Geht das überhaupt noch oder ist das jetzt zu kurzfristig? Der Betrieb wäre flexibel.\\n\\nLG\\nPaul\n\n**Ausgabe:**\nCategory: internship_postponement\nReasoning: Student möchte Praktikumstermin um 2-3 Wochen nach hinten verschieben aus privaten Gründen.\n\n---\n\n### Beispiel 6: contract_submission (Vorbereitungsphase)\n**Eingabe:**\nBetreff: Unterlagen für Genehmigungsprozess\nVon: stefanie.krueger@htwg-konstanz.de\nHat Anhang: false\nText: Sehr geehrte Damen und Herren,\\n\\nich bin mir nicht ganz sicher, ob ich hier richtig bin. Ich würde gerne wissen, welche Dokumente ich zusammenstellen muss, bevor ich meinen Vertrag einreichen kann. Die Firma hat mir bereits alles unterschrieben zurückgeschickt, aber ich möchte sichergehen, dass nichts fehlt. Brauche ich eine Versicherungsbestätigung? Und muss die Firma noch weitere Formulare ausfüllen? Könnten Sie mir vielleicht eine Checkliste schicken?\\n\\nDanke vorab,\\nStefanie Krüger\n\n**Ausgabe:**\nCategory: contract_submission\nReasoning: Frage zur Vorbereitung der Vertragseinreichung. Unterschriebener Vertrag liegt vor, es geht um den Einreichungsprozess.\n\n---\n\n### Beispiel 7: uncategorized (Grenzfall - inland bei internationaler Firma)\n**Eingabe:**\nBetreff: Internationale Firma in Hamburg\nVon: jan.becker@htwg-konstanz.de\nHat Anhang: false\nText: Guten Tag,\\n\\nich habe eine Zusage von einem amerikanischen Tech-Konzern bekommen, allerdings ist die Stelle hier in Hamburg am deutschen Standort. Jetzt bin ich unsicher: Gilt das als Auslandspraktikum, weil die Firma aus den USA kommt? Oder ist das ein normales inländisches Praktikum? Die HR-Abteilung sitzt in San Francisco und mein Vertrag läuft auch über die US-Zentrale, aber ich arbeite physisch in Hamburg.\\n\\nWürde mich über Klarstellung freuen,\\nJan Becker\n\n**Ausgabe:**\nCategory: uncategorized\nReasoning: Frage zur Kategorisierung eines Praktikums in Deutschland bei internationaler Firma - passt nicht eindeutig in internationale oder reguläre Kategorie.\n\n---\n\n### Beispiel 8: uncategorized (technischer Support)\n**Eingabe:**\nBetreff: Formular lässt sich nicht öffnen\nVon: lisa.vogel@htwg-konstanz.de\nHat Anhang: false\nText: Hallo,\\n\\nich versuche seit gestern, das Praktikumsformular von Ihrer Webseite herunterzuladen, aber die PDF-Datei lässt sich nicht öffnen. Ich habe es mit verschiedenen Browsern probiert (Chrome, Firefox, Edge) und auch auf einem anderen Computer. Die Datei scheint beschädigt zu sein. Könnten Sie mir bitte eine funktionierende Version per E-Mail zusenden oder das Problem auf der Webseite beheben?\\n\\nVielen Dank,\\nLisa Vogel\n\n**Ausgabe:**\nCategory: uncategorized\nReasoning: Technisches Problem mit Website, kein spezifischer Praktikumsprozess betroffen.\n\n---\n\n## DEINE AUFGABE\n\nAnalysiere die folgende E-Mail und ordne sie in EINE Kategorie ein.\n\n**Zu klassifizierende E-Mail:**\nBetreff: {{ $('Email Trigger (IMAP)').item.json.subject }}\nVon: {{ $('Email Trigger (IMAP)').item.json.to }}\nText: {{ $('Email Trigger (IMAP)').item.json.textPlain }}\n\n**Deine Antwort (verwende exakt dieses Format):**\nCategory: <kategorie_name>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        -48
+      ],
+      "id": "093114ba-4298-487c-a584-28babefbb5f0",
+      "name": "Categorize E-Mail"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Categorize E-Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "MoveEmail with International Question",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MoveEmail with Contract Submission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MoveEmail with Postponement Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MoveEmail which is Uncategorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Categorize E-Mail",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MoveEmail with Contract Submission": {
+      "main": [
+        []
+      ]
+    },
+    "MoveEmail with International Question": {
+      "main": [
+        []
+      ]
+    },
+    "MoveEmail with Postponement Request": {
+      "main": [
+        []
+      ]
+    },
+    "MoveEmail which is Uncategorized": {
+      "main": [
+        []
+      ]
+    },
+    "Categorize E-Mail": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3c3cbae9-09fb-45b6-bd66-a7312f2d6e69",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5a21f3dd512284e407cf51499e52af1e882a92c596324836edca9c307f3e37cd"
+  },
+  "id": "lyLuKLoYc1LPddYb",
+  "tags": []
+}
