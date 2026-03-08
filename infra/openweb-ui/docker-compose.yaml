@@ -1,0 +1,21 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      # Uncomment and modify these environment variables as needed
+      # - WEBUI_AUTH=False      # Set to False to enable single-user mode (no login)
+      - OLLAMA_BASE_URL=gpu-server01.ios.htwg-konstanz.de  # Point to Ollama service
+      - DEFAULT_USER_ROLE=admin  # Set default user role
+
+volumes:
+  open-webui: {}
+    # Persistent volume for Open WebUI data
+  # ollama-data:
+    # Persistent volume for Ollama models and data
+
