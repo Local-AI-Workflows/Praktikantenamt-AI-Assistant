@@ -67,7 +67,7 @@ class ConsoleFormatter:
             f"- {result.weekend_days} ({result.weekends_detail.get('saturdays', 0)} Sat, {result.weekends_detail.get('sundays', 0)} Sun)",
         )
         calc_table.add_row("Holidays (on workdays):", f"- {result.holidays_count}")
-        calc_table.add_row("", "─" * 15)
+        calc_table.add_row("", "─────────")
         calc_table.add_row(
             Text("Working Days:", style="bold green"),
             Text(str(result.working_days), style="bold green"),
@@ -102,9 +102,9 @@ class ConsoleFormatter:
         weekday_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
         for holiday in holidays:
-            weekday = weekday_names[holiday.date.weekday()]
+            weekday = weekday_names[holiday.holiday_date.weekday()]
             holiday_table.add_row(
-                holiday.date.strftime("%d.%m.%Y"),
+                holiday.holiday_date.strftime("%d.%m.%Y"),
                 weekday,
                 holiday.name,
             )

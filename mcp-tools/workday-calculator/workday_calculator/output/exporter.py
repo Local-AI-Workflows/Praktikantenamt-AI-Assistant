@@ -157,7 +157,7 @@ class ResultExporter:
             # Write data
             for holiday in holidays:
                 writer.writerow([
-                    holiday.date.isoformat(),
+                    holiday.holiday_date.isoformat(),
                     holiday.name,
                     holiday.is_national,
                 ])
@@ -208,7 +208,7 @@ class ResultExporter:
             },
             "holidays": [
                 {
-                    "date": h.date.isoformat(),
+                    "date": h.holiday_date.isoformat(),
                     "name": h.name,
                     "is_national": h.is_national,
                 }
